@@ -13,6 +13,7 @@ public class HelloAndroid extends Activity {
         TextView tv = new TextView(this);
         tv.setText("Hello! This is the Android Emulator =)");
         setContentView(tv);
+        System.out.println("Hello");
        
     }
 }

@@ -15,4 +15,5 @@ Scheduler::~Scheduler() {
 
 void Scheduler::run() {
 	cout << "Perform Scheduling" << endl;
+	while(true);
 }

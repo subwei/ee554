@@ -7,7 +7,8 @@
 
 #include "TaskHandler.h"
 
-TaskHandler::TaskHandler(): Thread() {
+TaskHandler::TaskHandler(Scheduler *scheduler): Thread() {
+	this->scheduler = scheduler;
 }
 
 TaskHandler::~TaskHandler() {

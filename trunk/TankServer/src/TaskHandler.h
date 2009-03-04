@@ -20,6 +20,8 @@ using namespace std;
 class TaskHandler: public Thread {
 private:
 	Scheduler *scheduler;
+	int task_cond_var;
+	Task currentTask;
 
 public:
 	TaskHandler(Scheduler *);
@@ -28,6 +30,9 @@ public:
 	/* Implements the abstract method from Thread
 	 * This will be run when the thread is started */
 	void run();
+
+	/* Adds a task that needs to be performed */
+	void performTask(Task);
 };
 
 #endif /* TASKHANDLER_H_ */

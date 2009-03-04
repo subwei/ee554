@@ -19,13 +19,6 @@
 /* Class prototypes */
 class Scheduler;
 class TaskHandler;
-class Task;
-
-/* Local includes */
-#include "Thread.h"
-#include "TaskHandler.h"
-#include "Scheduler.h"
-#include "Task.h"
 
 /* Game Constants */
 #define MAX_TASK_HANDLERS 	4
@@ -42,5 +35,42 @@ class Task;
 /* Networking Constants */
 #define SERVER_PORT			1234
 #define BUFFER_SIZE			1024
+
+/*****************************************************
+ * Client Data
+ ****************************************************/
+
+/* Every client can be in one of the following states */
+enum client_state { ACTIVE, INACTIVE };
+
+/* Struct to contain all client state information */
+typedef struct Client_info {
+	int id;
+	int health;
+	int x_pos;
+	int y_pos;
+	client_state state;
+	struct sockaddr_in client_addr;
+};
+
+/*********************************************
+ * Task Data
+ ********************************************/
+
+/* All tasks can have the following states */
+enum task_state { RUNNING, IDLE };
+
+/* Struct to contain all task information */
+typedef struct Task {
+	int id;
+	int type;
+	int clientID;
+	task_state state;
+};
+
+/* Local includes */
+#include "Thread.h"
+#include "TaskHandler.h"
+#include "Scheduler.h"
 
 #endif /* TANKSERVER_H_ */

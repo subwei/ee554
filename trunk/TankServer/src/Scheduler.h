@@ -34,6 +34,9 @@ public:
 
 	/* Adds a task to be scheduled */
 	void addTask(Task task);
+
+	/* Notifies the scheduler that a task has completed */
+	void finishedTask(Task task);
 };
 
 #endif /* SCHEDULER_H_ */

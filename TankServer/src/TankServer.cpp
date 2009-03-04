@@ -11,6 +11,28 @@
 using namespace std;
 
 /******************************************************************************
+ * Parse an incoming message
+ *  Return the Task
+ *****************************************************************************/
+Task ParseMsg(char* buffer, int length) {
+	Task task;
+
+	/* First parse the message */
+	if(length >= 1)
+	{
+		task.setOwner(buffer[0]&0x0F);
+		task.setState(0);
+		task.setType(buffer[0]&0xF0);
+	}
+	else
+	{
+		cout << "SERVER ERROR: ParseMsg failed" << endl;
+	}
+
+	return task;
+}
+
+/******************************************************************************
  * Receives all of the UDP messages ==> Essentially this is the server
  *****************************************************************************/
 void RunServer() {
@@ -44,13 +66,14 @@ void RunServer() {
 	length = sizeof(struct sockaddr_in);
 	while(true) {
 		int len = recvfrom( sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, (socklen_t *)&length);
-		if(len < 0) cout << "SERVER ERROR: recvfrom" << endl;
+		if(len < 0)
+		{
+			cout << "SERVER ERROR: recvfrom" << endl;
+			continue;
+		}
 
-		/* Parse the message & save it into the client list if appropriate */
-
-		/* Build the task */
-
-		/* Send the task to the scheduler */
+		/* Parse the message & send the task to the scheduler */
+		ParseMsg((char *)buffer, len);
 	}
 }
 
@@ -59,8 +82,8 @@ void RunServer() {
  *****************************************************************************/
 int main() {
 	cout << "Starting the server" << endl;
-	Scheduler *scheduler = new Scheduler();
 	vector<TaskHandler*> *taskHandlerList = new vector<TaskHandler*>();
+	Scheduler *scheduler = new Scheduler(taskHandlerList);
 
 	/* Find out how many Task handlers the user wants */
 	int taskHandlers = 0;
@@ -75,11 +98,11 @@ int main() {
 	/* Create the Task Handlers & start them */
 	for(int i=0; i<taskHandlers; i++)
 	{
-		taskHandlerList->push_back(new TaskHandler());
+		taskHandlerList->push_back(new TaskHandler(scheduler));
 		taskHandlerList->at(i)->start();
 	}
 
-	/* begin the server thread */
+	/* begin the server method */
 	RunServer();
 
 	/* Wait for the worker threads to complete - This should be the last thread */

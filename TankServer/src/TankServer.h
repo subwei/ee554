@@ -8,6 +8,7 @@
 #ifndef TANKSERVER_H_
 #define TANKSERVER_H_
 
+/* System Includes */
 #include <iostream>
 #include <stdio.h>
 #include <sys/types.h>
@@ -15,10 +16,18 @@
 #include <netinet/in.h>
 #include <vector>
 
-#include "TankServer.h"
-#include "Scheduler.h"
-#include "TaskHandler.h"
+/* Class prototypes */
+class Scheduler;
+class TaskHandler;
+class Task;
 
+/* Local includes */
+#include "Thread.h"
+#include "TaskHandler.h"
+#include "Scheduler.h"
+#include "Task.h"
+
+/* Game Constants */
 #define MAX_TASK_HANDLERS 	4
 #define MAX_PLAYERS			4
 

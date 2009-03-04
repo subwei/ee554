@@ -13,13 +13,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Thread.h"
+#include "TankServer.h"
 
 using namespace std;
 
 class TaskHandler: public Thread {
+private:
+	Scheduler *scheduler;
+
 public:
-	TaskHandler();
+	TaskHandler(Scheduler *);
 	virtual ~TaskHandler();
 
 	/* Implements the abstract method from Thread

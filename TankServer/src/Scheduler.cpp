@@ -11,11 +11,11 @@ Scheduler::Scheduler(vector<TaskHandler*> *taskHandlers): Thread() {
 	/* Add the taskHandlers */
 	this->free_TaskHandlers = taskHandlers;
 
-	/* Create a condition variable for synchronization */
-	schedule_cond_var = this->createConditionVar();
-
 	/* Create and initialize a lock for synchronization */
 	this->initializeLock();
+
+	/* Create a condition variable for synchronization */
+	schedule_cond_var = this->createConditionVar();
 }
 
 Scheduler::~Scheduler() {
@@ -44,5 +44,19 @@ void Scheduler::addTask(Task task) {
 	this->lock();
 	queuedTasks.push_back(task);
 	this->signal(schedule_cond_var);
+	this->unlock();
+}
+
+void Scheduler::finishedTask(Task task) {
+	this->lock();
+	for(int i=0; i < runningTasks.size(); i++)
+	{
+		if(runningTasks.at(i).id == task.id)
+		{
+			runningTasks.erase(runningTasks.begin() + i);
+			this->signal(schedule_cond_var);
+			break;
+		}
+	}
 	this->unlock();
 }

@@ -20,9 +20,10 @@ Task ParseMsg(char* buffer, int length) {
 	/* First parse the message */
 	if(length >= 1)
 	{
-		task.setOwner(buffer[0]&0x0F);
-		task.setState(0);
-		task.setType(buffer[0]&0xF0);
+		task.id = 0;
+		task.clientID = buffer[0]&0x0F;
+		task.type = buffer[0]&0xF0;
+		task.state = IDLE;
 	}
 	else
 	{

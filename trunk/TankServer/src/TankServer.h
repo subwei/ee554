@@ -11,6 +11,7 @@
 /* System Includes */
 #include <iostream>
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -49,9 +50,10 @@ typedef struct Client_info {
 	int health;
 	int x_pos;
 	int y_pos;
+	int orientation;
 	client_state state;
 	struct sockaddr_in client_addr;
-};
+}Client_info;
 
 /*********************************************
  * Task Data
@@ -64,9 +66,9 @@ enum task_state { RUNNING, IDLE };
 typedef struct Task {
 	int id;
 	int type;
-	int clientID;
+	Client_info client;
 	task_state state;
-};
+}Task;
 
 /* Local includes */
 #include "Thread.h"

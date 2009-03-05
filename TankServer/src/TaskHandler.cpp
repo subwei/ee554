@@ -27,6 +27,10 @@ void TaskHandler::run() {
 	while(true) {
 		this->lock();
 		this->wait(task_cond_var);
+
+		/* Perform the task */
+
+
 		scheduler->finishedTask(currentTask);
 		this->unlock();
 	}

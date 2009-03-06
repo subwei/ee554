@@ -28,7 +28,7 @@ void TaskHandler::run() {
 		this->lock();
 		this->wait(task_cond_var);
 
-		/* Perform the task */
+		/* Perform the task based on the message type */
 
 
 		scheduler->finishedTask(currentTask);

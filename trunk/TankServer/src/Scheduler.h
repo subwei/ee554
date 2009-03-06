@@ -21,9 +21,11 @@ using namespace std;
 class Scheduler: public Thread {
 private:
 	int schedule_cond_var;
+	int scheduling_algorithm;
 	vector<Task> queuedTasks;
 	vector<Task> runningTasks;
 	vector<TaskHandler*> *free_TaskHandlers;
+	vector<TaskHandler*> *busy_TaskHandlers;
 
 public:
 	Scheduler(vector<TaskHandler*> *);
@@ -36,7 +38,15 @@ public:
 	void addTask(Task task);
 
 	/* Notifies the scheduler that a task has completed */
-	void finishedTask(Task task);
+	void finishedTask(TaskHandler *taskHandler, Task task);
+
+	/* Set the scheduling algorithm */
+	void SetAlgorithm(int algorithm);
+
+	/*************************************
+	 * Greedy Scheduling Algorithm
+	 ************************************/
+	void greedySchedule();
 };
 
 #endif /* SCHEDULER_H_ */

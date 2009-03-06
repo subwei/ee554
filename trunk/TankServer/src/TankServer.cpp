@@ -93,6 +93,17 @@ int main() {
 		cin >> taskHandlers;
 	}
 
+	/* Find out which Algorithm to Run */
+	int menuItem = 0;
+	while(menuItem <= 0 || menuItem > SCHEDULING_ALGORITHMS) {
+		cout << "Select a scheduling algorithm:" << endl;
+		cout << "\t1) Greedy Algorithm" << endl;
+		cin >> menuItem;
+	}
+
+	/* Set the scheduling algorithm */
+	scheduler->SetAlgorithm(menuItem);
+
 	/* Start the scheduler */
 	scheduler->start();
 

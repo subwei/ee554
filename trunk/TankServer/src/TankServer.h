@@ -22,8 +22,12 @@ class Scheduler;
 class TaskHandler;
 
 /* Game Constants */
-#define MAX_TASK_HANDLERS 	4
-#define MAX_PLAYERS			4
+#define SCHEDULING_ALGORITHMS 	1
+#define MAX_TASK_HANDLERS 		4
+#define MAX_PLAYERS				4
+
+/* Scheduling Algorithms */
+#define GREEDY_ALGORITHM	1
 
 /* Message Types */
 #define MSG_MOVE			0x10

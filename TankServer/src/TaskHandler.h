@@ -19,12 +19,13 @@ using namespace std;
 
 class TaskHandler: public Thread {
 private:
+	GameState *gameState;
 	Scheduler *scheduler;
 	int task_cond_var;
 	Task currentTask;
 
 public:
-	TaskHandler(Scheduler *);
+	TaskHandler(Scheduler *, GameState *);
 	virtual ~TaskHandler();
 
 	/* Implements the abstract method from Thread

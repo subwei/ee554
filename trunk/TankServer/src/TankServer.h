@@ -18,6 +18,7 @@
 #include <vector>
 
 /* Class prototypes */
+class GameState;
 class Scheduler;
 class TaskHandler;
 
@@ -38,8 +39,17 @@ class TaskHandler;
 #define MSG_JOIN			0x60
 
 /* Networking Constants */
-#define SERVER_PORT			1234
+#define RESPONSE_PORT		4800
+#define SERVER_PORT			4801
 #define BUFFER_SIZE			1024
+
+/* Client & Game State Constants */
+#define TANK_WIDTH 			50
+#define TANK_HEIGHT			50
+#define SCREEN_WIDTH		600
+#define SCREEN_HEIGHT		600
+#define TANK_SPEED			25
+#define SHOOTING_SPEED		50
 
 /*****************************************************
  * Client Data
@@ -48,13 +58,16 @@ class TaskHandler;
 /* Every client can be in one of the following states */
 enum client_state { ACTIVE, INACTIVE };
 
+/* Clients orientations */
+enum client_orientation { NORTH, WEST, SOUTH, EAST, NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST };
+
 /* Struct to contain all client state information */
 typedef struct Client_info {
 	int id;
 	int health;
 	int x_pos;
 	int y_pos;
-	int orientation;
+	client_orientation orientation;
 	client_state state;
 	struct sockaddr_in client_addr;
 }Client_info;
@@ -77,6 +90,7 @@ typedef struct Task {
 /* Local includes */
 #include "Thread.h"
 #include "TaskHandler.h"
+#include "GameState.h"
 #include "Scheduler.h"
 
 #endif /* TANKSERVER_H_ */

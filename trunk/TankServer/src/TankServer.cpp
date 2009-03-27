@@ -21,7 +21,7 @@ Task ParseMsg(char* buffer, int length) {
 	if(length >= 1)
 	{
 		task.id = 0;
-		task.clientID = buffer[0]&0x0F;
+		task.client.id = buffer[0]&0x0F;
 		task.type = buffer[0]&0xF0;
 		task.state = IDLE;
 	}
@@ -85,6 +85,7 @@ int main() {
 	cout << "Starting the server" << endl;
 	vector<TaskHandler*> *taskHandlerList = new vector<TaskHandler*>();
 	Scheduler *scheduler = new Scheduler(taskHandlerList);
+	GameState *gameState = new GameState();
 
 	/* Find out how many Task handlers the user wants */
 	int taskHandlers = 0;
@@ -104,13 +105,16 @@ int main() {
 	/* Set the scheduling algorithm */
 	scheduler->SetAlgorithm(menuItem);
 
+	/* Start the GameState thread first */
+	gameState->start();
+
 	/* Start the scheduler */
 	scheduler->start();
 
 	/* Create the Task Handlers & start them */
 	for(int i=0; i<taskHandlers; i++)
 	{
-		taskHandlerList->push_back(new TaskHandler(scheduler));
+		taskHandlerList->push_back(new TaskHandler(scheduler, gameState));
 		taskHandlerList->at(i)->start();
 	}
 
@@ -126,7 +130,8 @@ int main() {
 
 	/* Free up Resources & exit */
 	cout << "Server Terminated!" << endl;
-	if(scheduler) delete scheduler;
+//	if(gameState) delete gameState;
+//	if(scheduler) delete scheduler;
 	if(taskHandlerList) {
 		taskHandlerList->clear();
 		delete taskHandlerList;

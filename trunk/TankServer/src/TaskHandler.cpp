@@ -7,8 +7,9 @@
 
 #include "TaskHandler.h"
 
-TaskHandler::TaskHandler(Scheduler *scheduler): Thread() {
+TaskHandler::TaskHandler(Scheduler *scheduler, GameState *gameState): Thread() {
 	this->scheduler = scheduler;
+	this->gameState = gameState;
 
 	/* Initialize the lock */
 	this->initializeLock();
@@ -20,6 +21,10 @@ TaskHandler::TaskHandler(Scheduler *scheduler): Thread() {
 TaskHandler::~TaskHandler() {
 }
 
+/**********************************************
+ * The actual method where the thread begins
+ *  Loops forever waiting to perform tasks
+ *********************************************/
 void TaskHandler::run() {
 	cout << "TaskHandler Thread Started" << endl;
 
@@ -29,13 +34,32 @@ void TaskHandler::run() {
 		this->wait(task_cond_var);
 
 		/* Perform the task based on the message type */
+		switch(currentTask.type) {
+		case MSG_MOVE:
+			break;
+		case MSG_SHOOT:
+			break;
+		case MSG_REGISTER:
+			gameState->clientReg(currentTask.client, true);
+			break;
+		case MSG_QUIT:
+			gameState->clientQuit(currentTask.client);
+			break;
+		case MSG_DEAD:
+			break;
+		case MSG_JOIN:
+			break;
+		}
 
-
-		scheduler->finishedTask(currentTask);
+		scheduler->finishedTask(this, currentTask);
 		this->unlock();
 	}
 }
 
+/**********************************************
+ * Called by the scheduler to assign a task to
+ * this task handler.
+ *********************************************/
 void TaskHandler::performTask(Task task) {
 	cout << "TaskHandler will perform task " << task.id << endl;
 	this->lock();

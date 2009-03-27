@@ -14,8 +14,11 @@
 class GameState: public Thread {
 private:
 	int game_cond_var;
-	vector<Client_info> activeClients;
-	vector<Client_info> inactiveClients;
+	int next_client_id;
+	int sockfd;
+	struct sockaddr_in server_addr;
+	vector<Client_info*> activeClients;
+	vector<Client_info*> inactiveClients;
 
 public:
 	GameState();
@@ -24,6 +27,9 @@ public:
 	/* Implements the abstract method from Thread */
 	void run();
 
+	/* Allow first player to initialize the game */
+	void startGame(Client_info client);
+
 	/* Perform a movement */
 	void updateClientPosition(Client_info client, int dx, int dy);
 
@@ -31,7 +37,7 @@ public:
 	void clientQuit(Client_info client);
 
 	/* A client is registering */
-	void clientReg(Client_info client);
+	void clientReg(Client_info client, bool isActive);
 
 	/* Broadcast the current state to all clients */
 	void broadcastState();

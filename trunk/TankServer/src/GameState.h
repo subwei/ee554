@@ -16,7 +16,7 @@ private:
 	int game_cond_var;
 	int next_client_id;
 	int sockfd;
-	struct sockaddr_in server_addr;
+	struct sockaddr_in server_addr, broadcast_addr;
 	vector<Client_info*> activeClients;
 	vector<Client_info*> inactiveClients;
 
@@ -31,7 +31,7 @@ public:
 	void startGame(Client_info client);
 
 	/* Perform a movement */
-	void updateClientPosition(Client_info client, int dx, int dy);
+	void updateClientPosition(Client_info client);
 
 	/* A client is quitting */
 	void clientQuit(Client_info client);

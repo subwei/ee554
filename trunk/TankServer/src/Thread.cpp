@@ -80,22 +80,24 @@ void Thread::destroyConditionVar(int id) {
 }
 
 void Thread::wait(int id) {
-	this->lock();
+//	this->lock();
 	if(id < newID)
 		pthread_cond_wait(&conditions.at(id), &mutex_lock);
-	this->unlock();
+//	this->unlock();
 }
 
 void Thread::signal(int id) {
-	this->lock();
+//	this->lock();
 	if(id < newID)
 		pthread_cond_signal(&conditions.at(id));
-	this->unlock();
+	else
+		cout << "Thread: Invalid ID being signaled." << endl;
+//	this->unlock();
 }
 
 void Thread::broadcast(int id) {
-	this->lock();
+//	this->lock();
 	if(id < newID)
 		pthread_cond_broadcast(&conditions.at(id));;
-	this->unlock();
+//	this->unlock();
 }

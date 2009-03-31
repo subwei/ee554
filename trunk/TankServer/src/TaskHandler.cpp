@@ -10,6 +10,7 @@
 TaskHandler::TaskHandler(Scheduler *scheduler, GameState *gameState): Thread() {
 	this->scheduler = scheduler;
 	this->gameState = gameState;
+	cout << "Creating the task Handler" << endl;
 
 	/* Initialize the lock */
 	this->initializeLock();
@@ -36,6 +37,7 @@ void TaskHandler::run() {
 		/* Perform the task based on the message type */
 		switch(currentTask.type) {
 		case MSG_MOVE:
+			gameState->updateClientPosition(currentTask.client);
 			break;
 		case MSG_SHOOT:
 			break;

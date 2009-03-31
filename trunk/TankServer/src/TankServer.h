@@ -10,6 +10,7 @@
 
 /* System Includes */
 #include <iostream>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -59,7 +60,7 @@ class TaskHandler;
 enum client_state { ACTIVE, INACTIVE };
 
 /* Clients orientations */
-enum client_orientation { NORTH, WEST, SOUTH, EAST, NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST };
+enum client_orientation { NORTH, WEST, SOUTH, EAST, NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST, UNK };
 
 /* Struct to contain all client state information */
 typedef struct Client_info {

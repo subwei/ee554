@@ -42,6 +42,9 @@ public:
 	void lock();
 	void unlock();
 
+	/* Give access to the thread */
+	pthread_t *getThread() { return &thread; }
+
 	/* Condition Variable Methods */
 	int createConditionVar();
 	void destroyConditionVar(int);

@@ -13,6 +13,7 @@
 Scheduler::Scheduler(vector<TaskHandler*> *taskHandlers): Thread() {
 	/* Add the taskHandlers */
 	this->free_TaskHandlers = taskHandlers;
+	this->busy_TaskHandlers = new vector<TaskHandler*>();
 
 	/* Create and initialize a lock for synchronization */
 	this->initializeLock();
@@ -43,6 +44,7 @@ void Scheduler::run() {
 		this->lock();
 		if(queuedTasks.size() > 0 && free_TaskHandlers->size() > 0)
 		{
+			cout << "Scheduler: Choosing which algorithm to use" << endl;
 			switch(scheduling_algorithm) {
 			case GREEDY_ALGORITHM:
 				greedySchedule();
@@ -54,6 +56,7 @@ void Scheduler::run() {
 		}
 		else
 		{
+			cout << "Scheduler: Nothing to do" << endl;
 			this->wait(schedule_cond_var);
 		}
 		this->unlock();
@@ -64,7 +67,9 @@ void Scheduler::run() {
  * Set the scheduling algorithm
  ****************************************************************/
 void Scheduler::SetAlgorithm(int algorithm) {
+	this->lock();
 	scheduling_algorithm = algorithm;
+	this->unlock();
 }
 
 /*******************************************************************
@@ -72,20 +77,32 @@ void Scheduler::SetAlgorithm(int algorithm) {
  *******************************************************************/
 
 void Scheduler::greedySchedule() {
-	/* Add queued task to running list */
-	runningTasks.push_back(queuedTasks.at(0));
+	cout << "Scheduler: using the greedy algorithm" << endl;
 
-	/* Add the Task handler to the busy list */
-	busy_TaskHandlers->push_back(free_TaskHandlers->at(0));
+	if(free_TaskHandlers->size() > 0) {
+		/* Get the task handler & task of interest */
+		TaskHandler *th = free_TaskHandlers->at(0);
+		Task t = queuedTasks.at(0);
 
-	/* Give the task to the first free task handler - round robin */
-	free_TaskHandlers->at(0)->performTask(queuedTasks.at(0));
+		/* Add queued task to running list */
+		runningTasks.push_back(t);
+		cout << "Scheduler: using the greedy algorithm" << endl;
 
-	/* Remove the task from the queue */
-	queuedTasks.erase(queuedTasks.begin());
+		/* Add the Task handler to the busy list */
+		busy_TaskHandlers->push_back(th);
+		cout << "Scheduler: using the greedy algorithm" << endl;
 
-	/* Remove the task handler from the free list */
-	free_TaskHandlers->erase(free_TaskHandlers->begin());
+		/* Give the task to the first free task handler - round robin */
+		free_TaskHandlers->at(0)->performTask(t);
+		cout << "Scheduler: using the greedy algorithm" << endl;
+
+		/* Remove the task from the queue */
+		queuedTasks.erase(queuedTasks.begin());
+
+		/* Remove the task handler from the free list */
+		free_TaskHandlers->erase(free_TaskHandlers->begin());
+	} else
+		cout << "Scheduler: No free task handler" << endl;
 }
 
 /*******************************************************************
@@ -94,6 +111,7 @@ void Scheduler::greedySchedule() {
 
 void Scheduler::addTask(Task task) {
 	this->lock();
+	cout << "Scheduler has added the task" << endl;
 	queuedTasks.push_back(task);
 	this->signal(schedule_cond_var);
 	this->unlock();
@@ -101,6 +119,7 @@ void Scheduler::addTask(Task task) {
 
 void Scheduler::finishedTask(TaskHandler *taskHandler, Task task) {
 	this->lock();
+	cout << "Scheduler has received a finished task" << endl;
 
 	/* Locate and mark this task handler as free */
 	for(unsigned i=0; i<busy_TaskHandlers->size(); i++) {
@@ -119,9 +138,6 @@ void Scheduler::finishedTask(TaskHandler *taskHandler, Task task) {
 			break;
 		}
 	}
-
-	/* Now update all clients via a UDP message?? */
-
 
 	this->unlock();
 }

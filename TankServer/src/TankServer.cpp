@@ -3,7 +3,7 @@
 // Author      : Corey Nichols
 // Version     :
 // Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
+// Description : C++, Ansi-style server running a basic Tank game server.
 //============================================================================
 
 #include "TankServer.h"
@@ -16,17 +16,52 @@ using namespace std;
  *****************************************************************************/
 Task ParseMsg(char* buffer, int length) {
 	Task task;
+	task.id = -1;
+	task.client.orientation = UNK;
 
 	/* First parse the message */
-	if(length >= 1)
-	{
+	if(length >= 1) {
 		task.id = 0;
 		task.client.id = buffer[0]&0x0F;
 		task.type = buffer[0]&0xF0;
 		task.state = IDLE;
+
+		/* Check if we need to gather the direction from the buffer */
+		if(task.type != MSG_MOVE && task.type != MSG_SHOOT && length > 1) {
+			switch(buffer[1]) {
+			case 1:
+				task.client.orientation = NORTH;
+				break;
+			case 2:
+				task.client.orientation = SOUTH;
+				break;
+			case 3:
+				task.client.orientation = EAST;
+				break;
+			case 4:
+				task.client.orientation = WEST;
+				break;
+			case 5:
+				task.client.orientation = NORTHEAST;
+				break;
+			case 6:
+				task.client.orientation = NORTHWEST;
+				break;
+			case 7:
+				task.client.orientation = SOUTHEAST;
+				break;
+			case 8:
+				task.client.orientation = SOUTHWEST;
+				break;
+			default:
+				cout << "Unknown direction" << endl;
+				break;
+			}
+		} else if(task.type & MSG_REGISTER) {
+			/* Anything special for a registration??? */
+		}
 	}
-	else
-	{
+	else {
 		cout << "SERVER ERROR: ParseMsg failed" << endl;
 	}
 
@@ -36,8 +71,9 @@ Task ParseMsg(char* buffer, int length) {
 /******************************************************************************
  * Receives all of the UDP messages ==> Essentially this is the server
  *****************************************************************************/
-void RunServer() {
+void RunServer(Scheduler *scheduler) {
 	int sockfd, length;
+	int taskID = 0;
 	char buffer[BUFFER_SIZE];
 	struct sockaddr_in server_addr, client_addr;
 
@@ -65,17 +101,30 @@ void RunServer() {
 	}
 
 	length = sizeof(struct sockaddr_in);
-	while(true) {
-		int len = recvfrom( sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, (socklen_t *)&length);
-		if(len < 0)
-		{
-			cout << "SERVER ERROR: recvfrom" << endl;
-			continue;
-		}
+	//while(true) {
+		//int len = recvfrom( sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, (socklen_t *)&length);
+//		if(len < 0)
+//		{
+//			cout << "SERVER ERROR: recvfrom" << endl;
+//			continue;
+//		}
+
+	buffer[0] = 0x30;
 
 		/* Parse the message & send the task to the scheduler */
-		ParseMsg((char *)buffer, len);
-	}
+		if(scheduler) {
+			Task t = ParseMsg((char *)buffer, 1);
+			if(t.id >= 0) {
+				t.id = taskID++;
+				scheduler->addTask(t);
+			}
+			else {
+				cout << "Server is unable to parse incoming message" << endl;
+			}
+		}
+		else
+			cout << "Scheduler is down!" << endl;
+	//}
 }
 
 /******************************************************************************
@@ -119,7 +168,7 @@ int main() {
 	}
 
 	/* begin the server method */
-	RunServer();
+	RunServer(scheduler);
 
 	/* Wait for the worker threads to complete - This should be the last thread */
 //	if( scheduler && scheduler->getThread())
@@ -130,8 +179,8 @@ int main() {
 
 	/* Free up Resources & exit */
 	cout << "Server Terminated!" << endl;
-//	if(gameState) delete gameState;
-//	if(scheduler) delete scheduler;
+	if(gameState) delete gameState;
+	if(scheduler) delete scheduler;
 	if(taskHandlerList) {
 		taskHandlerList->clear();
 		delete taskHandlerList;

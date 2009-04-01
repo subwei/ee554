@@ -3,7 +3,7 @@
 // Author      : Corey Nichols
 // Version     :
 // Copyright   : Your copyright notice
-// Description : C++, Ansi-style server running a basic Tank game server.
+// Description : C++, Ansi-style server running a basic Tank game.
 //============================================================================
 
 #include "TankServer.h"
@@ -101,15 +101,15 @@ void RunServer(Scheduler *scheduler) {
 	}
 
 	length = sizeof(struct sockaddr_in);
-	//while(true) {
-		//int len = recvfrom( sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, (socklen_t *)&length);
-//		if(len < 0)
-//		{
-//			cout << "SERVER ERROR: recvfrom" << endl;
-//			continue;
-//		}
+	while(true) {
+		int len = recvfrom( sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, (socklen_t *)&length);
+		if(len < 0)
+		{
+			cout << "SERVER ERROR: recvfrom" << endl;
+			continue;
+		}
 
-	buffer[0] = 0x30;
+//	buffer[0] = 0x30;
 
 		/* Parse the message & send the task to the scheduler */
 		if(scheduler) {
@@ -124,7 +124,7 @@ void RunServer(Scheduler *scheduler) {
 		}
 		else
 			cout << "Scheduler is down!" << endl;
-	//}
+	}
 }
 
 /******************************************************************************

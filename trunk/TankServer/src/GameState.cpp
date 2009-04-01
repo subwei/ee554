@@ -256,7 +256,7 @@ void GameState::broadcastState() {
 
 	/* Build the message */
 	char buf[10];
-	buf[0] = (char)activeClients.at(0)->id;
+	buf[0] = 0xFF;
 	buf[1] = (char)(activeClients.at(0)->x_pos >> 24)&0xFF;
 	buf[2] = (char)(activeClients.at(0)->x_pos >> 16)&0xFF;
 	buf[3] = (char)(activeClients.at(0)->x_pos >> 8)&0xFF;
@@ -265,7 +265,10 @@ void GameState::broadcastState() {
 	buf[6] = (char)(activeClients.at(0)->y_pos >> 16)&0xFF;
 	buf[7] = (char)(activeClients.at(0)->y_pos >> 8)&0xFF;
 	buf[8] = (char)(activeClients.at(0)->y_pos)&0xFF;
-//	buf[9] = (char)() /* Orientation */
+//	switch(activeCients.at(0)->) {
+//
+//	}
+//	buf[9] = ; /* Orientation */
 
 	/* Broadcast the game state for all active players */
 //	if(sendto(sockfd, buf, 10 , 0,

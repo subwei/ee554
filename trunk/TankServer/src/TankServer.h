@@ -38,6 +38,7 @@ class TaskHandler;
 #define MSG_QUIT			0x40
 #define MSG_DEAD			0x50
 #define MSG_JOIN			0x60
+#define MSG_BROADCAST		0xFF
 
 /* Networking Constants */
 #define RESPONSE_PORT		4800

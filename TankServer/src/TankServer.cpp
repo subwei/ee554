@@ -14,10 +14,11 @@ using namespace std;
  * Parse an incoming message
  *  Return the Task
  *****************************************************************************/
-Task ParseMsg(char* buffer, int length) {
+Task ParseMsg(char* buffer, int length, sockaddr_in client_addr) {
 	Task task;
 	task.id = -1;
 	task.client.orientation = UNK;
+	task.client.client_addr = client_addr;
 
 	/* First parse the message */
 	if(length >= 1) {
@@ -27,7 +28,7 @@ Task ParseMsg(char* buffer, int length) {
 		task.state = IDLE;
 
 		/* Check if we need to gather the direction from the buffer */
-		if(task.type != MSG_MOVE && task.type != MSG_SHOOT && length > 1) {
+		if(task.type == MSG_MOVE && task.type == MSG_SHOOT && length > 1) {
 			switch(buffer[1]) {
 			case 1:
 				task.client.orientation = NORTH;
@@ -59,6 +60,7 @@ Task ParseMsg(char* buffer, int length) {
 			}
 		} else if(task.type & MSG_REGISTER) {
 			/* Anything special for a registration??? */
+			cout << "New Registration" << endl;
 		}
 	}
 	else {
@@ -109,11 +111,17 @@ void RunServer(Scheduler *scheduler) {
 			continue;
 		}
 
+		cout << "Buffer: ";
+		if(len != 0){
+			cout << buffer[1] << endl;
+		}
+		continue;
+
 //	buffer[0] = 0x30;
 
 		/* Parse the message & send the task to the scheduler */
 		if(scheduler) {
-			Task t = ParseMsg((char *)buffer, 1);
+			Task t = ParseMsg((char *)buffer, 1, client_addr);
 			if(t.id >= 0) {
 				t.id = taskID++;
 				scheduler->addTask(t);

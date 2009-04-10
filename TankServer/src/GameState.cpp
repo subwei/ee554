@@ -27,16 +27,6 @@ GameState::GameState() {
 		return;
 	}
 
-	/* The broadcasting address */
-	char bc = '1';
-    if(setsockopt(sockfd,SOL_SOCKET,SO_BROADCAST,&bc,sizeof(bc)) < 0) {
-        cout<<"Error in setting Broadcast option";
-    }
-	broadcast_addr.sin_family = AF_INET;
-	broadcast_addr.sin_port = RESPONSE_PORT;
-	broadcast_addr.sin_addr.s_addr = INADDR_BROADCAST;
-	memset(broadcast_addr.sin_zero,'\0',sizeof broadcast_addr.sin_zero);
-
 	/* Get the servers address */
 	bzero((char *) &server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
@@ -91,30 +81,31 @@ void GameState::startGame(Client_info client) {
 
 	/* set the clients info */
 	for(int i=0; i<activeClients.size(); i++) {
-		client_orientation o;
+		int orientation;
 		int x = 0;
 		int y = 0;
 		switch(i) {
 		case 0:
-			o = WEST;
+			orientation = WEST;
 			break;
 		case 1:
 			x = SCREEN_WIDTH - TANK_HEIGHT;
 			y = SCREEN_HEIGHT - TANK_WIDTH;
-			o = EAST;
+			orientation = EAST;
 			break;
 		case 2:
 			x = SCREEN_WIDTH - TANK_HEIGHT;
-			o = SOUTH;
+			orientation = SOUTH;
 			break;
 		case 3:
 			y = SCREEN_HEIGHT - TANK_HEIGHT;
-			o = NORTH;
+			orientation = NORTH;
 			break;
 		default:
+			orientation = UNK;
 			break;
 		}
-		activeClients.at(i)->orientation = o;
+		activeClients.at(i)->orientation = orientation;
 		activeClients.at(i)->health = 100;
 		activeClients.at(i)->x_pos = x;
 		activeClients.at(i)->y_pos = y;
@@ -230,6 +221,7 @@ void GameState::clientReg(Client_info client, bool isActive) {
 	new_client->y_pos = 0;
 	new_client->client_addr = client.client_addr;
 	new_client->id = next_client_id++;
+	new_client->client_addr = client.client_addr;
 
 	/* Add the client to the appropriate list */
 	if(isActive && activeClients.size() < 4) {
@@ -255,24 +247,34 @@ void GameState::broadcastState() {
 	}
 
 	/* Build the message */
-	char buf[10];
-	buf[0] = 0xFF;
-	buf[1] = (char)(activeClients.at(0)->x_pos >> 24)&0xFF;
-	buf[2] = (char)(activeClients.at(0)->x_pos >> 16)&0xFF;
-	buf[3] = (char)(activeClients.at(0)->x_pos >> 8)&0xFF;
-	buf[4] = (char)(activeClients.at(0)->x_pos)&0xFF;
-	buf[5] = (char)(activeClients.at(0)->y_pos >> 24)&0xFF;
-	buf[6] = (char)(activeClients.at(0)->y_pos >> 16)&0xFF;
-	buf[7] = (char)(activeClients.at(0)->y_pos >> 8)&0xFF;
-	buf[8] = (char)(activeClients.at(0)->y_pos)&0xFF;
-//	switch(activeCients.at(0)->) {
-//
-//	}
-//	buf[9] = ; /* Orientation */
+	char buf[BUFFER_SIZE];
+	int j = 0;
+	for(int i=0; i<activeClients.size(); i++) {
+		buf[j++] = 0xFF;
+		buf[j++] = (char)(activeClients.size())&0xFF;
+		buf[j++] = (char)(activeClients.at(i)->x_pos >> 24)&0xFF;
+		buf[j++] = (char)(activeClients.at(i)->x_pos >> 16)&0xFF;
+		buf[j++] = (char)(activeClients.at(i)->x_pos >> 8)&0xFF;
+		buf[j++] = (char)(activeClients.at(i)->x_pos)&0xFF;
+		buf[j++] = (char)(activeClients.at(i)->y_pos >> 24)&0xFF;
+		buf[j++] = (char)(activeClients.at(i)->y_pos >> 16)&0xFF;
+		buf[j++] = (char)(activeClients.at(i)->y_pos >> 8)&0xFF;
+		buf[j++] = (char)(activeClients.at(i)->y_pos)&0xFF;
+		buf[j++] = (char)(activeClients.at(i)->orientation)&0xFF;
+	}
+	memset((void *)&buf[j], '\0', BUFFER_SIZE - j);
 
 	/* Broadcast the game state for all active players */
-//	if(sendto(sockfd, buf, 10 , 0,
-//	        (struct sockaddr *)&broadcast_addr, sizeof broadcast_addr) == -1) {
-//		cout << "GameState: Error broadcasting the state!" << endl;
-//	}
+	for(int i=0; i<activeClients.size(); i++) {
+		if(sendto(sockfd, buf, 10 , 0,
+				(struct sockaddr *)&activeClients.at(i)->client_addr, sizeof(activeClients.at(i)->client_addr)) == -1)
+			cout << "GameState: Error broadcasting the state to client " << i << "!" << endl;
+	}
+
+	/* Broadcast the game state for all inactive players */
+	for(int i=0; i<inactiveClients.size(); i++) {
+		if(sendto(sockfd, buf, 10 , 0,
+				(struct sockaddr *)&inactiveClients.at(i)->client_addr, sizeof(inactiveClients.at(i)->client_addr)) == -1)
+			cout << "GameState: Error broadcasting the state to client " << i << "!" << endl;
+	}
 }

@@ -42,6 +42,7 @@ void TaskHandler::run() {
 		case MSG_SHOOT:
 			break;
 		case MSG_REGISTER:
+			cout << "Register" << endl;
 			gameState->clientReg(currentTask.client, true);
 			break;
 		case MSG_QUIT:

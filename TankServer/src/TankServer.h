@@ -17,6 +17,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <vector>
+#include <time.h>
 
 /* Class prototypes */
 class GameState;
@@ -53,6 +54,17 @@ class TaskHandler;
 #define TANK_SPEED			25
 #define SHOOTING_SPEED		50
 
+/* Clients orientations */
+#define NORTH				0x01
+#define WEST				0x02
+#define SOUTH				0x04
+#define EAST				0x08
+#define NORTHWEST			0x10
+#define NORTHEAST			0x20
+#define SOUTHWEST			0x40
+#define SOUTHEAST			0x80
+#define UNK 				0x00
+
 /*****************************************************
  * Client Data
  ****************************************************/
@@ -60,18 +72,18 @@ class TaskHandler;
 /* Every client can be in one of the following states */
 enum client_state { ACTIVE, INACTIVE };
 
-/* Clients orientations */
-enum client_orientation { NORTH, WEST, SOUTH, EAST, NORTHWEST, NORTHEAST, SOUTHWEST, SOUTHEAST, UNK };
-
 /* Struct to contain all client state information */
 typedef struct Client_info {
 	int id;
 	int health;
 	int x_pos;
 	int y_pos;
-	client_orientation orientation;
+	int orientation;
 	client_state state;
 	struct sockaddr_in client_addr;
+	time_t arrival;
+	time_t serverEntry;
+	time_t exit;
 }Client_info;
 
 /*********************************************

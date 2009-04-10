@@ -26,6 +26,7 @@ Task ParseMsg(char* buffer, int length, sockaddr_in client_addr) {
 		task.client.id = buffer[0]&0x0F;
 		task.type = buffer[0]&0xF0;
 		task.state = IDLE;
+		task.client.arrival = time(NULL);
 
 		/* Check if we need to gather the direction from the buffer */
 		if(task.type == MSG_MOVE && task.type == MSG_SHOOT && length > 1) {

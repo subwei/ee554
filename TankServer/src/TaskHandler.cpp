@@ -35,6 +35,7 @@ void TaskHandler::run() {
 		this->wait(task_cond_var);
 
 		/* Perform the task based on the message type */
+		currentTask.client.serverEntry = time(NULL);
 		switch(currentTask.type) {
 		case MSG_MOVE:
 			gameState->updateClientPosition(currentTask.client);

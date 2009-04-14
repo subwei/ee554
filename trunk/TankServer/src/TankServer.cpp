@@ -24,7 +24,7 @@ Task ParseMsg(char* buffer, int length, sockaddr_in client_addr) {
 	if(length >= 1) {
 		task.id = 0;
 		task.client.id = buffer[0]&0x0F;
-		task.type = buffer[0]&0xF0;
+		task.type = buffer[1]&0xF0;
 		task.state = IDLE;
 		task.client.arrival = time(NULL);
 
@@ -59,7 +59,7 @@ Task ParseMsg(char* buffer, int length, sockaddr_in client_addr) {
 				cout << "Unknown direction" << endl;
 				break;
 			}
-		} else if(task.type & MSG_REGISTER) {
+		} else if(task.type == MSG_REGISTER) {
 			/* Anything special for a registration??? */
 			cout << "New Registration" << endl;
 		}
@@ -112,13 +112,11 @@ void RunServer(Scheduler *scheduler) {
 			continue;
 		}
 
-		cout << "Buffer: ";
-		if(len != 0){
-			cout << buffer[1] << endl;
-		}
-		continue;
-
-//	buffer[0] = 0x30;
+//		cout << "Buffer: ";
+//		for(int i=0; i<len; i++){
+//			cout << (int)buffer[i] << endl;
+//		}
+//		continue;
 
 		/* Parse the message & send the task to the scheduler */
 		if(scheduler) {

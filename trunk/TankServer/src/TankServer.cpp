@@ -29,36 +29,8 @@ Task ParseMsg(char* buffer, int length, sockaddr_in client_addr) {
 		task.client.arrival = time(NULL);
 
 		/* Check if we need to gather the direction from the buffer */
-		if(task.type == MSG_MOVE && task.type == MSG_SHOOT && length > 1) {
-			switch(buffer[1]) {
-			case 1:
-				task.client.orientation = NORTH;
-				break;
-			case 2:
-				task.client.orientation = SOUTH;
-				break;
-			case 3:
-				task.client.orientation = EAST;
-				break;
-			case 4:
-				task.client.orientation = WEST;
-				break;
-			case 5:
-				task.client.orientation = NORTHEAST;
-				break;
-			case 6:
-				task.client.orientation = NORTHWEST;
-				break;
-			case 7:
-				task.client.orientation = SOUTHEAST;
-				break;
-			case 8:
-				task.client.orientation = SOUTHWEST;
-				break;
-			default:
-				cout << "Unknown direction" << endl;
-				break;
-			}
+		if(task.type == MSG_MOVE || task.type == MSG_SHOOT) {
+			task.client.orientation = buffer[1];
 		} else if(task.type == MSG_REGISTER) {
 			/* Anything special for a registration??? */
 			cout << "New Registration" << endl;

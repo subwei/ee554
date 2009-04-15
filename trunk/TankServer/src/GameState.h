@@ -16,6 +16,7 @@ private:
 	int game_cond_var;
 	int next_client_id;
 	int sockfd;
+	bool gameStarted;
 	struct sockaddr_in server_addr, broadcast_addr;
 	vector<Client_info*> activeClients;
 	vector<Client_info*> inactiveClients;

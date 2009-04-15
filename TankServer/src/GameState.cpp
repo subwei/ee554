@@ -18,6 +18,7 @@ GameState::GameState() {
 	game_cond_var = this->createConditionVar();
 
 	/* Initialize other Game State variables */
+	gameStarted = false;
 	next_client_id = 0;
 
 	/* Create the datagram socket */
@@ -58,12 +59,16 @@ void GameState::run() {
 		cout << "GameState Now Running" << endl;
 
 		/* Wait for the state to change */
-		this->wait(game_cond_var);
+		if(!gameStarted) this->wait(game_cond_var);
 
 		/* Broadcast the current state */
 		broadcastState();
 
 		this->unlock();
+		if(gameStarted) {
+			cout << "Sleeping" << endl;
+			sleep(5);
+		}
 	}
 }
 
@@ -73,9 +78,15 @@ void GameState::run() {
 void GameState::startGame(Client_info client) {
 	this->lock();
 	cout << "GameState: Starting game" << endl;
+	if(gameStarted){
+		this->unlock();
+		return;
+	}
 
 	/* Make sure this is the first player only */
 	if(activeClients.size() <= 0 || client.id != activeClients.at(0)->id) {
+		cout << "Not the first player --> player #" << client.id << " First = " << activeClients.at(0)->id << endl;
+		this->unlock();
 		return;
 	}
 
@@ -111,6 +122,8 @@ void GameState::startGame(Client_info client) {
 		activeClients.at(i)->y_pos = y;
 	}
 
+	gameStarted = true;
+	cout << "GameState: Started game" << endl;
 	this->signal(game_cond_var);
 	this->unlock();
 }
@@ -123,6 +136,12 @@ void GameState::updateClientPosition(Client_info client) {
 	int dx = 0;
 	int dy = 0;
 	int index = -1;
+
+	if(!gameStarted) {
+		cout << "Attempt to move without a running game" << endl;
+		this->unlock();
+		return;
+	}
 	cout << "Game State: Updating client position" << endl;
 
 	/* Locate the client to move & adjust his location */
@@ -231,7 +250,13 @@ void GameState::clientReg(Client_info client, bool isActive) {
 		inactiveClients.push_back(new_client);
 	}
 
-	this->signal(game_cond_var);
+	/* Send the id to the client */
+	char buf[1];
+	buf[0] = new_client->id;
+	if(sendto(sockfd, buf, 1, 0,
+			(struct sockaddr *)&new_client->client_addr, sizeof(new_client->client_addr)) == -1)
+		cout << "GameState: sending reg confirmation to " << new_client->id << endl;
+//	this->signal(game_cond_var);
 	this->unlock();
 }
 
@@ -249,9 +274,9 @@ void GameState::broadcastState() {
 	/* Build the message */
 	char buf[BUFFER_SIZE];
 	int j = 0;
+	buf[j++] = 0xFF;
+	buf[j++] = (char)(activeClients.size())&0xFF;
 	for(int i=0; i<activeClients.size(); i++) {
-		buf[j++] = 0xFF;
-		buf[j++] = (char)(activeClients.size())&0xFF;
 		buf[j++] = (char)(activeClients.at(i)->x_pos >> 24)&0xFF;
 		buf[j++] = (char)(activeClients.at(i)->x_pos >> 16)&0xFF;
 		buf[j++] = (char)(activeClients.at(i)->x_pos >> 8)&0xFF;

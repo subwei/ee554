@@ -119,7 +119,7 @@ void Scheduler::addTask(Task task) {
 
 void Scheduler::finishedTask(TaskHandler *taskHandler, Task task) {
 	this->lock();
-	cout << "Scheduler has received a finished task" << endl;
+	cout << "Scheduler has received a finished task --> #" << task.id << endl;
 
 	/* Locate and mark this task handler as free */
 	for(unsigned i=0; i<busy_TaskHandlers->size(); i++) {

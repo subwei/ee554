@@ -10,7 +10,6 @@
 TaskHandler::TaskHandler(Scheduler *scheduler, GameState *gameState): Thread() {
 	this->scheduler = scheduler;
 	this->gameState = gameState;
-	cout << "Creating the task Handler" << endl;
 
 	/* Initialize the lock */
 	this->initializeLock();
@@ -38,21 +37,17 @@ void TaskHandler::run() {
 		currentTask.client.serverEntry = time(NULL);
 		switch(currentTask.type) {
 		case MSG_MOVE:
-			cout << "TH: Moving" << endl;
 			gameState->updateClientPosition(currentTask.client);
 			break;
 		case MSG_SHOOT:
 			break;
 		case MSG_REGISTER:
-			cout << "TH: Register" << endl;
 			gameState->clientReg(currentTask.client, true);
 			break;
 		case MSG_START:
-			cout << "TH: Starting Game" << endl;
 			gameState->startGame(currentTask.client);
 			break;
 		case MSG_QUIT:
-			cout << "TH: Quitting Game" << endl;
 			gameState->clientQuit(currentTask.client);
 			break;
 		case MSG_DEAD:
@@ -74,7 +69,6 @@ void TaskHandler::run() {
  * this task handler.
  *********************************************/
 void TaskHandler::performTask(Task task) {
-	cout << "TaskHandler will perform task " << task.id << endl;
 	this->lock();
 	currentTask = task;
 	this->signal(task_cond_var);

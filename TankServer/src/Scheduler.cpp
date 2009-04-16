@@ -37,14 +37,11 @@ Scheduler::~Scheduler() {
  *  assign them to specific task handlers
  *********************************************/
 void Scheduler::run() {
-	cout << "Perform Scheduling" << endl;
-
 	/* Schedule forever, but sleep when out of tasks */
 	while(true) {
 		this->lock();
 		if(queuedTasks.size() > 0 && free_TaskHandlers->size() > 0)
 		{
-			cout << "Scheduler: Choosing which algorithm to use" << endl;
 			switch(scheduling_algorithm) {
 			case GREEDY_ALGORITHM:
 				greedySchedule();
@@ -77,8 +74,6 @@ void Scheduler::SetAlgorithm(int algorithm) {
  *******************************************************************/
 
 void Scheduler::greedySchedule() {
-	cout << "Scheduler: using the greedy algorithm" << endl;
-
 	if(free_TaskHandlers->size() > 0) {
 		/* Get the task handler & task of interest */
 		TaskHandler *th = free_TaskHandlers->at(0);
@@ -86,15 +81,12 @@ void Scheduler::greedySchedule() {
 
 		/* Add queued task to running list */
 		runningTasks.push_back(t);
-		cout << "Scheduler: using the greedy algorithm" << endl;
 
 		/* Add the Task handler to the busy list */
 		busy_TaskHandlers->push_back(th);
-		cout << "Scheduler: using the greedy algorithm" << endl;
 
 		/* Give the task to the first free task handler - round robin */
 		free_TaskHandlers->at(0)->performTask(t);
-		cout << "Scheduler: using the greedy algorithm" << endl;
 
 		/* Remove the task from the queue */
 		queuedTasks.erase(queuedTasks.begin());
@@ -111,7 +103,6 @@ void Scheduler::greedySchedule() {
 
 void Scheduler::addTask(Task task) {
 	this->lock();
-	cout << "Scheduler has added the task" << endl;
 	queuedTasks.push_back(task);
 	this->signal(schedule_cond_var);
 	this->unlock();
@@ -119,7 +110,6 @@ void Scheduler::addTask(Task task) {
 
 void Scheduler::finishedTask(TaskHandler *taskHandler, Task task) {
 	this->lock();
-	cout << "Scheduler has received a finished task --> #" << task.id << endl;
 
 	/* Locate and mark this task handler as free */
 	for(unsigned i=0; i<busy_TaskHandlers->size(); i++) {

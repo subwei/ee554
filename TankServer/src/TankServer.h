@@ -50,7 +50,7 @@ class TaskHandler;
 /* Client & Game State Constants */
 #define TANK_WIDTH 			50
 #define TANK_HEIGHT			50
-#define SCREEN_WIDTH		600
+#define SCREEN_WIDTH		800
 #define SCREEN_HEIGHT		600
 #define TANK_SPEED			25
 #define SHOOTING_SPEED		50

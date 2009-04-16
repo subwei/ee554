@@ -56,7 +56,6 @@ GameState::~GameState() {
 void GameState::run() {
 	while(true) {
 		this->lock();
-		cout << "GameState Now Running" << endl;
 
 		/* Wait for the state to change */
 		if(!gameStarted) this->wait(game_cond_var);
@@ -65,10 +64,7 @@ void GameState::run() {
 		broadcastState();
 
 		this->unlock();
-		if(gameStarted) {
-			cout << "Sleeping" << endl;
-			sleep(5);
-		}
+		if(gameStarted) sleep(5);
 	}
 }
 
@@ -149,6 +145,7 @@ void GameState::updateClientPosition(Client_info client) {
 		if(activeClients.at(i)->id == client.id) {
 
 			/* Determine the direction to move */
+//			printf("Dir = %x\n", client.orientation);
 			switch(client.orientation) {
 			case NORTH:
 				dy -= TANK_SPEED;
@@ -193,12 +190,13 @@ void GameState::updateClientPosition(Client_info client) {
 
 	/* Verify a valid move */
 	if(index >= 0) {
-		if(activeClients.at(index)->x_pos >= SCREEN_WIDTH) {
+		if(activeClients.at(index)->x_pos >= SCREEN_WIDTH || activeClients.at(index)->x_pos < 0) {
 			activeClients.at(index)->x_pos -= dx;
 		}
-		if(activeClients.at(index)->y_pos >= SCREEN_HEIGHT) {
+		if(activeClients.at(index)->y_pos >= SCREEN_HEIGHT || activeClients.at(index)->y_pos < 0) {
 			activeClients.at(index)->y_pos -= dy;
 		}
+		cout << "Tank Position: x=" << activeClients.at(index)->x_pos << " y=" << activeClients.at(index)->y_pos << endl;
 	}
 
 	this->signal(game_cond_var);
@@ -231,6 +229,7 @@ void GameState::clientQuit(Client_info client) {
  ************************************************/
 void GameState::clientReg(Client_info client, bool isActive) {
 	this->lock();
+	if(gameStarted) return;
 	cout << "GameState: Registering new client" << endl;
 
 	Client_info* new_client = (Client_info*)malloc(sizeof(Client_info));
@@ -265,8 +264,6 @@ void GameState::clientReg(Client_info client, bool isActive) {
  *  - The lock should be obtained prior to use
  ***********************************************/
 void GameState::broadcastState() {
-	cout << "Now Broadcasting new state" << endl;
-
 	if(activeClients.size() == 0) {
 		cout << "GameState: No active members to update" << endl;
 	}
@@ -275,7 +272,7 @@ void GameState::broadcastState() {
 	char buf[BUFFER_SIZE];
 	int j = 0;
 	buf[j++] = 0xFF;
-	buf[j++] = (char)(activeClients.size())&0xFF;
+	buf[j++] = activeClients.size()&0xFF;
 	for(int i=0; i<activeClients.size(); i++) {
 		buf[j++] = (char)(activeClients.at(i)->x_pos >> 24)&0xFF;
 		buf[j++] = (char)(activeClients.at(i)->x_pos >> 16)&0xFF;
@@ -287,18 +284,18 @@ void GameState::broadcastState() {
 		buf[j++] = (char)(activeClients.at(i)->y_pos)&0xFF;
 		buf[j++] = (char)(activeClients.at(i)->orientation)&0xFF;
 	}
-	memset((void *)&buf[j], '\0', BUFFER_SIZE - j);
+//	memset((void *)&buf[j], '\0', BUFFER_SIZE - j);
 
 	/* Broadcast the game state for all active players */
 	for(int i=0; i<activeClients.size(); i++) {
-		if(sendto(sockfd, buf, 10 , 0,
+		if(sendto(sockfd, buf, j, 0,
 				(struct sockaddr *)&activeClients.at(i)->client_addr, sizeof(activeClients.at(i)->client_addr)) == -1)
 			cout << "GameState: Error broadcasting the state to client " << i << "!" << endl;
 	}
 
 	/* Broadcast the game state for all inactive players */
 	for(int i=0; i<inactiveClients.size(); i++) {
-		if(sendto(sockfd, buf, 10 , 0,
+		if(sendto(sockfd, buf, j, 0,
 				(struct sockaddr *)&inactiveClients.at(i)->client_addr, sizeof(inactiveClients.at(i)->client_addr)) == -1)
 			cout << "GameState: Error broadcasting the state to client " << i << "!" << endl;
 	}

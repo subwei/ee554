@@ -30,10 +30,8 @@ Task ParseMsg(char* buffer, int length, sockaddr_in client_addr) {
 
 		/* Check if we need to gather the direction from the buffer */
 		if(task.type == MSG_MOVE || task.type == MSG_SHOOT) {
-			task.client.orientation = buffer[1];
+			task.client.orientation = buffer[2];
 		} else if(task.type == MSG_REGISTER) {
-			/* Anything special for a registration??? */
-			cout << "New Registration" << endl;
 		}
 	}
 	else {
@@ -52,12 +50,11 @@ void RunServer(Scheduler *scheduler) {
 	char buffer[BUFFER_SIZE];
 	struct sockaddr_in server_addr, client_addr;
 
-	cout << "Starting to run the server" << endl;
+	cout << "Starting the server" << endl;
 
 	/* Create the datagram socket */
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-	if(sockfd < 0)
-	{
+	if(sockfd < 0){
 		cout << "SERVER ERROR: opening socket" << endl;
 		return;
 	}
@@ -69,8 +66,7 @@ void RunServer(Scheduler *scheduler) {
 	server_addr.sin_port = htons(SERVER_PORT);
 
 	/* Bind the socket to the address */
-	if(bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
-	{
+	if(bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
 		cout << "SERVER ERROR: binding" << endl;
 		return;
 	}
@@ -78,17 +74,10 @@ void RunServer(Scheduler *scheduler) {
 	length = sizeof(struct sockaddr_in);
 	while(true) {
 		int len = recvfrom( sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&client_addr, (socklen_t *)&length);
-		if(len < 0)
-		{
+		if(len < 0)	{
 			cout << "SERVER ERROR: recvfrom" << endl;
 			continue;
 		}
-
-//		cout << "Buffer: ";
-//		for(int i=0; i<len; i++){
-//			cout << (int)buffer[i] << endl;
-//		}
-//		continue;
 
 		/* Parse the message & send the task to the scheduler */
 		if(scheduler) {
@@ -110,7 +99,6 @@ void RunServer(Scheduler *scheduler) {
  * The main method
  *****************************************************************************/
 int main() {
-	cout << "Starting the server" << endl;
 	vector<TaskHandler*> *taskHandlerList = new vector<TaskHandler*>();
 	Scheduler *scheduler = new Scheduler(taskHandlerList);
 	GameState *gameState = new GameState();
@@ -148,13 +136,6 @@ int main() {
 
 	/* begin the server method */
 	RunServer(scheduler);
-
-	/* Wait for the worker threads to complete - This should be the last thread */
-//	if( scheduler && scheduler->getThread())
-//		pthread_join( *(scheduler->getThread()), NULL);
-//	for(int i=0; i<taskHandlerList->size(); i++)
-//		if( taskHandlerList->size() > 0 && taskHandlerList->at(i)->getThread() )
-//			pthread_join( *(taskHandlerList->at(i)->getThread()), NULL);
 
 	/* Free up Resources & exit */
 	cout << "Server Terminated!" << endl;

@@ -52,7 +52,7 @@ class TaskHandler;
 #define TANK_HEIGHT			50
 #define SCREEN_WIDTH		800
 #define SCREEN_HEIGHT		600
-#define TANK_SPEED			25
+#define TANK_SPEED			10
 #define SHOOTING_SPEED		50
 
 /* Clients orientations */

@@ -15,11 +15,17 @@ public class Tank extends JLabel {
 
         x = GameGUI.WIDTH / 2;
         y = GameGUI.LENGTH / 2;
-        setLocation(x, y);
+        setLocation(0, 0);
 
         setText(name);
         setForeground(Color.WHITE);
         setSize(SIZE, SIZE);
+    }
+    
+    public void moveTo(int x, int y){
+        this.x = x;
+        this.y = y;
+        setLocation(x,y);
     }
 
     public int getX() {
@@ -29,7 +35,7 @@ public class Tank extends JLabel {
     public int getY() {
         return y;
     }
-
+    
     public void moveUp() {
         if (y >= SIZE) {
             y -= MOVE;

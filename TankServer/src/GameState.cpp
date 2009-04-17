@@ -64,7 +64,7 @@ void GameState::run() {
 		broadcastState();
 
 		this->unlock();
-		if(gameStarted) sleep(5);
+		if(gameStarted) usleep(50000);
 	}
 }
 

@@ -32,9 +32,12 @@ public class RegisterGUI extends JFrame implements ActionListener{
         hostField = new JTextField(10);
         ipField = new JTextField(10);
         portField = new JTextField(10);
-        statusMessage = new JLabel("Please Enter Server Information To Register For Game");
+        statusMessage = new JLabel();
         registerButton = new JButton("Register");
         registerButton.addActionListener(this);
+        
+        ipField.setText("207.151.225.81");
+        portField.setText("4801");
     }
     
     private void setLayout(){
@@ -69,14 +72,29 @@ public class RegisterGUI extends JFrame implements ActionListener{
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == registerButton){
-            String hostName = hostField.getText();
-            String ipAddress = ipField.getText();
-            int portNumber = Integer.parseInt(portField.getText());
-            eraseFields();
-            tankClient.setHostName(hostName);
-            tankClient.setIPAddress(ipAddress);
-            tankClient.setPortNumber(portNumber);
-            tankClient.register();
+            
+            try{
+                String hostName = hostField.getText();
+                String ipAddress = ipField.getText();
+                int portNumber = Integer.parseInt(portField.getText());
+                eraseFields();
+                if (ipAddress.length() != 0){
+                    tankClient.setHostName(hostName);
+                    tankClient.setIPAddress(ipAddress);
+                    tankClient.setPortNumber(portNumber);
+                    tankClient.register();
+                }
+                else{
+                    statusMessage.setText("Please fill in the ipAddress field");
+                }
+            }
+            catch (NullPointerException npe){
+                statusMessage.setText("Please fill in all fields");
+            }
+            catch (NumberFormatException nfe){
+                statusMessage.setText("Port number must be a number.  Please Try Again");
+            }
+            
         }
     }
 

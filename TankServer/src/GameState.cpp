@@ -20,6 +20,9 @@ GameState::GameState() {
 	/* Initialize other Game State variables */
 	gameStarted = false;
 	next_client_id = 0;
+	for(int i=0; i<MAX_PLAYERS; i++) {
+		client_bullets[i].count = 0;
+	}
 
 	/* Create the datagram socket */
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -59,6 +62,9 @@ void GameState::run() {
 
 		/* Wait for the state to change */
 		if(!gameStarted) this->wait(game_cond_var);
+
+		/* Update the current state */
+		updateState();
 
 		/* Broadcast the current state */
 		broadcastState();
@@ -190,16 +196,43 @@ void GameState::updateClientPosition(Client_info client) {
 
 	/* Verify a valid move */
 	if(index >= 0) {
-		if(activeClients.at(index)->x_pos >= SCREEN_WIDTH || activeClients.at(index)->x_pos < 0) {
+		if(activeClients.at(index)->x_pos >= SCREEN_WIDTH - TANK_WIDTH || activeClients.at(index)->x_pos < 0) {
 			activeClients.at(index)->x_pos -= dx;
 		}
-		if(activeClients.at(index)->y_pos >= SCREEN_HEIGHT || activeClients.at(index)->y_pos < 0) {
+		if(activeClients.at(index)->y_pos >= SCREEN_HEIGHT - TANK_HEIGHT || activeClients.at(index)->y_pos < 0) {
 			activeClients.at(index)->y_pos -= dy;
 		}
 		cout << "Tank Position: x=" << activeClients.at(index)->x_pos << " y=" << activeClients.at(index)->y_pos << endl;
 	}
 
 	this->signal(game_cond_var);
+	this->unlock();
+}
+
+/*************************************************
+ * A client is quitting
+ ************************************************/
+void GameState::newShot(Client_info client) {
+	this->lock();
+
+	/* Ensure that we are playing a game first */
+	if(!gameStarted) {
+		cout << "Attempt to move without a running game" << endl;
+		this->unlock();
+		return;
+	}
+	cout << "GameState: Client " << client.id << " is shooting" << endl;
+
+	/* Locate the client and take their shot if needed */
+	for(int i=0; i<activeClients.size(); i++) {
+		if(activeClients.at(i)->id == client.id) {
+			client_bullets[i].x.push_back(activeClients.at(i)->x_pos);
+			client_bullets[i].y.push_back(activeClients.at(i)->y_pos);
+			client_bullets[i].orientation.push_back(activeClients.at(i)->orientation);
+			client_bullets[i].count++;
+		}
+	}
+
 	this->unlock();
 }
 
@@ -298,5 +331,77 @@ void GameState::broadcastState() {
 		if(sendto(sockfd, buf, j, 0,
 				(struct sockaddr *)&inactiveClients.at(i)->client_addr, sizeof(inactiveClients.at(i)->client_addr)) == -1)
 			cout << "GameState: Error broadcasting the state to client " << i << "!" << endl;
+	}
+}
+
+/************************************************
+ * Update the current state to all clients
+ *  - The lock should be obtained prior to use
+ ***********************************************/
+void GameState::updateState() {
+	int dy = 0;
+	int dx = 0;
+
+/* Macro to delete a bullet */
+#define DELETE_BULLET(index1, index2) { \
+	client_bullets[index1].count--; \
+	client_bullets[index1].orientation.erase(client_bullets[index1].orientation.begin() + index2); \
+	client_bullets[index1].x.erase(client_bullets[index1].x.begin() + index2); \
+	client_bullets[index1].y.erase(client_bullets[index1].y.begin() + index2); \
+}
+	/* update bullet positions */
+	for(int i=0; i<activeClients.size(); i++) {
+		for(int j=0; j<client_bullets[i].count; j++) {
+			/* Determine the orientation & movement */
+			switch(client_bullets[i].orientation.at(j)) {
+			case NORTH:
+				dy -= SHOOTING_SPEED;
+				break;
+			case SOUTH:
+				dy = SHOOTING_SPEED;
+				break;
+			case EAST:
+				dx = SHOOTING_SPEED;
+				break;
+			case WEST:
+				dx -= SHOOTING_SPEED;
+				break;
+			case NORTHEAST:
+				dy -= SHOOTING_SPEED * sin(45);
+				dx = SHOOTING_SPEED * cos(45);
+				break;
+			case NORTHWEST:
+				dy -= SHOOTING_SPEED * sin(45);
+				dx -= SHOOTING_SPEED * cos(45);
+				break;
+			case SOUTHEAST:
+				dy = SHOOTING_SPEED * sin(45);
+				dx = SHOOTING_SPEED * cos(45);
+				break;
+			case SOUTHWEST:
+				dy = SHOOTING_SPEED * sin(45);
+				dx -= SHOOTING_SPEED * cos(45);
+				break;
+			default:
+				cout << "Unable to move bullet in a known direction" << endl;
+				DELETE_BULLET(i, j);
+				return;
+			}
+
+			/* Now move the bullet */
+			client_bullets[i].x.at(j) += dx;
+			client_bullets[i].y.at(j) += dy;
+
+			/* Remove bullets that have hit someone???
+			 * If it hits them, then the tank is DEAD!!!!
+			 * If only one player left, Game ends ==> gameStarted = false */
+
+			/* Remove bullets that have left the screen */
+			if(client_bullets[i].x.at(j) >= SCREEN_WIDTH || client_bullets[i].x.at(j) < 0) {
+				DELETE_BULLET(i, j);
+			} else if(client_bullets[i].y.at(j) >= SCREEN_HEIGHT || client_bullets[i].y.at(j) < 0) {
+				DELETE_BULLET(i, j);
+			}
+		}
 	}
 }

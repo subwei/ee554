@@ -28,6 +28,7 @@ class TaskHandler;
 #define SCHEDULING_ALGORITHMS 	1
 #define MAX_TASK_HANDLERS 		4
 #define MAX_PLAYERS				4
+#define MAX_BULLETS				1
 
 /* Scheduling Algorithms */
 #define GREEDY_ALGORITHM	1

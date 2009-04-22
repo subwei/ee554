@@ -40,6 +40,7 @@ void TaskHandler::run() {
 			gameState->updateClientPosition(currentTask.client);
 			break;
 		case MSG_SHOOT:
+			gameState->newShot(currentTask.client);
 			break;
 		case MSG_REGISTER:
 			gameState->clientReg(currentTask.client, true);

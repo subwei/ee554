@@ -363,7 +363,7 @@ if(prevservice = 0)
 	prevservice = client.exit - client.serverEntry;
 else
 {
-sumeservice+= client.serverEntry - client.exit  - prevservice;
+sumeservice+= client.exit - client.serverEntry  - prevservice;
 prevservice = client.exit - client.serverEntry;
 
 

@@ -11,6 +11,14 @@
  * Constructor
  **********************************/
 GameState::GameState() {
+	/* Setting queing parameters equal to zero for start*/
+	sumexit = 0;
+	sumarrival = 0;
+	sumservice = 0;
+	prevarrival = 0;
+	prevexit = 0;
+	prevservice = 0;
+
 	/* Create and initialize a lock for synchronization */
 	this->initializeLock();
 
@@ -333,6 +341,42 @@ void GameState::broadcastState() {
 			cout << "GameState: Error broadcasting the state to client " << i << "!" << endl;
 	}
 }
+<<<<<<< .mine
+
+void GameState::FinishedTask(Client_info client){
+if(prevarrival = 0)
+	prevarrival = client.arrival;
+else
+	{
+	sumarrival+= client.arrival - prevarrival;
+	prevarrival = client.arrival;
+	}
+if(prevexit = 0)
+	prevexit = client.exit;
+else
+{
+	sumexit+=client.exit - prevexit;
+	prevexit = client.exit;
+}
+
+if(prevservice = 0)
+	prevservice = client.serverEntry;
+else
+{
+sumeservice+= client.serverEntry - prevservice;
+prevservice = client.serverEntry;
+
+
+}
+}
+/* Sbar = sum of s/#of trials
+ * Lambda = ( last arrival - gamestart)/N
+ *N = Counted in Gamestate.cpp
+ *Wbar
+ *Wq
+ */
+
+=======
 
 /************************************************
  * Update the current state to all clients
@@ -405,3 +449,4 @@ void GameState::updateState() {
 		}
 	}
 }
+>>>>>>> .r30

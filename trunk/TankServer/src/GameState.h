@@ -28,6 +28,14 @@ private:
 	struct sockaddr_in server_addr, broadcast_addr;
 	vector<Client_info*> activeClients;
 	vector<Client_info*> inactiveClients;
+
+	int sumarrival;
+	int sumexit;
+	int sumservice;
+	int prevexit;
+	int prevsum;
+	int prevarrival;
+
 	bullets client_bullets[MAX_PLAYERS];
 
 	/* Broadcast the current state to all clients */
@@ -35,6 +43,7 @@ private:
 
 	/* Update the current state of all bullets */
 	void updateState();
+
 
 public:
 	GameState();
@@ -57,6 +66,11 @@ public:
 
 	/* A client is registering */
 	void clientReg(Client_info client, bool isActive);
+	/* Summing current arrival with pervious arrivals */
+
+    /* Finished Task function will store sum times and store times using the previous function calls*/
+	void FinishedTask(Client_info client);
+
 };
 
 #endif /* GAMESTATE_H_ */

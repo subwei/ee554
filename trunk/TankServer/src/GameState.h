@@ -33,7 +33,7 @@ private:
 	int sumexit;
 	int sumservice;
 	int prevexit;
-	int prevsum;
+	int prevservice;
 	int prevarrival;
 
 	bullets client_bullets[MAX_PLAYERS];

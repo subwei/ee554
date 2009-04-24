@@ -341,7 +341,7 @@ void GameState::broadcastState() {
 			cout << "GameState: Error broadcasting the state to client " << i << "!" << endl;
 	}
 }
-<<<<<<< .mine
+
 
 void GameState::FinishedTask(Client_info client){
 if(prevarrival = 0)
@@ -360,11 +360,11 @@ else
 }
 
 if(prevservice = 0)
-	prevservice = client.serverEntry;
+	prevservice = client.exit - client.serverEntry;
 else
 {
-sumeservice+= client.serverEntry - prevservice;
-prevservice = client.serverEntry;
+sumeservice+= client.serverEntry - client.exit  - prevservice;
+prevservice = client.exit - client.serverEntry;
 
 
 }
@@ -376,7 +376,6 @@ prevservice = client.serverEntry;
  *Wq
  */
 
-=======
 
 /************************************************
  * Update the current state to all clients
@@ -449,4 +448,3 @@ void GameState::updateState() {
 		}
 	}
 }
->>>>>>> .r30

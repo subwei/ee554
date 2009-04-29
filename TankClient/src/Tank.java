@@ -1,5 +1,6 @@
 import java.awt.Color;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public class Tank extends JLabel {
@@ -11,14 +12,9 @@ public class Tank extends JLabel {
     public static final int SIZE = 50;
     public static final int MOVE = 10;
 
-    public Tank(String name) {
-
-        x = GameGUI.WIDTH / 2;
-        y = GameGUI.LENGTH / 2;
+    public Tank(ImageIcon image) {
         setLocation(0, 0);
-
-        setText(name);
-        setForeground(Color.WHITE);
+        setIcon(image);
         setSize(SIZE, SIZE);
     }
     

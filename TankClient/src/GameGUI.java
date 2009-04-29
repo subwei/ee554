@@ -107,6 +107,11 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
         if (tankNum == tankClient.getClientID()){
             this.orientation = orientation;
         }
+        if(tankNum >= tanks.size()) {
+        	System.out.println("Index is larger than the number of registered tanks???");
+        	System.out.println("Tanks Registered: "+tanks.size());
+        	System.out.println("Tank Index: "+tankNum);
+        }
 
         switch(orientation) {
         case NORTH:

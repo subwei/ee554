@@ -12,12 +12,10 @@
  **********************************/
 GameState::GameState() {
 	/* Setting queuing parameters equal to zero for start*/
-	sumexit = 0;
 	sumarrival = 0;
 	sumservice = 0;
-	prevarrival = 0;
-	prevexit = 0;
-	prevservice = 0;
+	prevarrival.tv_sec = 0;
+	prevarrival.tv_usec = 0;
 	task_count = 0;
 
 	/* Create and initialize a lock for synchronization */
@@ -29,9 +27,6 @@ GameState::GameState() {
 	/* Initialize other Game State variables */
 	gameStarted = false;
 	next_client_id = 0;
-	for(int i=0; i<MAX_PLAYERS; i++) {
-		client_bullets[i].count = 0;
-	}
 
 	/* Create the datagram socket */
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -95,7 +90,7 @@ void GameState::startGame(Client_info client) {
 	}
 
 	/* Make sure this is the first player only */
-	if(activeClients.size() <= 0 || client.id != activeClients.at(0)->id) {
+	if(activeClients.size() < MIN_PLAYERS || client.id != activeClients.at(0)->id) {
 		cout << "Not the first player --> player #" << client.id << " First = " << activeClients.at(0)->id << endl;
 		this->unlock();
 		return;
@@ -111,12 +106,12 @@ void GameState::startGame(Client_info client) {
 			orientation = WEST;
 			break;
 		case 1:
-			x = SCREEN_WIDTH - TANK_HEIGHT;
-			y = SCREEN_HEIGHT - TANK_WIDTH;
+			x = SCREEN_WIDTH - TANK_WIDTH;
+			y = SCREEN_HEIGHT - TANK_HEIGHT;
 			orientation = EAST;
 			break;
 		case 2:
-			x = SCREEN_WIDTH - TANK_HEIGHT;
+			x = SCREEN_WIDTH - TANK_WIDTH;
 			orientation = SOUTH;
 			break;
 		case 3:
@@ -160,7 +155,6 @@ void GameState::updateClientPosition(Client_info client) {
 		if(activeClients.at(i)->id == client.id) {
 
 			/* Determine the direction to move */
-//			printf("Dir = %x\n", client.orientation);
 			activeClients.at(i)->orientation = client.orientation;
 			switch(client.orientation) {
 			case NORTH:
@@ -212,7 +206,7 @@ void GameState::updateClientPosition(Client_info client) {
 		if(activeClients.at(index)->y_pos >= SCREEN_HEIGHT - TANK_HEIGHT || activeClients.at(index)->y_pos < 0) {
 			activeClients.at(index)->y_pos -= dy;
 		}
-		cout << "Tank Position: x=" << activeClients.at(index)->x_pos << " y=" << activeClients.at(index)->y_pos << endl;
+//		cout << "Tank Position: x=" << activeClients.at(index)->x_pos << " y=" << activeClients.at(index)->y_pos << endl;
 	}
 
 	this->signal(game_cond_var);
@@ -236,21 +230,21 @@ void GameState::newShot(Client_info client) {
 	/* Locate the client and take their shot if needed */
 	int dx=0, dy=0;
 	for(unsigned i=0; i<activeClients.size(); i++) {
-		if(activeClients.at(i)->id == client.id && client_bullets[i].count < MAX_BULLETS) {
+		if((activeClients.at(i)->id == client.id) && (client_bullets[i].x.size() < MAX_BULLETS)) {
 			switch(activeClients.at(i)->orientation) {
 			case NORTH:
-				dx = TANK_WIDTH/2;
+				dx = TANK_WIDTH/2 - 5;
 				break;
 			case SOUTH:
 				dy = TANK_HEIGHT;
-				dx = TANK_WIDTH/2;
+				dx = TANK_WIDTH/2 - 5;
 				break;
 			case EAST:
 				dx = TANK_WIDTH;
-				dy = TANK_HEIGHT/2;
+				dy = TANK_HEIGHT/2 - 5;
 				break;
 			case WEST:
-				dy = TANK_HEIGHT/2;
+				dy = TANK_HEIGHT/2 - 5;
 				break;
 			default:
 				cout << "Unable to move bullet in a known direction" << endl;
@@ -260,7 +254,6 @@ void GameState::newShot(Client_info client) {
 			client_bullets[i].x.push_back(activeClients.at(i)->x_pos + dx);
 			client_bullets[i].y.push_back(activeClients.at(i)->y_pos + dy);
 			client_bullets[i].orientation.push_back(activeClients.at(i)->orientation);
-			client_bullets[i].count++;
 		}
 	}
 
@@ -283,7 +276,10 @@ void GameState::clientQuit(Client_info client) {
 			break;
 		}
 	}
-	if(activeClients.size() <= 0) gameStarted = false;
+	if(activeClients.size() < MIN_PLAYERS) {
+		endGame();
+		gameStarted = false;
+	}
 	next_client_id--;
 
 	this->signal(game_cond_var);
@@ -308,7 +304,7 @@ void GameState::clientReg(Client_info client, bool isActive) {
 	new_client->client_addr = client.client_addr;
 
 	/* Add the client to the appropriate list */
-	if(isActive && activeClients.size() < 4) {
+	if(isActive && activeClients.size() < MAX_PLAYERS) {
 		new_client->state = ACTIVE;
 		activeClients.push_back(new_client);
 	} else {
@@ -340,8 +336,8 @@ void GameState::broadcastState() {
 	unsigned i = 0;
 	buf[j++] = 0xFF;
 	buf[j++] = activeClients.size()&0xFF;
-	for(i=0; i<activeClients.size(); i++) bullet_count += client_bullets[i].count;
-	buf[j++] = (char)bullet_count&0xff;
+	for(i=0; i<activeClients.size(); i++) bullet_count += client_bullets[i].x.size();
+	buf[j++] = (char)bullet_count&0xFF;
 	for(i=0; i<activeClients.size(); i++) {
 		buf[j++] = (char)(activeClients.at(i)->id)&0xff;
 		buf[j++] = (char)(activeClients.at(i)->x_pos >> 24)&0xFF;
@@ -353,11 +349,13 @@ void GameState::broadcastState() {
 		buf[j++] = (char)(activeClients.at(i)->y_pos >> 8)&0xFF;
 		buf[j++] = (char)(activeClients.at(i)->y_pos)&0xFF;
 		buf[j++] = (char)(activeClients.at(i)->orientation)&0xFF;
-		//cout << "GameState: Orientation = " << activeClients.at(i)->orientation << endl;
+//		cout << "GameState: Orientation = " << activeClients.at(i)->orientation << endl;
 	}
 
+//	cout << "broadcast: Sending bullets" << endl;
 	for(i=0; i<activeClients.size(); i++) {
-		for(int k=0; k<client_bullets[i].count; k++) {
+		for(unsigned k=0; k<client_bullets[i].x.size(); k++) {
+			buf[j++] = (char)(i)&0xFF;
 			buf[j++] = (char)(client_bullets[i].x.at(k) >> 24)&0xFF;
 			buf[j++] = (char)(client_bullets[i].x.at(k) >> 16)&0xFF;
 			buf[j++] = (char)(client_bullets[i].x.at(k) >> 8)&0xFF;
@@ -366,9 +364,7 @@ void GameState::broadcastState() {
 			buf[j++] = (char)(client_bullets[i].y.at(k) >> 16)&0xFF;
 			buf[j++] = (char)(client_bullets[i].y.at(k) >> 8)&0xFF;
 			buf[j++] = (char)(client_bullets[i].y.at(k))&0xFF;
-			buf[j++] = (char)(client_bullets[i].orientation.at(k))&0xFF;
-//			cout << "Bullet X: " << client_bullets[i].x.at(k) << endl;
-//			cout << "Bullet Y: " << client_bullets[i].y.at(k) << endl;
+//			buf[j++] = (char)(client_bullets[i].orientation.at(k))&0xFF;
 		}
 	}
 
@@ -395,28 +391,22 @@ void GameState::broadcastState() {
  */
 void GameState::FinishedTask(Client_info client){
 	this->lock();
+	struct timeval tv;
 
 	/* Find total inter-arrival time */
-	if(prevarrival == 0)
+	if(prevarrival.tv_usec == 0 && prevarrival.tv_sec == 0)
 		prevarrival = client.arrival;
 	else
 	{
-		sumarrival+= client.arrival - prevarrival;
+		TIME_DIFFERENCE(prevarrival, client.arrival, tv);
+		sumarrival += tv.tv_sec * 1000000 + tv.tv_usec;
 		prevarrival = client.arrival;
-	}
-
-	/* Find out the out rate ??? */
-	if(prevexit == 0)
-		prevexit = client.exit;
-	else
-	{
-		sumexit+=client.exit - prevexit;
-		prevexit = client.exit;
 	}
 
 	/* Determine the total service time */
-	sumservice += client.exit - client.serverEntry;
-	prevservice = client.exit - client.serverEntry;
+	gettimeofday(&tv, 0);
+	TIME_DIFFERENCE(client.serverEntry, tv, tv)
+	sumservice += tv.tv_sec * 1000000 + tv.tv_usec;
 
 	/* Count the number of tasks processed */
 	task_count++;
@@ -430,18 +420,27 @@ void GameState::FinishedTask(Client_info client){
 void GameState::updateState() {
 	int dy = 0;
 	int dx = 0;
-	vector<int> dead_clients, dead_bullets;
+	vector<int> dead_bullets, dead_clients;
 
-/* Macro to delete a bullet */
-#define DELETE_BULLET(index1, index2) { \
-	client_bullets[index1].count--; \
-	client_bullets[index1].orientation.erase(client_bullets[index1].orientation.begin() + index2); \
-	client_bullets[index1].x.erase(client_bullets[index1].x.begin() + index2); \
-	client_bullets[index1].y.erase(client_bullets[index1].y.begin() + index2); \
-}
 	/* update bullet positions */
+//	cout << "\nupdatestate" << endl;
 	for(unsigned i=0; i<activeClients.size(); i++) {
-		for(int j=0; j<client_bullets[i].count; j++) {
+		for(int j=0; j<client_bullets[i].x.size(); j++) {
+			/* Remove bullets that have hit someone???
+			 * If it hits them, then the tank is DEAD!!!!
+			 * If only one player left, Game ends ==> gameStarted = false */
+			for(unsigned k=0; k<activeClients.size(); k++) {
+				if(k == i) continue;
+				if(client_bullets[i].x.at(j) >= activeClients.at(k)->x_pos &&
+				   client_bullets[i].x.at(j) <= activeClients.at(k)->x_pos + TANK_WIDTH){
+					if(client_bullets[i].y.at(j) >= activeClients.at(k)->y_pos &&
+					   client_bullets[i].y.at(j) <= activeClients.at(k)->y_pos + TANK_WIDTH){
+						dead_clients.push_back(k);
+						dead_bullets.push_back(j);
+					}
+				}
+			}
+
 			/* Determine the orientation & movement */
 			switch(client_bullets[i].orientation.at(j)) {
 			case NORTH:
@@ -474,8 +473,7 @@ void GameState::updateState() {
 				break;
 			default:
 				cout << "Unable to move bullet in a known direction" << endl;
-				dead_bullets.push_back(j);
-				return;
+				break;
 			}
 
 			/* Now move the bullet */
@@ -483,36 +481,38 @@ void GameState::updateState() {
 			client_bullets[i].y.at(j) += dy;
 
 			/* Remove bullets that have left the screen */
-			if(client_bullets[i].x.at(j) >= SCREEN_WIDTH || client_bullets[i].x.at(j) < 0) {
+			if((client_bullets[i].x.at(j) >= SCREEN_WIDTH + 5 || client_bullets[i].x.at(j) < -5) ||
+			   (client_bullets[i].y.at(j) >= SCREEN_HEIGHT + 5 || client_bullets[i].y.at(j) < -5))
 				dead_bullets.push_back(j);
-			} else if(client_bullets[i].y.at(j) >= SCREEN_HEIGHT || client_bullets[i].y.at(j) < 0) {
-				dead_bullets.push_back(j);
-			}
-
-			/* Remove bullets that have hit someone???
-			 * If it hits them, then the tank is DEAD!!!!
-			 * If only one player left, Game ends ==> gameStarted = false */
-			for(unsigned k=0; k<activeClients.size(); k++) {
-				if(client_bullets[i].x.at(j) >= activeClients.at(k)->x_pos &&
-				   client_bullets[i].x.at(j) <= activeClients.at(k)->x_pos + TANK_WIDTH){
-					if(client_bullets[i].y.at(j) >= activeClients.at(k)->y_pos &&
-					   client_bullets[i].y.at(j) <= activeClients.at(k)->y_pos + TANK_WIDTH){
-						dead_clients.push_back(k);
-						dead_bullets.push_back(j);
-					}
-				}
-			}
 		}
-		for(unsigned k=0; k<dead_clients.size(); k++) {
-			activeClients.erase(activeClients.begin() + dead_clients.at(k));
+//		for(unsigned k=0; k<dead_bullets.size(); k++) {
+//			client_bullets[i].count--;
+//			cout << "decrement count" << endl;
+//			client_bullets[i].orientation.erase(client_bullets[i].orientation.begin() + dead_bullets.at(k));
+//			cout << "delete orientation" << endl;
+//			client_bullets[i].x.erase(client_bullets[i].x.begin() + dead_bullets.at(k));
+//			cout << "delete x" << endl;
+//			client_bullets[i].y.erase(client_bullets[i].y.begin() + dead_bullets.at(k));
+//			cout << "delete y" << endl;
+//			break;
+//		}
+		if(dead_bullets.size() > 0) {
+			cout << "Dead Bullets\n" << endl;
+			client_bullets[i].x.clear();
+			client_bullets[i].y.clear();
+			client_bullets[i].orientation.clear();
 		}
-		for(unsigned k=0; k<dead_bullets.size(); k++) {
-			DELETE_BULLET(i, dead_bullets.at(k));
+		if(activeClients.size() < MIN_PLAYERS) {
+			endGame();
 		}
-		if(activeClients.size() <= 0) {
-			gameStarted = false;
-		}
+		dead_bullets.clear();
 	}
+	//		cout << "checking if anyone died" << endl;
+	for(unsigned k=0; k<dead_clients.size(); k++) {
+		activeClients.erase(activeClients.begin() + dead_clients.at(k));
+		break; // To ensure no seg fault occurs
+	}
+//	cout << "finished updating" << endl;
 }
 
 /************************************************
@@ -525,32 +525,33 @@ void GameState::endGame() {
 
 	/* Find mean service time (s) */
 	double mean_s = (double)sumservice / (double)task_count;
-	cout << "Mean service time = " << mean_s << endl;
-	cout << "Mean service rate = " << 1 / mean_s << endl;
+	cout << "Total time spent servicing = " << "us" << sumservice << endl;
+	cout << "Mean service time = " << mean_s << "us" << endl;
+	cout << "Mean service rate = " << 1 / mean_s << "per us" << endl;
 
 	/* Find mean arrival rate (lambda) */
 	double mean_arrival = (double)sumarrival / (double)task_count;
-	cout << "Mean arrival time = " << mean_arrival << endl;
-	cout << "Mean arrival rate = " << 1 / mean_arrival << endl;
+	cout << "Mean arrival time = " << mean_arrival << "us" << endl;
+	cout << "Mean arrival rate = " << 1 / mean_arrival << "per us" << endl;
 
 	/* Find the utilization factor */
 	double utilization = mean_s / mean_arrival;
 	cout << "Utilization factor = " << utilization << endl;
 
+	/* Task Count */
+	cout << "Number of tasks = " << task_count << endl;
+
 	/* Cleanup & put the game into an initial state */
 	gameStarted = false;
-	sumexit = 0;
 	sumarrival = 0;
 	sumservice = 0;
-	prevarrival = 0;
-	prevexit = 0;
-	prevservice = 0;
+	prevarrival.tv_sec = 0;
+	prevarrival.tv_usec = 0;
 	task_count = 0;
 	activeClients.clear();
 	inactiveClients.clear();
 	next_client_id = 0;
 	for(int i=0; i<MAX_PLAYERS; i++) {
-		client_bullets[i].count = 0;
 		client_bullets[i].orientation.clear();
 		client_bullets[i].x.clear();
 		client_bullets[i].y.clear();

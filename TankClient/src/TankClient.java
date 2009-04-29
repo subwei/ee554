@@ -103,9 +103,10 @@ public class TankClient{
      */
     private void refreshPlayers(DatagramPacket receivePacket){
         
-        for (int x=0; x<receivePacket.getLength(); x++){
-            System.out.print(receivePacket.getData()[x] + " ");
-        }
+//    	System.out.println("Pkt Size: "+receivePacket.getLength());
+//        for (int x=0; x<receivePacket.getLength(); x++){
+//            System.out.print(receivePacket.getData()[x] + " ");
+//        }
         int numPlayers = (int)receivePacket.getData()[1];
         
         if (isFirstPacket){
@@ -126,6 +127,7 @@ public class TankClient{
                     ((int)receivePacket.getData()[i++]<<8)&0xFF00 |
                     ((int)receivePacket.getData()[i++])&0xFF;
             byte orientation = receivePacket.getData()[i];
+//            System.out.println("\n"+orientation);
             game.drawTank(m, x, y, orientation);
         }
         m = 0;
@@ -206,7 +208,7 @@ public class TankClient{
             data[1] = MSG_START;
             sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
             socket.send(sendPacket);
-            System.out.println("Packet Sent"); 
+//            System.out.println("Packet Sent"); 
         }
         catch (IOException ex) {
             ex.printStackTrace();
@@ -226,7 +228,7 @@ public class TankClient{
             data[2] = direction;
             sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
             socket.send(sendPacket);
-            System.out.println("Packet Sent"); 
+//            System.out.println("Packet Sent"); 
         }
         catch (IOException ex) {
             ex.printStackTrace();
@@ -243,7 +245,7 @@ public class TankClient{
             data[1] = MSG_REGISTER;
             sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
             socket.send(sendPacket);
-            System.out.println("Packet Sent"); 
+//            System.out.println("Packet Sent"); 
         }
         catch (IOException ex) {
             ex.printStackTrace();
@@ -258,7 +260,7 @@ public class TankClient{
             data[2] = direction;
             sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
             socket.send(sendPacket);
-            System.out.println("Packet Sent"); 
+//            System.out.println("Packet Sent"); 
         }
         catch (IOException ex) {
             ex.printStackTrace();
@@ -272,7 +274,7 @@ public class TankClient{
             data[1] = MSG_QUIT;
             sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
             socket.send(sendPacket);
-            System.out.println("Packet Sent"); 
+//            System.out.println("Packet Sent"); 
         }
         catch (IOException ex) {
             ex.printStackTrace();

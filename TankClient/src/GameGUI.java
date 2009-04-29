@@ -108,29 +108,38 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
             this.orientation = orientation;
         }
 
-        if (orientation == NORTH){
-            tank.setIcon(northImage);
-        }
-        else if (orientation == SOUTH){
-            tank.setIcon(southImage);
-        }
-        else if (orientation == EAST){
-            tank.setIcon(eastImage);
-        }
-        else if (orientation == WEST){
-            tank.setIcon(westImage);
+        switch(orientation) {
+        case NORTH:
+//        	System.out.println("North orientation");
+        	tanks.get(tankNum).setIcon(northImage);
+        	break;
+        case SOUTH:
+//        	System.out.println("South orientation");
+        	tanks.get(tankNum).setIcon(southImage);
+        	break;
+        case EAST:
+//        	System.out.println("East orientation");
+        	tanks.get(tankNum).setIcon(eastImage);
+        	break;
+        case WEST:
+//        	System.out.println("West orientation");
+        	tanks.get(tankNum).setIcon(westImage);
+        	break;
+        default:
+        	System.out.println("Unk orientation");
+        	break;
         }
         tanks.get(tankNum).moveTo(x, y);
         invalidate();
         repaint();
         Point p = tanks.get(tankNum).getLocation();
-        System.out.println("Point: x " + p.x + " y " + p.y);
-        System.out.println("Draw Tank " + tankNum + ": x " + x + " y " + y + " orient: " + (int)orientation);
+//        System.out.println("Point: x " + p.x + " y " + p.y);
+//        System.out.println("Draw Tank " + tankNum + ": x " + x + " y " + y + " orient: " + (int)orientation);
     }
     
     public void drawBullet(int bulletIndex, int x, int y){
         bullets.get(bulletIndex).setVisible(true);
-        System.out.println("x: " + x + " y: " + y);
+//        System.out.println("x: " + x + " y: " + y);
         bullets.get(bulletIndex).setLocation(x, y);
     }
 

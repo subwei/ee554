@@ -31,8 +31,7 @@ Task ParseMsg(char* buffer, int length, sockaddr_in client_addr) {
 		/* Check if we need to gather the direction from the buffer */
 		if(task.type == MSG_MOVE || task.type == MSG_SHOOT) {
 			task.client.orientation = buffer[2];
-		} else if(task.type == MSG_REGISTER) {
-		}
+		} else if(task.type == MSG_REGISTER) {}
 	}
 	else {
 		cout << "SERVER ERROR: ParseMsg failed" << endl;

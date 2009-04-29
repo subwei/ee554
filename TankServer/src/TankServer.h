@@ -54,7 +54,7 @@ class TaskHandler;
 #define SCREEN_WIDTH		800
 #define SCREEN_HEIGHT		600
 #define TANK_SPEED			10
-#define SHOOTING_SPEED		50
+#define SHOOTING_SPEED		5
 
 /* Clients orientations */
 #define NORTH				0x01
@@ -66,6 +66,9 @@ class TaskHandler;
 #define SOUTHWEST			0x40
 #define SOUTHEAST			0x80
 #define UNK 				0x00
+
+/* Inter-frame delay (us) ==> Inverse gives the frame rate */
+#define INTERFRAME_DELAY	33333
 
 /*****************************************************
  * Client Data

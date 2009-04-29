@@ -61,8 +61,8 @@ void TaskHandler::run() {
 		}
 
 		scheduler->finishedTask(this, currentTask);
-		/* Calling Finished Taks */
-	    gameState->FinishedTask(currentTask.cient);
+		/* Calling Finished Task */
+	    gameState->FinishedTask(currentTask.client);
 		this->unlock();
 	}
 }

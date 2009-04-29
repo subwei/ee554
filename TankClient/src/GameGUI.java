@@ -50,7 +50,7 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
         setBackground(Color.BLACK);
         tanks = new ArrayList<Tank>();
         bullet = new JLabel("0");
-        bullet.setSize(10, 10);
+        bullet.setSize(8, 8);
         bullet.setForeground(Color.WHITE);
         bullet.setVisible(false);
         add(bullet);

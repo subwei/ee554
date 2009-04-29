@@ -6,10 +6,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+
+import com.sun.medialib.mlib.Image;
 
 public class GameGUI extends JFrame implements KeyListener, ActionListener{
     // Width and Length of the game frame
@@ -26,6 +30,12 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
     public static final byte SOUTHWEST  = (byte)0x40;
     public static final byte SOUTHEAST  = (byte)0x80;
     
+    // Image Icons for the tank
+    private ImageIcon northImage;
+    private ImageIcon southImage;
+    private ImageIcon eastImage;
+    private ImageIcon westImage;
+    
     // Menu Components
     private JMenuBar menuBar;
     private JMenu menu;
@@ -33,15 +43,23 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
     
     private ArrayList<Tank> tanks;
     private TankClient tankClient;
+    private Tank tank;
+    private byte orientation;
+    private JLabel bullet;
     
-    public GameGUI(TankClient tankClient, int numPlayers){
+    public GameGUI(TankClient tankClient){
         this.tankClient = tankClient;
         setBackground(Color.BLACK);
         tanks = new ArrayList<Tank>();
-        for (int x=0; x<numPlayers; x++){
-            tanks.add(new Tank("Tank" + Integer.toString(x)));
-            add(tanks.get(x));
-        }
+        bullet = new JLabel("0");
+        bullet.setSize(10, 10);
+        bullet.setForeground(Color.WHITE);
+        bullet.setVisible(false);
+        add(bullet);
+        northImage = new ImageIcon("tank.jpg");
+        southImage = new ImageIcon("tank_down.jpg");
+        westImage = new ImageIcon("tank_left.jpg");
+        eastImage = new ImageIcon("tank_right.jpg");
         setLayout(null);
         addKeyListener(this); 
         setupMenu();
@@ -57,15 +75,60 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
         setJMenuBar(menuBar);
     }
     
-    public void drawTank(int tankNum, int x, int y){
-        //tanks.get(tankNum).moveRight();
-        //tanks.get(tankNum).setLocation(x, y);
+    public void reset(){
+        tanks.clear();
+    }
+    
+    public void addTank(int x, int y, byte orientation){
+        if (orientation == NORTH){
+            tank = new Tank(northImage);
+        }
+        else if (orientation == SOUTH){
+            tank = new Tank(southImage);
+        }
+        else if (orientation == EAST){
+            tank = new Tank(eastImage);
+        }
+        else if (orientation == WEST){
+            tank = new Tank(westImage);
+        }
+        else{
+            System.out.println("Error creating Tank: invalid orientation");
+        }
+        tanks.add(tank);
+        tank.moveTo(x, y);
+        add(tank);
+    }
+    
+    public void drawTank(int tankNum, int x, int y, byte orientation){
+        if (tankNum == tankClient.getClientID()){
+            this.orientation = orientation;
+        }
+
+        if (orientation == NORTH){
+            tank.setIcon(northImage);
+        }
+        else if (orientation == SOUTH){
+            tank.setIcon(southImage);
+        }
+        else if (orientation == EAST){
+            tank.setIcon(eastImage);
+        }
+        else if (orientation == WEST){
+            tank.setIcon(westImage);
+        }
         tanks.get(tankNum).moveTo(x, y);
         invalidate();
         repaint();
         Point p = tanks.get(tankNum).getLocation();
         System.out.println("Point: x " + p.x + " y " + p.y);
-        System.out.println("Draw Tank " + tankNum + ": x " + x + " y " + y);
+        System.out.println("Draw Tank " + tankNum + ": x " + x + " y " + y + " orient: " + (int)orientation);
+    }
+    
+    public void drawBullet(int x, int y){
+        bullet.setVisible(true);
+        System.out.println("x: " + x + " y: " + y);
+        bullet.setLocation(x, y);
     }
 
     public void keyReleased(KeyEvent e) {
@@ -85,9 +148,15 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
             tankClient.sendDirectionPacket(WEST);
             //tank.moveLeft();
         }
-        else if (e.getKeyCode() == KeyEvent.VK_SPACE){
+        else if (e.getKeyCode() == KeyEvent.VK_ENTER){
             tankClient.startGame();
             System.out.println("Starting Game...");
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_SPACE){
+            tankClient.shoot(orientation);
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_Q){
+            tankClient.quit();
         }
         invalidate();
         repaint();
@@ -108,3 +177,7 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
         
     }   
 }
+
+
+
+

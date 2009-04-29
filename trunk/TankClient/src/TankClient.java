@@ -28,12 +28,16 @@ public class TankClient{
     private int portNumber;
     private InetAddress netAddress;     // Server InetAddress
     private byte clientID; 
+    private boolean isFirstPacket;
     
     public TankClient() {
+        
         // create registration frame
         registration = new RegisterGUI(this);
         registration.setSize(RegisterGUI.WIDTH, RegisterGUI.LENGTH);
         registration.setVisible(true);
+        isFirstPacket = true;
+        game = null;
         
         // set up socket and listen for traffic
         try {
@@ -65,7 +69,6 @@ public class TankClient{
                         System.out.print(receivePacket.getData()[x] + " ");
                         //System.out.print(Integer.toHexString(((int)receivePacket.getData()[x]))  + " ");
                     }
-
                 }
             }
             catch (IOException e) {
@@ -81,9 +84,14 @@ public class TankClient{
     private void setupGame(byte[] data){
         System.out.println("Creating Game");
         clientID = data[0];
-        game = new GameGUI(this, 4);
-        game.setSize(new Dimension(GameGUI.WIDTH, GameGUI.LENGTH));
-        game.setVisible(true);
+        if (game == null){
+            game = new GameGUI(this);
+            game.setSize(new Dimension(GameGUI.WIDTH, GameGUI.LENGTH));
+            game.setVisible(true);
+        }
+        else{
+            game.reset();
+        }
         
         // close registration screen
         registration.dispose();
@@ -99,8 +107,29 @@ public class TankClient{
             System.out.print(receivePacket.getData()[x] + " ");
         }
         int numPlayers = (int)receivePacket.getData()[1];
+        
+        if (isFirstPacket){
+            initializePlayers(receivePacket);
+            isFirstPacket = false;
+        }
+        
+        int numBullets = (int)receivePacket.getData()[2];
         int m = 0;
-        for (int i=2; i<receivePacket.getLength(); i++){
+        for (int i=3; i < (numPlayers*10) + 3; i++){
+            m = (int)receivePacket.getData()[i++];
+            int x = ((int)receivePacket.getData()[i++]<<24)&0xFF000000 |
+                    ((int)receivePacket.getData()[i++]<<16)&0xFF0000 |
+                    ((int)receivePacket.getData()[i++]<<8)&0xFF00 |
+                    ((int)receivePacket.getData()[i++])&0xFF;
+            int y = ((int)receivePacket.getData()[i++]<<24)&0xFF000000|
+                    ((int)receivePacket.getData()[i++]<<16)&0xFF0000 |
+                    ((int)receivePacket.getData()[i++]<<8)&0xFF00 |
+                    ((int)receivePacket.getData()[i++])&0xFF;
+            byte orientation = receivePacket.getData()[i];
+            game.drawTank(m, x, y, orientation);
+        }
+        
+        for (int i=(numPlayers*10) + 3; i< (numBullets*8) + (numPlayers*10) + 3; i++){
             int x = ((int)receivePacket.getData()[i++]<<24)&0xFF000000 |
                     ((int)receivePacket.getData()[i++]<<16)&0xFF0000 |
                     ((int)receivePacket.getData()[i++]<<8)&0xFF00 |
@@ -109,7 +138,27 @@ public class TankClient{
                     ((int)receivePacket.getData()[i++]<<16)&0xFF0000 |
                     ((int)receivePacket.getData()[i++]<<8)&0xFF00 |
                     ((int)receivePacket.getData()[i])&0xFF;
-            game.drawTank(m++, x, y);
+            game.drawBullet(x, y);
+        }
+    }
+    
+    public void initializePlayers(DatagramPacket receivePacket){
+
+        int numPlayers = (int)receivePacket.getData()[1];        
+        int m = 0;
+        for (int i=3; i < (numPlayers*10) + 3; i++){
+            m = (int)receivePacket.getData()[i++];
+            int x = ((int)receivePacket.getData()[i++]<<24)&0xFF000000 |
+                    ((int)receivePacket.getData()[i++]<<16)&0xFF0000 |
+                    ((int)receivePacket.getData()[i++]<<8)&0xFF00 |
+                    ((int)receivePacket.getData()[i++])&0xFF;
+            int y = ((int)receivePacket.getData()[i++]<<24)&0xFF000000|
+                    ((int)receivePacket.getData()[i++]<<16)&0xFF0000 |
+                    ((int)receivePacket.getData()[i++]<<8)&0xFF00 |
+                    ((int)receivePacket.getData()[i++])&0xFF;
+            byte orientation = receivePacket.getData()[i];
+            game.addTank(x, y, orientation);
+            //game.drawTank(m, x, y);
         }
     }
     
@@ -145,12 +194,12 @@ public class TankClient{
      * Methods to send information to server
      *----------------------------------------------------*/
     
-    
     /**
      * Sends startgame packet to the server
      */
     public void startGame(){
         try {
+            isFirstPacket = true;
             byte[] data = new byte[2];
             data[0] = (byte)(clientID);
             data[1] = MSG_START;
@@ -191,6 +240,35 @@ public class TankClient{
             byte[] data = new byte[2];
             data[0] = (byte)(0x00);
             data[1] = MSG_REGISTER;
+            sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
+            socket.send(sendPacket);
+            System.out.println("Packet Sent"); 
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public void shoot(byte direction){
+        try {
+            byte[] data = new byte[3];
+            data[0] = clientID;
+            data[1] = MSG_SHOOT;
+            data[2] = direction;
+            sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
+            socket.send(sendPacket);
+            System.out.println("Packet Sent"); 
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public void quit(){
+        try {
+            byte[] data = new byte[2];
+            data[0] = clientID;
+            data[1] = MSG_QUIT;
             sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
             socket.send(sendPacket);
             System.out.println("Packet Sent"); 

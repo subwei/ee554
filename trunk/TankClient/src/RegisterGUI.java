@@ -18,11 +18,14 @@ public class RegisterGUI extends JFrame implements ActionListener{
     
     private JButton registerButton;     // connects the client to the server
     private TankClient tankClient;      // reference to the tankClient
+    
+    private map mapObject;
 
     public RegisterGUI(TankClient tankClient){
         this.tankClient = tankClient;
         setComponents();
         setLayout();
+        mapObject = new map();
     }
     
     private void setComponents(){
@@ -36,7 +39,7 @@ public class RegisterGUI extends JFrame implements ActionListener{
         registerButton = new JButton("Register");
         registerButton.addActionListener(this);
         
-        ipField.setText("207.151.225.81");
+        ipField.setText("76.89.213.52");
         portField.setText("4801");
     }
     

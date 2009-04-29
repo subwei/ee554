@@ -17,7 +17,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <vector>
-#include <time.h>
+#include <map>
+#include <sys/time.h>
 
 /* Class prototypes */
 class GameState;
@@ -28,6 +29,7 @@ class TaskHandler;
 #define SCHEDULING_ALGORITHMS 	1
 #define MAX_TASK_HANDLERS 		4
 #define MAX_PLAYERS				4
+#define MIN_PLAYERS				2
 #define MAX_BULLETS				1
 
 /* Scheduling Algorithms */
@@ -51,10 +53,10 @@ class TaskHandler;
 /* Client & Game State Constants */
 #define TANK_WIDTH 			50
 #define TANK_HEIGHT			50
-#define SCREEN_WIDTH		800
-#define SCREEN_HEIGHT		600
-#define TANK_SPEED			10
-#define SHOOTING_SPEED		5
+#define SCREEN_WIDTH		805
+#define SCREEN_HEIGHT		555
+#define TANK_SPEED			5
+#define SHOOTING_SPEED		13
 
 /* Clients orientations */
 #define NORTH				0x01
@@ -68,7 +70,13 @@ class TaskHandler;
 #define UNK 				0x00
 
 /* Inter-frame delay (us) ==> Inverse gives the frame rate */
-#define INTERFRAME_DELAY	33333
+#define INTERFRAME_DELAY	50000
+
+/* macro to determine the difference in two times */
+#define TIME_DIFFERENCE(before, after, result) { \
+	result.tv_sec = after.tv_sec - before.tv_sec; \
+	result.tv_usec = after.tv_usec - before.tv_usec; \
+}
 
 /*****************************************************
  * Client Data
@@ -86,9 +94,8 @@ typedef struct Client_info {
 	int orientation;
 	client_state state;
 	struct sockaddr_in client_addr;
-	time_t arrival;
-	time_t serverEntry;
-	time_t exit;
+	struct timeval arrival;
+	struct timeval serverEntry;
 }Client_info;
 
 /*********************************************

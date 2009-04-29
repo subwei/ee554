@@ -13,7 +13,6 @@
 
 /* Structure for bullets */
 typedef struct bullets {
-	int count;
 	vector<int> orientation;
 	vector<int> x;
 	vector<int> y;
@@ -30,12 +29,10 @@ private:
 	vector<Client_info*> inactiveClients;
 
 	/* Queuing stuff */
-	int sumarrival;
-	int sumexit;
-	int sumservice;
-	int prevexit;
-	int prevservice;
-	int prevarrival;
+	unsigned sumarrival;
+	unsigned sumservice;
+	struct timeval prevservice;
+	struct timeval prevarrival;
 	int task_count;
 
 	bullets client_bullets[MAX_PLAYERS];

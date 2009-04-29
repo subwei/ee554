@@ -53,7 +53,7 @@ void Scheduler::run() {
 		}
 		else
 		{
-			cout << "Scheduler: Nothing to do" << endl;
+//			cout << "Scheduler: Nothing to do" << endl;
 			this->wait(schedule_cond_var);
 		}
 		this->unlock();

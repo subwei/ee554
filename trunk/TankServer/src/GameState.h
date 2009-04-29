@@ -29,12 +29,14 @@ private:
 	vector<Client_info*> activeClients;
 	vector<Client_info*> inactiveClients;
 
+	/* Queuing stuff */
 	int sumarrival;
 	int sumexit;
 	int sumservice;
 	int prevexit;
 	int prevservice;
 	int prevarrival;
+	int task_count;
 
 	bullets client_bullets[MAX_PLAYERS];
 
@@ -44,6 +46,8 @@ private:
 	/* Update the current state of all bullets */
 	void updateState();
 
+	/* End the game & cleanup */
+	void endGame();
 
 public:
 	GameState();

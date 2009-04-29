@@ -1,4 +1,4 @@
-/*
+then /*
  * GameState.cpp
  *
  *  Created on: Mar 17, 2009
@@ -525,14 +525,14 @@ void GameState::endGame() {
 
 	/* Find mean service time (s) */
 	double mean_s = (double)sumservice / (double)task_count;
-	cout << "Total time spent servicing = " << "us" << sumservice << endl;
-	cout << "Mean service time = " << mean_s << "us" << endl;
-	cout << "Mean service rate = " << 1 / mean_s << "per us" << endl;
+	cout << "Total time spent servicing = " << sumservice << " us" << endl;
+	cout << "Mean service time = " << mean_s << " us" << endl;
+	cout << "Mean service rate = " << 1 / mean_s << " per us" << endl;
 
 	/* Find mean arrival rate (lambda) */
 	double mean_arrival = (double)sumarrival / (double)task_count;
-	cout << "Mean arrival time = " << mean_arrival << "us" << endl;
-	cout << "Mean arrival rate = " << 1 / mean_arrival << "per us" << endl;
+	cout << "Mean arrival time = " << mean_arrival << " us" << endl;
+	cout << "Mean arrival rate = " << 1 / mean_arrival << " per us" << endl;
 
 	/* Find the utilization factor */
 	double utilization = mean_s / mean_arrival;

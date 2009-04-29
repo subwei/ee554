@@ -13,8 +13,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import com.sun.medialib.mlib.Image;
-
 public class GameGUI extends JFrame implements KeyListener, ActionListener{
     // Width and Length of the game frame
     public static final int WIDTH   = 800;

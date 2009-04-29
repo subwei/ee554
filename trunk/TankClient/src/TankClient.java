@@ -128,8 +128,9 @@ public class TankClient{
             byte orientation = receivePacket.getData()[i];
             game.drawTank(m, x, y, orientation);
         }
-        
-        for (int i=(numPlayers*10) + 3; i< (numBullets*8) + (numPlayers*10) + 3; i++){
+        m = 0;
+        for (int i=(numPlayers*10) + 3; i< (numBullets*9) + (numPlayers*10) + 3; i++){
+            m = (int)receivePacket.getData()[i++];
             int x = ((int)receivePacket.getData()[i++]<<24)&0xFF000000 |
                     ((int)receivePacket.getData()[i++]<<16)&0xFF0000 |
                     ((int)receivePacket.getData()[i++]<<8)&0xFF00 |
@@ -138,7 +139,7 @@ public class TankClient{
                     ((int)receivePacket.getData()[i++]<<16)&0xFF0000 |
                     ((int)receivePacket.getData()[i++]<<8)&0xFF00 |
                     ((int)receivePacket.getData()[i])&0xFF;
-            game.drawBullet(x, y);
+            game.drawBullet(m, x, y);
         }
     }
     

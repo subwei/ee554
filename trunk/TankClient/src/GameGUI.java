@@ -43,17 +43,22 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
     private TankClient tankClient;
     private Tank tank;
     private byte orientation;
-    private JLabel bullet;
+    private ArrayList<JLabel> bullets;
     
     public GameGUI(TankClient tankClient){
         this.tankClient = tankClient;
         setBackground(Color.BLACK);
         tanks = new ArrayList<Tank>();
-        bullet = new JLabel("0");
-        bullet.setSize(8, 8);
-        bullet.setForeground(Color.WHITE);
-        bullet.setVisible(false);
-        add(bullet);
+        bullets = new ArrayList<JLabel>();
+        for (int x=0; x<4; x++){
+            JLabel bullet = new JLabel("0");
+            bullet.setSize(8, 8);
+            bullet.setForeground(Color.WHITE);
+            bullet.setVisible(false);
+            add(bullet);
+            bullets.add(bullet);
+        }
+
         northImage = new ImageIcon("tank.jpg");
         southImage = new ImageIcon("tank_down.jpg");
         westImage = new ImageIcon("tank_left.jpg");
@@ -123,10 +128,10 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
         System.out.println("Draw Tank " + tankNum + ": x " + x + " y " + y + " orient: " + (int)orientation);
     }
     
-    public void drawBullet(int x, int y){
-        bullet.setVisible(true);
+    public void drawBullet(int bulletIndex, int x, int y){
+        bullets.get(bulletIndex).setVisible(true);
         System.out.println("x: " + x + " y: " + y);
-        bullet.setLocation(x, y);
+        bullets.get(bulletIndex).setLocation(x, y);
     }
 
     public void keyReleased(KeyEvent e) {

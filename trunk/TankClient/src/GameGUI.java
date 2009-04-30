@@ -111,6 +111,7 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
         	System.out.println("Index is larger than the number of registered tanks???");
         	System.out.println("Tanks Registered: "+tanks.size());
         	System.out.println("Tank Index: "+tankNum);
+        	return;
         }
 
         switch(orientation) {
@@ -138,8 +139,8 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener{
         invalidate();
         repaint();
         Point p = tanks.get(tankNum).getLocation();
-//        System.out.println("Point: x " + p.x + " y " + p.y);
-//        System.out.println("Draw Tank " + tankNum + ": x " + x + " y " + y + " orient: " + (int)orientation);
+        System.out.println("Point: x " + p.x + " y " + p.y);
+        System.out.println("Draw Tank " + tankNum + ": x " + x + " y " + y + " orient: " + (int)orientation);
     }
     
     public void drawBullet(int bulletIndex, int x, int y){

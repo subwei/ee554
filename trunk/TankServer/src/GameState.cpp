@@ -1,4 +1,4 @@
-then /*
+/*
  * GameState.cpp
  *
  *  Created on: Mar 17, 2009
@@ -16,6 +16,7 @@ GameState::GameState() {
 	sumservice = 0;
 	prevarrival.tv_sec = 0;
 	prevarrival.tv_usec = 0;
+	total_time = 0;
 	task_count = 0;
 
 	/* Create and initialize a lock for synchronization */
@@ -83,15 +84,16 @@ void GameState::run() {
  ***********************************************/
 void GameState::startGame(Client_info client) {
 	this->lock();
-	cout << "GameState: Starting game" << endl;
 	if(gameStarted){
+		cout << "GameState: Attempt to start, but game is already started" << endl;
 		this->unlock();
 		return;
 	}
+	cout << "GameState: Starting game" << endl;
 
 	/* Make sure this is the first player only */
 	if(activeClients.size() < MIN_PLAYERS || client.id != activeClients.at(0)->id) {
-		cout << "Not the first player --> player #" << client.id << " First = " << activeClients.at(0)->id << endl;
+		cout << "Not enough players or incorrect player attempting to start game!" << activeClients.at(0)->id << endl;
 		this->unlock();
 		return;
 	}
@@ -230,31 +232,31 @@ void GameState::newShot(Client_info client) {
 	/* Locate the client and take their shot if needed */
 	int dx=0, dy=0;
 	for(unsigned i=0; i<activeClients.size(); i++) {
-		if((activeClients.at(i)->id == client.id) && (client_bullets[i].x.size() < MAX_BULLETS)) {
-			switch(activeClients.at(i)->orientation) {
-			case NORTH:
-				dx = TANK_WIDTH/2 - 5;
-				break;
-			case SOUTH:
-				dy = TANK_HEIGHT;
-				dx = TANK_WIDTH/2 - 5;
-				break;
-			case EAST:
-				dx = TANK_WIDTH;
-				dy = TANK_HEIGHT/2 - 5;
-				break;
-			case WEST:
-				dy = TANK_HEIGHT/2 - 5;
-				break;
-			default:
-				cout << "Unable to move bullet in a known direction" << endl;
-				return;
-			}
+		if(client_bullets[i].x.size() >= MAX_BULLETS) continue;
+		if(activeClients.at(i)->id != client.id) continue;
+		switch(activeClients.at(i)->orientation) {
+		case NORTH:
+			dx = TANK_WIDTH/2 - 5;
+			break;
+		case SOUTH:
+			dy = TANK_HEIGHT;
+			dx = TANK_WIDTH/2 - 5;
+			break;
+		case EAST:
+			dx = TANK_WIDTH;
+			dy = TANK_HEIGHT/2 - 5;
+			break;
+		case WEST:
+			dy = TANK_HEIGHT/2 - 5;
+			break;
+		default:
+			cout << "Unable to move bullet in a known direction" << endl;
+			return;
+		}
 
 			client_bullets[i].x.push_back(activeClients.at(i)->x_pos + dx);
 			client_bullets[i].y.push_back(activeClients.at(i)->y_pos + dy);
 			client_bullets[i].orientation.push_back(activeClients.at(i)->orientation);
-		}
 	}
 
 	this->unlock();
@@ -291,7 +293,11 @@ void GameState::clientQuit(Client_info client) {
  ************************************************/
 void GameState::clientReg(Client_info client, bool isActive) {
 	this->lock();
-	if(gameStarted) return;
+	if(gameStarted) {
+		cout << "GameState: registration is closed" << endl;
+		this->unlock();
+		return;
+	}
 	cout << "GameState: Registering new client" << endl;
 
 	Client_info* new_client = (Client_info*)malloc(sizeof(Client_info));
@@ -391,22 +397,27 @@ void GameState::broadcastState() {
  */
 void GameState::FinishedTask(Client_info client){
 	this->lock();
-	struct timeval tv;
+	struct timeval tv1, tv2;
 
 	/* Find total inter-arrival time */
 	if(prevarrival.tv_usec == 0 && prevarrival.tv_sec == 0)
 		prevarrival = client.arrival;
 	else
 	{
-		TIME_DIFFERENCE(prevarrival, client.arrival, tv);
-		sumarrival += tv.tv_sec * 1000000 + tv.tv_usec;
+		TIME_DIFFERENCE(prevarrival, client.arrival, tv1);
+		sumarrival += tv1.tv_sec * 1000000 + tv1.tv_usec;
 		prevarrival = client.arrival;
 	}
 
 	/* Determine the total service time */
-	gettimeofday(&tv, 0);
-	TIME_DIFFERENCE(client.serverEntry, tv, tv)
-	sumservice += tv.tv_sec * 1000000 + tv.tv_usec;
+	gettimeofday(&tv2, 0);
+	TIME_DIFFERENCE(client.serverEntry, tv2, tv1)
+	sumservice += tv1.tv_sec * 1000000 + tv1.tv_usec;
+
+	/* Determine the total system time */
+	TIME_DIFFERENCE(client.arrival, tv2, tv1);
+	total_time += tv1.tv_sec * 1000000 + tv1.tv_usec;
+//	cout << "Time in system = " << tv1.tv_sec * 1000000 + tv1.tv_usec << endl;
 
 	/* Count the number of tasks processed */
 	task_count++;
@@ -425,7 +436,7 @@ void GameState::updateState() {
 	/* update bullet positions */
 //	cout << "\nupdatestate" << endl;
 	for(unsigned i=0; i<activeClients.size(); i++) {
-		for(int j=0; j<client_bullets[i].x.size(); j++) {
+		for(unsigned j=0; j<client_bullets[i].x.size(); j++) {
 			/* Remove bullets that have hit someone???
 			 * If it hits them, then the tank is DEAD!!!!
 			 * If only one player left, Game ends ==> gameStarted = false */
@@ -541,10 +552,15 @@ void GameState::endGame() {
 	/* Task Count */
 	cout << "Number of tasks = " << task_count << endl;
 
+	/* Turn around time & queue time */
+	cout << "Mean turn around time = " << (double)total_time / (double)task_count << " us" << endl;
+	cout << "Mean waiting time = " << (double)(total_time - sumservice) / (double)task_count << " us" << endl;
+
 	/* Cleanup & put the game into an initial state */
 	gameStarted = false;
 	sumarrival = 0;
 	sumservice = 0;
+	total_time = 0;
 	prevarrival.tv_sec = 0;
 	prevarrival.tv_usec = 0;
 	task_count = 0;

@@ -31,7 +31,7 @@ private:
 	/* Queuing stuff */
 	unsigned sumarrival;
 	unsigned sumservice;
-	struct timeval prevservice;
+	unsigned total_time;
 	struct timeval prevarrival;
 	int task_count;
 

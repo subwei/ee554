@@ -131,6 +131,7 @@ public class TankClient{
             game.drawTank(m, x, y, orientation);
         }
         m = 0;
+        if((numBullets*9) + (numPlayers*10) + 3 != receivePacket.getLength()) return;
         for (int i=(numPlayers*10) + 3; i< (numBullets*9) + (numPlayers*10) + 3; i++){
             m = (int)receivePacket.getData()[i++];
             int x = ((int)receivePacket.getData()[i++]<<24)&0xFF000000 |

@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 
 public class GameGUI extends JFrame implements KeyListener, ActionListener {
     // Width and Length of the game frame
@@ -33,6 +34,11 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener {
     private ImageIcon southImage;
     private ImageIcon eastImage;
     private ImageIcon westImage;
+    private ImageIcon myNorthImage;
+    private ImageIcon mySouthImage;
+    private ImageIcon myEastImage;
+    private ImageIcon myWestImage;
+    private ImageIcon brick;
 
     // Menu Components
     private JMenuBar menuBar;
@@ -47,22 +53,27 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener {
 
     public GameGUI(TankClient tankClient) {
         this.tankClient = tankClient;
-        setBackground(Color.BLACK);
+        getContentPane().setBackground(Color.BLACK);
         tanks = new ArrayList<Tank>();
         bullets = new ArrayList<JLabel>();
         for (int x = 0; x < 4; x++) {
             JLabel bullet = new JLabel("0");
             bullet.setSize(8, 8);
-            bullet.setForeground(Color.WHITE);
+            bullet.setForeground(Color.BLUE);
             bullet.setVisible(false);
             add(bullet);
             bullets.add(bullet);
         }
-
+        
         northImage = new ImageIcon("tank.jpg");
         southImage = new ImageIcon("tank_down.jpg");
         westImage = new ImageIcon("tank_left.jpg");
         eastImage = new ImageIcon("tank_right.jpg");
+        myNorthImage = new ImageIcon("tank_up_me.jpg");
+        mySouthImage = new ImageIcon("tank_down_me.jpg");
+        myWestImage = new ImageIcon("tank_left_me.jpg");
+        myEastImage = new ImageIcon("tank_right_me.jpg");
+        drawBorder();
         setLayout(null);
         addKeyListener(this);
         setupMenu();
@@ -80,20 +91,48 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener {
 
     public void reset() {
         tanks.clear();
+        tankClient.setFirst();
+    }
+    
+    public void drawBorder() {
+    	for(int i=0; i<800; i+=50) {
+    		for(int j=0; j<550; j+=50) {
+    			if((i != 0 && j != 0) && (i != 750 && j != 500)) continue;
+    			System.out.println("Drawing Border");
+    			JLabel aBrick = new JLabel(new ImageIcon("brick.jpg"));
+    			aBrick.setLocation(i, j);
+    			aBrick.setSize(50, 50);
+    			add(aBrick);
+    		}
+    	}
     }
 
     public void addTank(int x, int y, byte orientation) {
+    	boolean myTank = false;
+    	if(tanks.size()  == tankClient.getClientID()) myTank = true;
         if (orientation == NORTH) {
-            tank = new Tank(northImage);
+        	if(myTank)
+        		tank = new Tank(myNorthImage);
+        	else
+        		tank = new Tank(northImage);
         }
         else if (orientation == SOUTH) {
-            tank = new Tank(southImage);
+        	if(myTank)
+        		tank = new Tank(mySouthImage);
+        	else
+        		tank = new Tank(southImage);
         }
         else if (orientation == EAST) {
-            tank = new Tank(eastImage);
+        	if(myTank)
+        		tank = new Tank(myEastImage);
+        	else
+        		tank = new Tank(eastImage);
         }
         else if (orientation == WEST) {
-            tank = new Tank(westImage);
+        	if(myTank)
+        		tank = new Tank(myWestImage);
+        	else
+        		tank = new Tank(westImage);
         }
         else {
             System.out.println("Error creating Tank: invalid orientation");
@@ -108,24 +147,35 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener {
             this.orientation = orientation;
         }
         if (tankNum >= tanks.size()) {
-            System.out
-                    .println("Index is larger than the number of registered tanks???");
+            System.out.println("Index is larger than the number of registered tanks???");
             System.out.println("Tanks Registered: " + tanks.size());
             System.out.println("Tank Index: " + tankNum);
             return;
         }
 
         if (orientation == NORTH) {
-            tanks.get(tankNum).setIcon(northImage);
+        	if(tankNum == tankClient.getClientID())
+        		tanks.get(tankNum).setIcon(myNorthImage);
+        	else
+        		tanks.get(tankNum).setIcon(northImage);
         }
         else if (orientation == SOUTH) {
-            tanks.get(tankNum).setIcon(southImage);
+        	if(tankNum == tankClient.getClientID())
+        		tanks.get(tankNum).setIcon(mySouthImage);
+        	else
+        		tanks.get(tankNum).setIcon(southImage);
         }
         else if (orientation == EAST) {
-            tanks.get(tankNum).setIcon(eastImage);
+        	if(tankNum == tankClient.getClientID())
+        		tanks.get(tankNum).setIcon(myEastImage);
+        	else
+        		tanks.get(tankNum).setIcon(eastImage);
         }
         else if (orientation == WEST) {
-            tanks.get(tankNum).setIcon(westImage);
+        	if(tankNum == tankClient.getClientID())
+        		tanks.get(tankNum).setIcon(myWestImage);
+        	else
+        		tanks.get(tankNum).setIcon(westImage);
         }
 
         // switch(orientation) {
@@ -153,10 +203,10 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener {
         tanks.get(tankNum).moveTo(x, y);
         invalidate();
         repaint();
-        Point p = tanks.get(tankNum).getLocation();
-        System.out.println("Point: x " + p.x + " y " + p.y);
-        System.out.println("Draw Tank " + tankNum + ": x " + x + " y " + y
-                + " orient: " + (int) orientation);
+//        Point p = tanks.get(tankNum).getLocation();
+//        System.out.println("Point: x " + p.x + " y " + p.y);
+//        System.out.println("Draw Tank " + tankNum + ": x " + x + " y " + y
+//                + " orient: " + (int) orientation);
     }
 
     public void drawBullet(int bulletIndex, int x, int y) {

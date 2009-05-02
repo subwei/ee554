@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Dimension;
 import java.io.*;
 import java.net.*;
@@ -38,6 +39,7 @@ public class TankClient{
         registration.setVisible(true);
         isFirstPacket = true;
         game = null;
+        clientID = -1;
         
         // set up socket and listen for traffic
         try {
@@ -47,6 +49,10 @@ public class TankClient{
         catch (SocketException e) {
             e.printStackTrace();
         }
+    }
+    
+    public void setFirst() {
+    	this.isFirstPacket = true;
     }
     
     private void listenForTraffic(){
@@ -95,6 +101,9 @@ public class TankClient{
         
         // close registration screen
         registration.dispose();
+        
+        // Display a dialog stating which player this is
+        JOptionPane.showMessageDialog(game,"You have successfully registered as player "+(clientID+1));
     }
     
     /**
@@ -129,6 +138,11 @@ public class TankClient{
             byte orientation = receivePacket.getData()[i];
 //            System.out.println("\n"+orientation);
             game.drawTank(m, x, y, orientation);
+        }
+        if(numPlayers == 1) {
+        	JOptionPane.showMessageDialog(game,"You are player "+(clientID+1)+"\n"+
+        									   "Player "+(m+1)+" has won the game!");
+        	return;
         }
         m = 0;
         if((numBullets*9) + (numPlayers*10) + 3 != receivePacket.getLength()) return;
@@ -204,11 +218,15 @@ public class TankClient{
     public void startGame(){
         try {
             isFirstPacket = true;
-            byte[] data = new byte[2];
-            data[0] = (byte)(clientID);
-            data[1] = MSG_START;
-            sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
-            socket.send(sendPacket);
+            if(clientID == 0) {
+            	byte[] data = new byte[2];
+            	data[0] = (byte)(clientID);
+            	data[1] = MSG_START;
+            	sendPacket = new DatagramPacket(data, data.length, netAddress, portNumber);
+            	socket.send(sendPacket);
+            } else {
+            	JOptionPane.showMessageDialog(game,"You are player "+(clientID+1)+" and are not authorized to start the game!");
+            }
 //            System.out.println("Packet Sent"); 
         }
         catch (IOException ex) {

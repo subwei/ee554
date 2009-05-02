@@ -77,7 +77,7 @@ public class RegisterGUI extends JFrame implements ActionListener{
                 String hostName = hostField.getText();
                 String ipAddress = ipField.getText();
                 int portNumber = Integer.parseInt(portField.getText());
-                eraseFields();
+                //eraseFields();
                 if (ipAddress.length() != 0){
                     tankClient.setHostName(hostName);
                     tankClient.setIPAddress(ipAddress);

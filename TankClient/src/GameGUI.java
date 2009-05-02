@@ -98,7 +98,6 @@ public class GameGUI extends JFrame implements KeyListener, ActionListener {
     	for(int i=0; i<800; i+=50) {
     		for(int j=0; j<550; j+=50) {
     			if((i != 0 && j != 0) && (i != 750 && j != 500)) continue;
-    			System.out.println("Drawing Border");
     			JLabel aBrick = new JLabel(new ImageIcon("brick.jpg"));
     			aBrick.setLocation(i, j);
     			aBrick.setSize(50, 50);

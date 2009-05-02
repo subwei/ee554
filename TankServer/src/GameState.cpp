@@ -101,26 +101,31 @@ void GameState::startGame(Client_info client) {
 	/* set the clients info */
 	for(unsigned i=0; i<activeClients.size(); i++) {
 		int orientation;
-		int x = 0;
-		int y = 0;
+		int x = BORDER;
+		int y = BORDER;
 		switch(i) {
 		case 0:
+			x = BORDER;
+			y = BORDER;
 			orientation = WEST;
 			break;
 		case 1:
-			x = SCREEN_WIDTH - TANK_WIDTH;
-			y = SCREEN_HEIGHT - TANK_HEIGHT;
+			x = SCREEN_WIDTH - TANK_WIDTH - BORDER;
+			y = SCREEN_HEIGHT - TANK_HEIGHT - BORDER;
 			orientation = EAST;
 			break;
 		case 2:
-			x = SCREEN_WIDTH - TANK_WIDTH;
+			x = SCREEN_WIDTH - TANK_WIDTH - BORDER;
+			y = BORDER;
 			orientation = SOUTH;
 			break;
 		case 3:
-			y = SCREEN_HEIGHT - TANK_HEIGHT;
+			x = BORDER;
+			y = SCREEN_HEIGHT - TANK_HEIGHT - BORDER;
 			orientation = NORTH;
 			break;
 		default:
+			x=y=BORDER;
 			orientation = UNK;
 			break;
 		}
@@ -146,7 +151,7 @@ void GameState::updateClientPosition(Client_info client) {
 	int index = -1;
 
 	if(!gameStarted) {
-		cout << "Attempt to move without a running game" << endl;
+		//cout << "Attempt to move without a running game" << endl;
 		this->unlock();
 		return;
 	}
@@ -202,11 +207,15 @@ void GameState::updateClientPosition(Client_info client) {
 
 	/* Verify a valid move */
 	if(index >= 0) {
-		if(activeClients.at(index)->x_pos >= SCREEN_WIDTH - TANK_WIDTH || activeClients.at(index)->x_pos < 0) {
-			activeClients.at(index)->x_pos -= dx;
+		if(activeClients.at(index)->x_pos >= SCREEN_WIDTH - TANK_WIDTH - BORDER) {
+			activeClients.at(index)->x_pos = SCREEN_WIDTH - TANK_WIDTH - BORDER;
+		}else if(activeClients.at(index)->x_pos < BORDER) {
+			activeClients.at(index)->x_pos = BORDER;
 		}
-		if(activeClients.at(index)->y_pos >= SCREEN_HEIGHT - TANK_HEIGHT || activeClients.at(index)->y_pos < 0) {
-			activeClients.at(index)->y_pos -= dy;
+		if(activeClients.at(index)->y_pos >= SCREEN_HEIGHT - TANK_HEIGHT - BORDER){
+			activeClients.at(index)->y_pos = SCREEN_HEIGHT - TANK_HEIGHT - BORDER;
+		} else if(activeClients.at(index)->y_pos < BORDER) {
+			activeClients.at(index)->y_pos = BORDER;
 		}
 //		cout << "Tank Position: x=" << activeClients.at(index)->x_pos << " y=" << activeClients.at(index)->y_pos << endl;
 	}
@@ -254,9 +263,9 @@ void GameState::newShot(Client_info client) {
 			return;
 		}
 
-			client_bullets[i].x.push_back(activeClients.at(i)->x_pos + dx);
-			client_bullets[i].y.push_back(activeClients.at(i)->y_pos + dy);
-			client_bullets[i].orientation.push_back(activeClients.at(i)->orientation);
+		client_bullets[i].x.push_back(activeClients.at(i)->x_pos + dx);
+		client_bullets[i].y.push_back(activeClients.at(i)->y_pos + dy);
+		client_bullets[i].orientation.push_back(activeClients.at(i)->orientation);
 	}
 
 	this->unlock();
@@ -274,6 +283,7 @@ void GameState::clientQuit(Client_info client) {
 		if(activeClients.at(i)->id == client.id) {
 			Client_info *c = activeClients.at(i);
 			activeClients.erase(activeClients.begin() + i);
+			inactiveClients.push_back(c);
 			free(c);
 			break;
 		}
@@ -492,8 +502,8 @@ void GameState::updateState() {
 			client_bullets[i].y.at(j) += dy;
 
 			/* Remove bullets that have left the screen */
-			if((client_bullets[i].x.at(j) >= SCREEN_WIDTH + 5 || client_bullets[i].x.at(j) < -5) ||
-			   (client_bullets[i].y.at(j) >= SCREEN_HEIGHT + 5 || client_bullets[i].y.at(j) < -5))
+			if((client_bullets[i].x.at(j) >= SCREEN_WIDTH + TANK_WIDTH || client_bullets[i].x.at(j) < -TANK_WIDTH) ||
+			   (client_bullets[i].y.at(j) >= SCREEN_HEIGHT + TANK_HEIGHT || client_bullets[i].y.at(j) < -TANK_HEIGHT))
 				dead_bullets.push_back(j);
 		}
 //		for(unsigned k=0; k<dead_bullets.size(); k++) {
@@ -520,7 +530,9 @@ void GameState::updateState() {
 	}
 	//		cout << "checking if anyone died" << endl;
 	for(unsigned k=0; k<dead_clients.size(); k++) {
+		Client_info* ci = activeClients.at(dead_clients.at(k));
 		activeClients.erase(activeClients.begin() + dead_clients.at(k));
+		inactiveClients.push_back(ci);
 		break; // To ensure no seg fault occurs
 	}
 //	cout << "finished updating" << endl;
@@ -555,6 +567,10 @@ void GameState::endGame() {
 	/* Turn around time & queue time */
 	cout << "Mean turn around time = " << (double)total_time / (double)task_count << " us" << endl;
 	cout << "Mean waiting time = " << (double)(total_time - sumservice) / (double)task_count << " us" << endl;
+
+	/* Determine if there is a winner & broadcast the state one last time */
+	if(activeClients.size() == 1)
+		broadcastState();
 
 	/* Cleanup & put the game into an initial state */
 	gameStarted = false;

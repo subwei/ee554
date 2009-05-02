@@ -53,10 +53,11 @@ class TaskHandler;
 /* Client & Game State Constants */
 #define TANK_WIDTH 			50
 #define TANK_HEIGHT			50
-#define SCREEN_WIDTH		805
+#define SCREEN_WIDTH		800
 #define SCREEN_HEIGHT		550
 #define TANK_SPEED			10
 #define SHOOTING_SPEED		15
+#define BORDER				50
 
 /* Clients orientations */
 #define NORTH				0x01

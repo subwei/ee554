@@ -11,13 +11,6 @@
 #include "Thread.h"
 #include "TankServer.h"
 
-/* Structure for bullets */
-typedef struct bullets {
-	vector<int> orientation;
-	vector<int> x;
-	vector<int> y;
-}bullets;
-
 class GameState: public Thread {
 private:
 	int game_cond_var;
@@ -34,8 +27,6 @@ private:
 	unsigned total_time;
 	struct timeval prevarrival;
 	int task_count;
-
-	bullets client_bullets[MAX_PLAYERS];
 
 	/* Broadcast the current state to all clients */
 	void broadcastState();

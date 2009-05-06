@@ -86,6 +86,13 @@ class TaskHandler;
 /* Every client can be in one of the following states */
 enum client_state { ACTIVE, INACTIVE };
 
+/* Structure for bullets */
+typedef struct bullet {
+	int orientation;
+	int x;
+	int y;
+}bullet;
+
 /* Struct to contain all client state information */
 typedef struct Client_info {
 	int id;
@@ -97,6 +104,8 @@ typedef struct Client_info {
 	struct sockaddr_in client_addr;
 	struct timeval arrival;
 	struct timeval serverEntry;
+	bullet bullets[MAX_BULLETS];
+	int nextShot;
 }Client_info;
 
 /*********************************************

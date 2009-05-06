@@ -133,6 +133,13 @@ void GameState::startGame(Client_info client) {
 		activeClients.at(i)->health = 100;
 		activeClients.at(i)->x_pos = x;
 		activeClients.at(i)->y_pos = y;
+		activeClients.at(i)->nextShot = 0;
+		for(int j=0; j<MAX_BULLETS; j++) {
+//			activeClients.at(i).bullets[j] = (bullet *)malloc(sizeof(bullet));
+			activeClients.at(i)->bullets[j].x = x;
+			activeClients.at(i)->bullets[j].y = y;
+			activeClients.at(i)->bullets[j].orientation = orientation;
+		}
 	}
 
 	gameStarted = true;
@@ -225,25 +232,26 @@ void GameState::updateClientPosition(Client_info client) {
 }
 
 /*************************************************
- * A client is quitting
+ * A client is shooting
  ************************************************/
 void GameState::newShot(Client_info client) {
 	this->lock();
 
 	/* Ensure that we are playing a game first */
 	if(!gameStarted) {
-		cout << "Attempt to shoot without a running game" << endl;
+//		cout << "Attempt to shoot without a running game" << endl;
 		this->unlock();
 		return;
 	}
-	cout << "GameState: Client " << client.id << " is shooting" << endl;
+//	cout << "GameState: Client " << client.id << " is shooting" << endl;
 
 	/* Locate the client and take their shot if needed */
 	int dx=0, dy=0;
 	for(unsigned i=0; i<activeClients.size(); i++) {
-		if(client_bullets[i].x.size() >= MAX_BULLETS) continue;
-		if(activeClients.at(i)->id != client.id) continue;
-		switch(activeClients.at(i)->orientation) {
+		Client_info *ci = activeClients.at(i);
+		if(ci->nextShot >= MAX_BULLETS) continue;
+		if(ci->id != client.id) continue;
+		switch(ci->orientation) {
 		case NORTH:
 			dx = TANK_WIDTH/2 - 5;
 			break;
@@ -263,9 +271,9 @@ void GameState::newShot(Client_info client) {
 			return;
 		}
 
-		client_bullets[i].x.push_back(activeClients.at(i)->x_pos + dx);
-		client_bullets[i].y.push_back(activeClients.at(i)->y_pos + dy);
-		client_bullets[i].orientation.push_back(activeClients.at(i)->orientation);
+		ci->bullets[ci->nextShot].x = ci->x_pos + dx;
+		ci->bullets[ci->nextShot].y = ci->y_pos + dy;
+		ci->bullets[ci->nextShot++].orientation = ci->orientation;
 	}
 
 	this->unlock();
@@ -283,7 +291,10 @@ void GameState::clientQuit(Client_info client) {
 		if(activeClients.at(i)->id == client.id) {
 			Client_info *c = activeClients.at(i);
 			activeClients.erase(activeClients.begin() + i);
-			inactiveClients.push_back(c);
+			/* Free up resources allocated to clients */
+//			for(int j=0; j<MAX_BULLETS; j++) {
+//				free(c->bullets[j]);
+//			}
 			free(c);
 			break;
 		}
@@ -352,35 +363,35 @@ void GameState::broadcastState() {
 	unsigned i = 0;
 	buf[j++] = 0xFF;
 	buf[j++] = activeClients.size()&0xFF;
-	for(i=0; i<activeClients.size(); i++) bullet_count += client_bullets[i].x.size();
+	for(i=0; i<activeClients.size(); i++) {
+		bullet_count += activeClients.at(i)->nextShot;
+	}
 	buf[j++] = (char)bullet_count&0xFF;
 	for(i=0; i<activeClients.size(); i++) {
-		buf[j++] = (char)(activeClients.at(i)->id)&0xff;
-		buf[j++] = (char)(activeClients.at(i)->x_pos >> 24)&0xFF;
-		buf[j++] = (char)(activeClients.at(i)->x_pos >> 16)&0xFF;
-		buf[j++] = (char)(activeClients.at(i)->x_pos >> 8)&0xFF;
-		buf[j++] = (char)(activeClients.at(i)->x_pos)&0xFF;
-		buf[j++] = (char)(activeClients.at(i)->y_pos >> 24)&0xFF;
-		buf[j++] = (char)(activeClients.at(i)->y_pos >> 16)&0xFF;
-		buf[j++] = (char)(activeClients.at(i)->y_pos >> 8)&0xFF;
-		buf[j++] = (char)(activeClients.at(i)->y_pos)&0xFF;
-		buf[j++] = (char)(activeClients.at(i)->orientation)&0xFF;
-//		cout << "GameState: Orientation = " << activeClients.at(i)->orientation << endl;
+		Client_info *ci = activeClients.at(i);
+		buf[j++] = (char)(ci->id)&0xff;
+		buf[j++] = (char)(ci->x_pos >> 24)&0xFF;
+		buf[j++] = (char)(ci->x_pos >> 16)&0xFF;
+		buf[j++] = (char)(ci->x_pos >> 8)&0xFF;
+		buf[j++] = (char)(ci->x_pos)&0xFF;
+		buf[j++] = (char)(ci->y_pos >> 24)&0xFF;
+		buf[j++] = (char)(ci->y_pos >> 16)&0xFF;
+		buf[j++] = (char)(ci->y_pos >> 8)&0xFF;
+		buf[j++] = (char)(ci->y_pos)&0xFF;
+		buf[j++] = (char)(ci->orientation)&0xFF;
 	}
-
-//	cout << "broadcast: Sending bullets" << endl;
 	for(i=0; i<activeClients.size(); i++) {
-		for(unsigned k=0; k<client_bullets[i].x.size(); k++) {
+		Client_info *ci = activeClients.at(i);
+		for(int k=0; k<ci->nextShot; k++) {
 			buf[j++] = (char)(i)&0xFF;
-			buf[j++] = (char)(client_bullets[i].x.at(k) >> 24)&0xFF;
-			buf[j++] = (char)(client_bullets[i].x.at(k) >> 16)&0xFF;
-			buf[j++] = (char)(client_bullets[i].x.at(k) >> 8)&0xFF;
-			buf[j++] = (char)(client_bullets[i].x.at(k))&0xFF;
-			buf[j++] = (char)(client_bullets[i].y.at(k) >> 24)&0xFF;
-			buf[j++] = (char)(client_bullets[i].y.at(k) >> 16)&0xFF;
-			buf[j++] = (char)(client_bullets[i].y.at(k) >> 8)&0xFF;
-			buf[j++] = (char)(client_bullets[i].y.at(k))&0xFF;
-//			buf[j++] = (char)(client_bullets[i].orientation.at(k))&0xFF;
+			buf[j++] = (char)(ci->bullets[k].x >> 24)&0xFF;
+			buf[j++] = (char)(ci->bullets[k].x >> 16)&0xFF;
+			buf[j++] = (char)(ci->bullets[k].x >> 8)&0xFF;
+			buf[j++] = (char)(ci->bullets[k].x)&0xFF;
+			buf[j++] = (char)(ci->bullets[k].y >> 24)&0xFF;
+			buf[j++] = (char)(ci->bullets[k].y >> 16)&0xFF;
+			buf[j++] = (char)(ci->bullets[k].y >> 8)&0xFF;
+			buf[j++] = (char)(ci->bullets[k].y)&0xFF;
 		}
 	}
 
@@ -446,16 +457,17 @@ void GameState::updateState() {
 	/* update bullet positions */
 //	cout << "\nupdatestate" << endl;
 	for(unsigned i=0; i<activeClients.size(); i++) {
-		for(unsigned j=0; j<client_bullets[i].x.size(); j++) {
+		Client_info *ci = activeClients.at(i);
+		for(int j=0; j<ci->nextShot; j++) {
 			/* Remove bullets that have hit someone???
-			 * If it hits them, then the tank is DEAD!!!!
-			 * If only one player left, Game ends ==> gameStarted = false */
+			 * If it hits them, then the tank is DEAD!!!! */
 			for(unsigned k=0; k<activeClients.size(); k++) {
 				if(k == i) continue;
-				if(client_bullets[i].x.at(j) >= activeClients.at(k)->x_pos &&
-				   client_bullets[i].x.at(j) <= activeClients.at(k)->x_pos + TANK_WIDTH){
-					if(client_bullets[i].y.at(j) >= activeClients.at(k)->y_pos &&
-					   client_bullets[i].y.at(j) <= activeClients.at(k)->y_pos + TANK_WIDTH){
+				Client_info *ci2 = activeClients.at(k);
+				if(ci->bullets[j].x >= ci2->x_pos + 3 &&
+				   ci->bullets[j].x <= ci2->x_pos + TANK_WIDTH - 3){
+					if(ci->bullets[j].y >= ci2->y_pos + 3 &&
+					   ci->bullets[j].y <= ci2->y_pos + TANK_WIDTH - 3){
 						dead_clients.push_back(k);
 						dead_bullets.push_back(j);
 					}
@@ -463,7 +475,9 @@ void GameState::updateState() {
 			}
 
 			/* Determine the orientation & movement */
-			switch(client_bullets[i].orientation.at(j)) {
+			dx = 0;
+			dy = 0;
+			switch(ci->bullets[j].orientation) {
 			case NORTH:
 				dy -= SHOOTING_SPEED;
 				break;
@@ -498,44 +512,32 @@ void GameState::updateState() {
 			}
 
 			/* Now move the bullet */
-			client_bullets[i].x.at(j) += dx;
-			client_bullets[i].y.at(j) += dy;
+			ci->bullets[j].x += dx;
+			ci->bullets[j].y += dy;
 
 			/* Remove bullets that have left the screen */
-			if((client_bullets[i].x.at(j) >= SCREEN_WIDTH + TANK_WIDTH || client_bullets[i].x.at(j) < -TANK_WIDTH) ||
-			   (client_bullets[i].y.at(j) >= SCREEN_HEIGHT + TANK_HEIGHT || client_bullets[i].y.at(j) < -TANK_HEIGHT))
+			if((ci->bullets[j].x >= SCREEN_WIDTH + TANK_WIDTH || ci->bullets[j].x < -TANK_WIDTH) ||
+			   (ci->bullets[j].y >= SCREEN_HEIGHT + TANK_HEIGHT || ci->bullets[j].y < -TANK_HEIGHT))
 				dead_bullets.push_back(j);
 		}
-//		for(unsigned k=0; k<dead_bullets.size(); k++) {
-//			client_bullets[i].count--;
-//			cout << "decrement count" << endl;
-//			client_bullets[i].orientation.erase(client_bullets[i].orientation.begin() + dead_bullets.at(k));
-//			cout << "delete orientation" << endl;
-//			client_bullets[i].x.erase(client_bullets[i].x.begin() + dead_bullets.at(k));
-//			cout << "delete x" << endl;
-//			client_bullets[i].y.erase(client_bullets[i].y.begin() + dead_bullets.at(k));
-//			cout << "delete y" << endl;
-//			break;
-//		}
 		if(dead_bullets.size() > 0) {
-			cout << "Dead Bullets\n" << endl;
-			client_bullets[i].x.clear();
-			client_bullets[i].y.clear();
-			client_bullets[i].orientation.clear();
+			if(--(ci->nextShot) < 0) ci->nextShot = 0;
 		}
 		if(activeClients.size() < MIN_PLAYERS) {
 			endGame();
 		}
 		dead_bullets.clear();
 	}
-	//		cout << "checking if anyone died" << endl;
+
+	/* Handle clients who have died */
 	for(unsigned k=0; k<dead_clients.size(); k++) {
 		Client_info* ci = activeClients.at(dead_clients.at(k));
 		activeClients.erase(activeClients.begin() + dead_clients.at(k));
 		inactiveClients.push_back(ci);
-		break; // To ensure no seg fault occurs
+		//break; // To ensure no seg fault occurs
 	}
-//	cout << "finished updating" << endl;
+
+	/* Check if it is the end of a game */
 }
 
 /************************************************
@@ -583,9 +585,4 @@ void GameState::endGame() {
 	activeClients.clear();
 	inactiveClients.clear();
 	next_client_id = 0;
-	for(int i=0; i<MAX_PLAYERS; i++) {
-		client_bullets[i].orientation.clear();
-		client_bullets[i].x.clear();
-		client_bullets[i].y.clear();
-	}
 }

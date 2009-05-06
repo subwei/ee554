@@ -27,6 +27,7 @@ TaskHandler::~TaskHandler() {
  *********************************************/
 void TaskHandler::run() {
 	cout << "TaskHandler Thread Started" << endl;
+	bool unknown = false;
 
 	/* Wait until there is a task to perform */
 	while(true) {
@@ -46,6 +47,7 @@ void TaskHandler::run() {
 			gameState->clientReg(currentTask.client, true);
 			break;
 		case MSG_START:
+//			cout << "start" << endl;
 			gameState->startGame(currentTask.client);
 			break;
 		case MSG_QUIT:
@@ -56,13 +58,17 @@ void TaskHandler::run() {
 		case MSG_JOIN:
 			break;
 		default:
-			cout << "Unknown Task" << endl;
+//			cout << "Unknown Task" << endl;
+			unknown = true;
 			break;
 		}
 
 		scheduler->finishedTask(this, currentTask);
-		/* Calling Finished Task */
-	    gameState->FinishedTask(currentTask.client);
+		if(!unknown) {
+			/* Calling Finished Task */
+			gameState->FinishedTask(currentTask.client);
+		}
+		unknown = false;
 		this->unlock();
 	}
 }

@@ -102,45 +102,11 @@ int main() {
 	id1 = (int)buffer[0];
 	cout << "Player 1 is id # " << id1 << endl;
 
-	/* Register player 2 */
-//	Register(sockfd, server_addr);
-
-	/* Wait for the ID */
-//	cout << "Player 2 is Registering" << endl;
-//	len = recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&my_addr, (socklen_t *)&length);
-//	if(len < 0)	cout << "SERVER ERROR: recvfrom" << endl;
-//	id2 = (int)buffer[0];
-//	cout << "Player 2 is id # " << id2 << endl;
-
-	/* Start the game */
-//	cout << "Player 1 starts the game" << endl;
-//	Start(id1, sockfd, server_addr);
-
 	/* Move player 1 */
 	while(true) {
 		Move(id1, sockfd, server_addr);
 		usleep(245);
 	}
-
-//	/* Move Player 2 */
-//	cout << "" << endl;
-//	Move(id2, sockfd, server_addr);
-//
-//	/* Shoot with player 1 */
-//	cout << "" << endl;
-//	Shoot(id1);
-//
-//	/* Shoot with player 2 */
-//	cout << "" << endl;
-//	Shoot(id2);
-//
-//	/* Quit with Player 1 */
-//	cout << "" << endl;
-//	Quit(id1);
-//
-//	/* Quit with player 2 */
-//	cout << "" << endl;
-//	Quit(id2);
 
 	return 0;
 }

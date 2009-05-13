@@ -46,7 +46,7 @@ namespace test {
         }
 
         // returns segment that overlaps with this segment and segmentB.  vertices should be polyhedral vertices and not polygon
-        public Segment calcSegmentIntersection(Segment segmentB) {
+        public Segment calcSegmentIntersection(Segment segmentB, ArrayList objectVertices, ArrayList polyaVertices) {
 
             /* Don't have to check if the segment intersects here because
              * calling function should have verified segments overlap
@@ -73,6 +73,37 @@ namespace test {
                 segmentIntersection.setMiddleDescriptor(Segment.VERTEX);
                 segmentIntersection.setEndDescriptor(Segment.VERTEX);
             }
+
+            /* Correct the segmentIntersection for proper polygon splitting
+             * Need to have edge points be at the smaller index of the edge points
+             */
+            if (segmentIntersection.isSwapped()) {
+                segmentIntersection.swap();
+                swap();
+            }
+
+            /* Need to correct for initial poly-line intersection of VEV -> EEV, VEE, EEE
+             * This is a corner case where start index is 0 and end index is vertices.count - 1
+             */
+            if (PolygonBreaker.mapIndex(objectVertices, polyaVertices, segmentIntersection.getStartPoint()) == 0 &&
+                PolygonBreaker.mapIndex(objectVertices, polyaVertices, segmentIntersection.getEndPoint()) == polyaVertices.Count - 1){
+
+                // VEV -> VEE, EEE
+                if (start == VERTEX && segmentIntersection.getStartDescriptor() == EDGE) {
+                    segmentIntersection.setStartPoint(segmentIntersection.getEndPoint());
+                    segmentIntersection.swap();
+                }
+                // VEV -> VEE -> EEV
+                else if (end == VERTEX && segmentIntersection.getEndDescriptor() == EDGE) {
+                    segmentIntersection.swap();
+                }
+            }
+            else if (end == VERTEX && segmentIntersection.getEndDescriptor() == EDGE){
+                int tempIndex = PolygonBreaker.mapIndex(objectVertices, polyaVertices, segmentIntersection.getEndPoint()) - 1;
+                int newIndex = objectVertices.IndexOf((Vertex)polyaVertices[tempIndex]);
+                segmentIntersection.setEndPoint(newIndex);
+            }
+
             return segmentIntersection;
         }
         

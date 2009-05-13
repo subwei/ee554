@@ -104,6 +104,11 @@ namespace test {
                                         objectB.calcAdjacentVertices(false);
                                         calcLineIntersection(polygonA, polygonB, ref intersectPoint, ref direction);
 
+
+                                        if (polygonA.getVertex(0).Equals(new Vertex(4, 4, 4)) && polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(2, 4, 4))) {
+                                            int blah = 0;
+                                        }
+
                                         // calculate segment for polygonA and polygonB
                                         segmentA = polygonA.calcSegment(intersectPoint, direction, vertices);
                                         // need to use the shadow's vertices to calculate segment 2
@@ -111,7 +116,7 @@ namespace test {
 
                                         if (segmentA.overlaps(segmentB)) {
 
-                                            segmentIntersect = segmentA.calcSegmentIntersection(segmentB);
+                                            segmentIntersect = segmentA.calcSegmentIntersection(segmentB, vertices, polygonA.getVertices());
 
                                             /* subdivide polygons into non-intersecting parts
                                              */

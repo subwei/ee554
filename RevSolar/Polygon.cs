@@ -804,18 +804,6 @@ namespace test {
             PolygonBreaker polygonBreaker = new PolygonBreaker(vertices);
             ArrayList newPolygons = new ArrayList();
 
-            /* NOT SURE IF I DID THE START AND END DISTANCES RIGHT.  CHECK THE RATIO/ INTERSECTION POINT CALCULATION
-             * ARE THE DISTANCES POSITIVE AND NEGATIVE?  SHOULD WE USE ABSOLUTE VALUE?
-             */
-            
-            // swap back if the indexes are out of order
-            if (PolygonBreaker.mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) < PolygonBreaker.mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint())) {
-                segmentIntersection.swap();
-            }
-            if (PolygonBreaker.mapIndex(objectVertices, vertices, segment.getEndPoint()) < PolygonBreaker.mapIndex(objectVertices, vertices, segment.getStartPoint())) {
-                segment.swap();
-            }
-
             /* There are ten cases for the intersecting segment
              */
             if (segmentIntersection.getStartDescriptor() == Segment.VERTEX &&
@@ -924,13 +912,14 @@ namespace test {
                 Console.WriteLine("No splitting happened");
             }
 
+            /*
             if (newPolygons != null) {
                 foreach (Polygon p in newPolygons) {
-                    if (p.getVertex(0).Equals(new Vertex(4, 4, 1)) && p.getVertex(p.getVertices().Count-1).Equals(new Vertex(4, 1, 1))) {
+                    if (p.getVertex(0).Equals(new Vertex(4, 4, 0)) && p.getVertex(p.getVertices().Count-1).Equals(new Vertex(2, 4, 0))) {
                         int blah = 0;
                     }
                 }
-            }
+            }*/
 
             return newPolygons;
         }

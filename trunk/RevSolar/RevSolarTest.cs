@@ -43,7 +43,7 @@ namespace Solar_Envelope_Test {
             /* Test Cases: (1,1) (1,2) (1,3) (2,4) (2,5)
              */
             int bType = BCUBE2;
-            int sType = SCUBE5;
+            int sType = SCUBE4;
 
             if (bType == BCUBE1) {
                 // original building cube

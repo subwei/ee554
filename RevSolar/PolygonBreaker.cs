@@ -46,13 +46,11 @@ namespace test {
                 if (x == mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint())) {
                     vert1.Add(newVertex1);
                     if (x - 1 < 0) {
-                        vert2.Add((Vertex)vertices[vertices.Count - 1]);
+                        vert2 = createTriangle((Vertex)vertices[vertices.Count - 1], (Vertex)vertices[x], newVertex1);
                     }
                     else {
-                        vert2.Add((Vertex)vertices[x - 1]);
+                        vert2 = createTriangle((Vertex)vertices[x - 1], (Vertex)vertices[x], newVertex1);
                     }
-                    vert2.Add((Vertex)vertices[x]);
-                    vert2.Add(newVertex1);
                 }
                 else {
                     vert1.Add((Vertex)vertices[x]);
@@ -77,13 +75,11 @@ namespace test {
             for (int x = 0; x < vertices.Count; x++) {
                 if (x == mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint())) {
                     vert1.Add(newVertex1);
-                    vert2.Add(newVertex1);
-                    vert2.Add((Vertex)vertices[x]);
                     if (x < vertices.Count - 1) {
-                        vert2.Add((Vertex)vertices[x + 1]);
+                        vert2 = createTriangle(newVertex1, (Vertex)vertices[x], (Vertex)vertices[x + 1]);
                     }
                     else {
-                        vert2.Add((Vertex)vertices[0]);
+                        vert2 = createTriangle(newVertex1, (Vertex)vertices[x], (Vertex)vertices[0]);
                     }
                 }
                 else {
@@ -132,15 +128,11 @@ namespace test {
             vert1.AddRange(makeList(startIndex, endIndex, vertices));
 
             // create Poly2 (leftmost polygon)
-            vert2.Add((Vertex)vertices[mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint())]);
-            vert2.Add(newVertex1);
-            vert2.Add((Vertex)vertices[endIndex]);
+            vert2 = createTriangle((Vertex)vertices[mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint())], newVertex1, (Vertex)vertices[endIndex]);
 
             // create Poly3 (middle polygon created if the two new points are not equal)
             if (!newVertex1.Equals(newVertex2)) {
-                vert3.Add(newVertex1);
-                vert3.Add(newVertex2);
-                vert3.Add((Vertex)vertices[endIndex]);
+                vert3 = createTriangle(newVertex1, newVertex2, (Vertex)vertices[endIndex]);
             }
             return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
@@ -267,13 +259,10 @@ namespace test {
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) + 1;
             }
 
-            vert3.Add(newVertex1);
-            vert3.Add((Vertex)vertices[startIndex]);
-            vert3.Add((Vertex)vertices[endIndex]);
+            vert3 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
 
             // create 4th polygon if the rightmost intersection is a vertex.  4th polygon is bottomRight polygon
             if (segment.getEndDescriptor() == Segment.EDGE) {
-
                 if (mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) - 1 < 0) {
                     startIndex = vertices.Count - 1;
                 }
@@ -281,10 +270,7 @@ namespace test {
                     startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) - 1;
                 }
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
-
-                vert4.Add(newVertex1);
-                vert4.Add((Vertex)vertices[startIndex]);
-                vert4.Add((Vertex)vertices[endIndex]);
+                vert4 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
             }
             return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
@@ -334,10 +320,7 @@ namespace test {
             else {
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1;
             }
-
-            vert3.Add(newVertex1);
-            vert3.Add((Vertex)vertices[startIndex]);
-            vert3.Add((Vertex)vertices[endIndex]);
+            vert3 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
 
             // create 4th polygon if the rightmost intersection is a vertex.  4th polygon is bottomRight polygon
             if (segment.getEndDescriptor() == Segment.EDGE) {
@@ -349,10 +332,7 @@ namespace test {
                     startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) - 1;
                 }
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
-
-                vert4.Add(newVertex1);
-                vert4.Add((Vertex)vertices[startIndex]);
-                vert4.Add((Vertex)vertices[endIndex]);
+                vert4 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
             }
             return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
@@ -378,9 +358,7 @@ namespace test {
             int endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
 
             // create Poly1
-            for (int x = startIndex; x <= endIndex; x++) {
-                vert1.Add((Vertex)vertices[x]);
-            }
+            vert1.AddRange(makeList(startIndex, endIndex, vertices));
             vert1.Add(newVertex2);
             vert1.Add(newVertex1);
 
@@ -391,7 +369,6 @@ namespace test {
             else {
                 startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) + 1;
             }
-
             endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
             
             vert2.AddRange(makeList(startIndex, endIndex, vertices));
@@ -452,19 +429,13 @@ namespace test {
             else {
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) + 1;
             }
-
-            vert3.Add(newVertex2);
-            vert3.Add((Vertex)vertices[startIndex]);
-            vert3.Add((Vertex)vertices[endIndex]);
+            vert3 = createTriangle(newVertex2, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
 
             // create 4th polygon if the rightmost intersection is a vertex.  4th polygon is topright polygon
             if (segment.getEndDescriptor() == Segment.VERTEX) {
                 startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) - 1;
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
-
-                vert4.Add(newVertex2);
-                vert4.Add((Vertex)vertices[startIndex]);
-                vert4.Add((Vertex)vertices[endIndex]);
+                vert4 = createTriangle(newVertex2, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
             }
             return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
@@ -491,9 +462,7 @@ namespace test {
             int endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
 
             // Create first polygon.  bottomRight polygon
-            for (int x = startIndex; x <= endIndex; x++) {
-                vert1.Add((Vertex)vertices[x]);
-            }
+            vert1.AddRange(makeList(startIndex, endIndex, vertices));
             vert1.Add(newVertex2);
             vert1.Add(newVertex1);
 
@@ -529,10 +498,7 @@ namespace test {
             else {
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1;
             }
-
-            vert3.Add(newVertex1);
-            vert3.Add((Vertex)vertices[startIndex]);
-            vert3.Add((Vertex)vertices[endIndex]);
+            vert3 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
 
             // create 4th polygon if the leftmost intersection is a vertex.  4th polygon is topleft polygon
             if (segment.getStartDescriptor() == Segment.VERTEX) {
@@ -543,10 +509,7 @@ namespace test {
                     startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) - 1;
                 }
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
-
-                vert4.Add(newVertex1);
-                vert4.Add((Vertex)vertices[startIndex]);
-                vert4.Add((Vertex)vertices[endIndex]);
+                vert4 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
             }
             return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
@@ -555,19 +518,15 @@ namespace test {
 
             newVertex1 = segmentIntersection.getStartVertex();
             newVertex2 = segmentIntersection.getEndVertex();
-
             if (Vertex.findVertex(newVertex1, objectVertices) == null) {
                 newVertex1.setState(Vertex.ON_BOUNDARY);
                 objectVertices.Add(newVertex1);
             }
-
             if (Vertex.findVertex(newVertex2, objectVertices) == null) {
                 newVertex2.setState(Vertex.ON_BOUNDARY);
                 objectVertices.Add(newVertex2);
             }
-
             // Subdivide original polygon into multiple polygons
-
             int startIndex = 0;
             int endIndex = 0;
 
@@ -581,10 +540,7 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1;
                 }
-
-                vert1.Add(newVertex1);
-                vert1.Add((Vertex)vertices[startIndex]);
-                vert1.Add((Vertex)vertices[endIndex]);
+                vert1 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
 
                 /////////////////////////////////
 
@@ -595,7 +551,6 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) - 1;
                 }
-
                 vert2.Add(newVertex2);
                 vert2.Add(newVertex1);
                 vert2.AddRange(makeList(startIndex, endIndex, vertices));
@@ -604,10 +559,7 @@ namespace test {
 
                 startIndex = endIndex;
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
-
-                vert3.Add(newVertex2);
-                vert3.Add((Vertex)vertices[startIndex]);
-                vert3.Add((Vertex)vertices[endIndex]);
+                vert3 = createTriangle(newVertex2, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
 
                 /////////////
 
@@ -618,12 +570,7 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) + 1;
                 }
-
-                vert4.Add(newVertex2);
-                vert4.Add((Vertex)vertices[startIndex]);
-                vert4.Add((Vertex)vertices[endIndex]);
-
-
+                vert4 = createTriangle(newVertex2, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
                 ////////////////////////
 
                 startIndex = endIndex;
@@ -633,22 +580,16 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) - 1;
                 }
-
                 vert5.Add(newVertex1);
                 vert5.Add(newVertex2);
                 vert5.AddRange(makeList(startIndex, endIndex, vertices));
 
                 ///////////////
-
                 startIndex = endIndex;
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
-
-                vert6.Add(newVertex1);
-                vert6.Add((Vertex)vertices[startIndex]);
-                vert6.Add((Vertex)vertices[endIndex]);
+                vert6 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
             }
             else if (segment.getStartDescriptor() == Segment.VERTEX && segment.getEndDescriptor() == Segment.EDGE) {
-
 
                 startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
                 if (mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1 >= vertices.Count) {
@@ -657,22 +598,17 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1;
                 }
-
-                vert1.Add(newVertex1);
-                vert1.Add((Vertex)vertices[startIndex]);
-                vert1.Add((Vertex)vertices[endIndex]);
+                vert1 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
 
                 /////////////////////////////////
 
                 startIndex = endIndex;
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
-
                 vert2.Add(newVertex2);
                 vert2.Add(newVertex1);
                 vert2.AddRange(makeList(startIndex, endIndex, vertices));
 
                 //////////////////
-
                 startIndex = endIndex;
                 if (mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) + 1 >= vertices.Count) {
                     endIndex = 0;
@@ -680,12 +616,7 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) + 1;
                 }
-
-                vert3.Add(newVertex2);
-                vert3.Add((Vertex)vertices[startIndex]);
-                vert3.Add((Vertex)vertices[endIndex]);
-
-
+                vert3 = createTriangle(newVertex2, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
                 ////////////////////////
 
                 startIndex = endIndex;
@@ -695,7 +626,6 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) - 1;
                 }
-
                 vert4.Add(newVertex1);
                 vert4.Add(newVertex2);
                 vert4.AddRange(makeList(startIndex, endIndex, vertices));
@@ -704,10 +634,7 @@ namespace test {
 
                 startIndex = endIndex;
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
-
-                vert5.Add(newVertex1);
-                vert5.Add((Vertex)vertices[startIndex]);
-                vert5.Add((Vertex)vertices[endIndex]);
+                vert5 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
             }
             else if (segment.getStartDescriptor() == Segment.EDGE && segment.getEndDescriptor() == Segment.VERTEX) {
 
@@ -718,11 +645,7 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1;
                 }
-
-                vert1.Add(newVertex1);
-                vert1.Add((Vertex)vertices[startIndex]);
-                vert1.Add((Vertex)vertices[endIndex]);
-
+                vert1 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
                 /////////////////////////////////
 
                 startIndex = endIndex;
@@ -732,7 +655,6 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) - 1;
                 }
-
                 vert2.Add(newVertex2);
                 vert2.Add(newVertex1);
                 vert2.AddRange(makeList(startIndex, endIndex, vertices));
@@ -741,11 +663,7 @@ namespace test {
 
                 startIndex = endIndex;
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
-
-                vert3.Add(newVertex2);
-                vert3.Add((Vertex)vertices[startIndex]);
-                vert3.Add((Vertex)vertices[endIndex]);
-
+                vert3 = createTriangle(newVertex2, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
                 /////////////
 
                 startIndex = endIndex;
@@ -755,23 +673,15 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) + 1;
                 }
-
-                vert4.Add(newVertex2);
-                vert4.Add((Vertex)vertices[startIndex]);
-                vert4.Add((Vertex)vertices[endIndex]);
-
-
+                vert4 = createTriangle(newVertex2, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
                 ////////////////////////
-
                 startIndex = endIndex;
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
-
                 vert5.Add(newVertex1);
                 vert5.Add(newVertex2);
                 vert5.AddRange(makeList(startIndex, endIndex, vertices));
             }
             else if (segment.getStartDescriptor() == Segment.EDGE && segment.getEndDescriptor() == Segment.EDGE) {
-
 
                 startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
                 if (mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1 >= vertices.Count) {
@@ -780,16 +690,11 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1;
                 }
-
-                vert1.Add(newVertex1);
-                vert1.Add((Vertex)vertices[startIndex]);
-                vert1.Add((Vertex)vertices[endIndex]);
-
+                vert1 = createTriangle(newVertex1, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
                 /////////////////////////////////
 
                 startIndex = endIndex;
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
-
                 vert2.Add(newVertex2);
                 vert2.Add(newVertex1);
                 vert2.AddRange(makeList(startIndex, endIndex, vertices));
@@ -803,16 +708,11 @@ namespace test {
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) + 1;
                 }
-
-                vert3.Add(newVertex2);
-                vert3.Add((Vertex)vertices[startIndex]);
-                vert3.Add((Vertex)vertices[endIndex]);
+                vert3 = createTriangle(newVertex2, (Vertex)vertices[startIndex], (Vertex)vertices[endIndex]);
 
                 /////////////
-
                 startIndex = endIndex;
                 endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
-
                 vert4.Add(newVertex1);
                 vert4.Add(newVertex2);
                 vert4.AddRange(makeList(startIndex, endIndex, vertices));

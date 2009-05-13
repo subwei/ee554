@@ -7,12 +7,6 @@ namespace test {
 
         private Vertex newVertex1;
         private Vertex newVertex2;
-        private Polygon poly1;
-        private Polygon poly2;
-        private Polygon poly3;
-        private Polygon poly4;
-        private Polygon poly5;
-        private Polygon poly6;
         private ArrayList newPolygons;
         private ArrayList vert1;  // vertices for polygon1
         private ArrayList vert2;  // vertices for polygon2
@@ -25,12 +19,6 @@ namespace test {
         public PolygonBreaker(ArrayList tempVertices) {
             newVertex1 = null;
             newVertex2 = null;
-            poly1 = null;
-            poly2 = null;
-            poly3 = null;
-            poly4 = null;
-            poly5 = null;
-            poly6 = null;
             newPolygons = new ArrayList();
             vert1 = new ArrayList();
             vert2 = new ArrayList();
@@ -42,8 +30,6 @@ namespace test {
         }
 
         public ArrayList splitVEE(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
-
-            bool found1 = false;    // if newVertex1 is already in the buildingPoly vertices list
 
             /* This fixes the situation where if the segment is swapped, the edge vertex will not be the vertice
              * before the actual edge.  There should be only 2 cases.  start and end point are the same, or
@@ -59,24 +45,14 @@ namespace test {
             //newVertex1 = calcVertexOnLine(objectVertices, intersectPoint, direction, segmentIntersection.getEndDistance(), segmentIntersection.getEndPoint());
             newVertex1 = segmentIntersection.getEndVertex();
 
-            // search for vertice in polygon
-            for (int x = 0; x < vertices.Count; x++) {
-                if ((float)newVertex1.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex1.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex1.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found1 = true;
-                }
-            }
-            // if vertice doesn't exist, then add it to the list of vertices and mark as boundary vertex.
-            if (!found1) {
+            // if vertice doesn't already exist, then add it to the list of vertices and mark as boundary vertex.
+            if (Vertex.findVertex(newVertex1, vertices) == null) {
                 objectVertices.Add(newVertex1);
                 newVertex1.setState(Vertex.ON_BOUNDARY);
             }
             ((Vertex)objectVertices[segmentIntersection.getStartPoint()]).setState(Vertex.ON_BOUNDARY);
 
             // Subdivide original polygon into multiple polygons
-
             // Reglar case where endpoint and startpoint are the same
             if (segmentIntersection.getStartPoint() == segmentIntersection.getEndPoint()) {
                 for (int x = 0; x < vertices.Count; x++) {
@@ -110,19 +86,10 @@ namespace test {
                     }
                 }
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitEEV(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
-
-            bool found1 = false;    // if newVertex1 is already in the buildingPoly vertices list
 
             // takes care of anomaly case where the intersecting segment is between the last vertice and first vertice
             if (mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) == 0 &&
@@ -134,24 +101,14 @@ namespace test {
             //newVertex1 = calcVertexOnLine(objectVertices, intersectPoint, direction, segmentIntersection.getStartDistance(), segmentIntersection.getStartPoint());
             newVertex1 = segmentIntersection.getStartVertex();
 
-            // search for vertice in polygon
-            for (int x = 0; x < vertices.Count; x++) {
-                if ((float)newVertex1.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex1.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex1.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found1 = true;
-                }
-            }
-            // if vertice doesn't exist, then add it to the list of vertices and mark as boundary vertex.
-            if (!found1) {
+            // if vertice doesn't already exist, then add it to the list of vertices and mark as boundary vertex.
+            if (Vertex.findVertex(newVertex1, vertices) == null) {
                 objectVertices.Add(newVertex1);
                 newVertex1.setState(Vertex.ON_BOUNDARY);
             }
             ((Vertex)objectVertices[segmentIntersection.getEndPoint()]).setState(Vertex.ON_BOUNDARY);
 
             // Subdivide original polygon into multiple polygons
-
             // Need different case if endpoint and startpoint are the same
             if (segmentIntersection.getStartPoint() == segmentIntersection.getEndPoint()) {
                 for (int x = 0; x < vertices.Count; x++) {
@@ -189,14 +146,7 @@ namespace test {
                     }
                 }
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitVFV(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
@@ -217,35 +167,17 @@ namespace test {
                 }
                 vert2.Add((Vertex)vertices[x]);
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitVFE(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
-
-            bool found1 = false;    // if newVertex1 is already in the buildingPoly vertices list
 
             // Need to calculate where new vertices appear.  Then add to the vertices list of the building
             //newVertex1 = calcVertexOnLine(objectVertices, intersectPoint, direction, segmentIntersection.getEndDistance(), segmentIntersection.getEndPoint());
             newVertex1 = segmentIntersection.getEndVertex();
 
-            // search for vertice in polygon
-            for (int x = 0; x < vertices.Count; x++) {
-                if ((float)newVertex1.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex1.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex1.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found1 = true;
-                }
-            }
             // if vertice doesn't exist, then add it to the list of vertices and mark as boundary vertex
-            if (!found1) {
+            if (Vertex.findVertex(newVertex1, vertices) == null) {
                 objectVertices.Add(newVertex1);
                 newVertex1.setState(Vertex.ON_BOUNDARY);
             }
@@ -272,35 +204,17 @@ namespace test {
                     vert2.Add((Vertex)vertices[x]);
                 }
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitEFV(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
-
-            bool found1 = false;    // if newVertex1 is already in the buildingPoly vertices list
 
             // Need to calculate where new vertices appear.  Then add to the vertices list of the building
             //newVertex1 = calcVertexOnLine(objectVertices, intersectPoint, direction, segmentIntersection.getStartDistance(), segmentIntersection.getStartPoint());
             newVertex1 = segmentIntersection.getStartVertex();
 
-            // search for vertice in polygon
-            for (int x = 0; x < vertices.Count; x++) {
-                if ((float)newVertex1.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex1.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex1.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found1 = true;
-                }
-            }
             // if vertice doesn't exist, then add it to the list of vertices and mark as boundary vertex
-            if (!found1) {
+            if (Vertex.findVertex(newVertex1, vertices) == null) {
                 objectVertices.Add(newVertex1);
                 newVertex1.setState(Vertex.ON_BOUNDARY);
             }
@@ -328,14 +242,7 @@ namespace test {
                     vert2.Add((Vertex)vertices[x]);
                 }
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitVFF(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
@@ -423,21 +330,7 @@ namespace test {
                 vert4.Add((Vertex)vertices[startValue]);
                 vert4.Add((Vertex)vertices[endValue]);
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            poly3 = new Polygon(vert3);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-            newPolygons.Add(poly3);
-            // original segment endpoint was an edge, not vertex, so must be divided into 4 polygons
-            if (segment.getEndDescriptor() == Segment.EDGE) {
-                poly4 = new Polygon(vert4);
-                newPolygons.Add(poly4);
-            }
-
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitFFV(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
@@ -525,26 +418,10 @@ namespace test {
                 vert4.Add((Vertex)vertices[startValue]);
                 vert4.Add((Vertex)vertices[endValue]);
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            poly3 = new Polygon(vert3);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-            newPolygons.Add(poly3);
-            // original segment endpoint was an edge, not vertex, so must be divided into 4 polygons
-            if (segment.getEndDescriptor() == Segment.EDGE) {
-                poly4 = new Polygon(vert4);
-                newPolygons.Add(poly4);
-            }
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitEEE(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
-
-            bool found1 = false;    // if newVertex1 is already in the buildingPoly vertices list
-            bool found2 = false;    // if newVertex2 is already in the buildingPoly vertices list
 
             if (segmentIntersection.getStartPoint() != segmentIntersection.getEndPoint()){
                 if (mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) == 0 && mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) == vertices.Count - 1) {
@@ -564,34 +441,17 @@ namespace test {
             newVertex1 = segmentIntersection.getStartVertex();
             newVertex2 = segmentIntersection.getEndVertex();
 
-            // search for newVertex1 in polygon
-            for (int x = 0; x < vertices.Count; x++) {
-                if ((float)newVertex1.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex1.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex1.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found1 = true;
-                }
-                if ((float)newVertex2.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex2.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex2.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found2 = true;
-                }
-            }
-
             // if vertice doesn't exist, then add it to the list of vertices and mark as boundary vertex
-            if (!found1) {
+            if (Vertex.findVertex(newVertex1, vertices) == null) {
                 objectVertices.Add(newVertex1);
                 newVertex1.setState(Vertex.ON_BOUNDARY);
             }
-            if (!found2) {
+            if (Vertex.findVertex(newVertex2, vertices) == null) {
                 objectVertices.Add(newVertex2);
                 newVertex2.setState(Vertex.ON_BOUNDARY);
             }
 
             // Subdivide original polygon into multiple polygons
-
             int startValue = 0;
             int endValue = 0;
 
@@ -633,25 +493,10 @@ namespace test {
                 vert3.Add(newVertex2);
                 vert3.Add((Vertex)vertices[endValue]);
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-
-            if (vert3.Count > 2) {
-                poly3 = new Polygon(vert3);
-                newPolygons.Add(poly3);
-            }
-
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitEFE(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
-
-            bool found1 = false;    // if newVertex1 is already in the buildingPoly vertices list
-            bool found2 = false;    // if newVertex2 is already in the buildingPoly vertices list
 
             // Need to calculate where new vertices appear.  Then add to the vertices list of the building
             //newVertex1 = calcVertexOnLine(objectVertices, intersectPoint, direction, segmentIntersection.getStartDistance(), segmentIntersection.getStartPoint());
@@ -659,39 +504,21 @@ namespace test {
             newVertex1 = segmentIntersection.getStartVertex();
             newVertex2 = segmentIntersection.getEndVertex();
 
-            // search for newVertex1 in polygon
-            for (int x = 0; x < vertices.Count; x++) {
-                if ((float)newVertex1.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex1.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex1.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found1 = true;
-                }
-                if ((float)newVertex2.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex2.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex2.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found2 = true;
-                }
-            }
-
             // if vertice doesn't exist, then add it to the list of vertices and mark as boundary vertex
-            if (!found1) {
+            if (Vertex.findVertex(newVertex1, vertices) == null) {
                 objectVertices.Add(newVertex1);
                 newVertex1.setState(Vertex.ON_BOUNDARY);
             }
-            if (!found2) {
+            if (Vertex.findVertex(newVertex2, vertices) == null) {
                 objectVertices.Add(newVertex2);
                 newVertex2.setState(Vertex.ON_BOUNDARY);
             }
 
             // Subdivide original polygon into multiple polygons
-
             int startValue = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1;
             int endValue = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
 
             // create Poly1
-
             for (int x = startValue; x <= endValue; x++) {
                 vert1.Add((Vertex)vertices[x]);
             }
@@ -720,18 +547,10 @@ namespace test {
             vert2.Add(newVertex1);
             vert2.Add(newVertex2);
 
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitEFF(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
-
-            bool found1 = false;    // if newVertex1 is already in the buildingPoly vertices list
 
             // Need to calculate where the new vertices appear.  Then add to the vertices list of the building
             //newVertex1 = calcVertexOnLine(objectVertices, intersectPoint, direction, segmentIntersection.getStartDistance(), segmentIntersection.getStartPoint());
@@ -739,27 +558,16 @@ namespace test {
             newVertex1 = segmentIntersection.getStartVertex();
             newVertex2 = segmentIntersection.getEndVertex();
 
-            // search for vertice in polygon
-            for (int x = 0; x < vertices.Count; x++) {
-                if ((float)newVertex1.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex1.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex1.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found1 = true;
-                }
-            }
             // if vertice doesn't exist, then add it to the list of vertices and mark as boundary vertex
-            if (!found1) {
+            if (Vertex.findVertex(newVertex1, vertices) == null) {
                 objectVertices.Add(newVertex1);
                 newVertex1.setState(Vertex.ON_BOUNDARY);
             }
-
             //add it to the list of vertices and mark as boundary vertex
             objectVertices.Add(newVertex2);
             newVertex2.setState(Vertex.ON_BOUNDARY);
 
             // Subdivide original polygon into multiple polygons
-
             int startValue = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1;
             int endValue = 0;
 
@@ -828,25 +636,10 @@ namespace test {
                 vert4.Add((Vertex)vertices[startValue]);
                 vert4.Add((Vertex)vertices[endValue]);
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            poly3 = new Polygon(vert3);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-            newPolygons.Add(poly3);
-            // original segment endpoint was an edge, not vertex, so must be divided into 4 polygons
-            if (segment.getEndDescriptor() == Segment.VERTEX) {
-                poly4 = new Polygon(vert4);
-                newPolygons.Add(poly4);
-            }
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitFFE(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
-
-            bool found1 = false;    // if newVertex1 is already in the buildingPoly vertices list
 
             // Need to calculate where the new vertices appear.  Then add to the vertices list of the building
             //newVertex1 = calcVertexOnLine(objectVertices, intersectPoint, direction, segmentIntersection.getEndDistance(), segmentIntersection.getEndPoint());
@@ -854,17 +647,8 @@ namespace test {
             newVertex1 = segmentIntersection.getStartVertex();
             newVertex2 = segmentIntersection.getEndVertex();
 
-            // search for edge vertice in polygon
-            for (int x = 0; x < vertices.Count; x++) {
-                if ((float)newVertex2.GetX() == (float)((Vertex)vertices[x]).GetX() &&
-                    (float)newVertex2.GetY() == (float)((Vertex)vertices[x]).GetY() &&
-                    (float)newVertex2.GetZ() == (float)((Vertex)vertices[x]).GetZ()) {
-
-                    found1 = true;
-                }
-            }
             // if vertice doesn't exist, then add it to the list of vertices and mark as boundary vertex
-            if (!found1) {
+            if (Vertex.findVertex(newVertex2, vertices) == null) {
                 objectVertices.Add(newVertex2);
                 newVertex2.setState(Vertex.ON_BOUNDARY);
             }
@@ -945,21 +729,7 @@ namespace test {
                 vert4.Add((Vertex)vertices[startValue]);
                 vert4.Add((Vertex)vertices[endValue]);
             }
-
-            // might need to calculate normals somewhere here
-            poly1 = new Polygon(vert1);
-            poly2 = new Polygon(vert2);
-            poly3 = new Polygon(vert3);
-            newPolygons.Add(poly1);
-            newPolygons.Add(poly2);
-            newPolygons.Add(poly3);
-            // original segment startpoint was a vertex, so must be divided into 4 polygons
-            if (segment.getStartDescriptor() == Segment.VERTEX) {
-                poly4 = new Polygon(vert4);
-                newPolygons.Add(poly4);
-            }
-
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         public ArrayList splitFFF(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
@@ -1078,21 +848,6 @@ namespace test {
                 vert6.Add(newVertex1);
                 vert6.Add((Vertex)vertices[startValue]);
                 vert6.Add((Vertex)vertices[endValue]);
-
-                poly1 = new Polygon(vert1);
-                poly2 = new Polygon(vert2);
-                poly3 = new Polygon(vert3);
-                poly4 = new Polygon(vert4);
-                poly5 = new Polygon(vert5);
-                poly6 = new Polygon(vert6);
-
-                newPolygons.Add(poly1);
-                newPolygons.Add(poly2);
-                newPolygons.Add(poly3);
-                newPolygons.Add(poly4);
-                newPolygons.Add(poly5);
-                newPolygons.Add(poly6);
-
             }
             else if (segment.getStartDescriptor() == Segment.VERTEX && segment.getEndDescriptor() == Segment.EDGE) {
 
@@ -1173,21 +928,6 @@ namespace test {
                 vert5.Add(newVertex1);
                 vert5.Add((Vertex)vertices[startValue]);
                 vert5.Add((Vertex)vertices[endValue]);
-
-
-                poly1 = new Polygon(vert1);
-                poly2 = new Polygon(vert2);
-                poly3 = new Polygon(vert3);
-                poly4 = new Polygon(vert4);
-                poly5 = new Polygon(vert5);
-
-                newPolygons.Add(poly1);
-                newPolygons.Add(poly2);
-                newPolygons.Add(poly3);
-                newPolygons.Add(poly4);
-                newPolygons.Add(poly5);
-
-
             }
             else if (segment.getStartDescriptor() == Segment.EDGE && segment.getEndDescriptor() == Segment.VERTEX) {
 
@@ -1268,19 +1008,6 @@ namespace test {
                     vert5.Add((Vertex)vertices[x]);
                 }
                 vert5.Add((Vertex)vertices[endValue]);
-
-                poly1 = new Polygon(vert1);
-                poly2 = new Polygon(vert2);
-                poly3 = new Polygon(vert3);
-                poly4 = new Polygon(vert4);
-                poly5 = new Polygon(vert5);
-
-                newPolygons.Add(poly1);
-                newPolygons.Add(poly2);
-                newPolygons.Add(poly3);
-                newPolygons.Add(poly4);
-                newPolygons.Add(poly5);
-
             }
             else if (segment.getStartDescriptor() == Segment.EDGE && segment.getEndDescriptor() == Segment.EDGE) {
 
@@ -1347,18 +1074,8 @@ namespace test {
                     vert4.Add((Vertex)vertices[x]);
                 }
                 vert4.Add((Vertex)vertices[endValue]);
-
-                poly1 = new Polygon(vert1);
-                poly2 = new Polygon(vert2);
-                poly3 = new Polygon(vert3);
-                poly4 = new Polygon(vert4);
-
-                newPolygons.Add(poly1);
-                newPolygons.Add(poly2);
-                newPolygons.Add(poly3);
-                newPolygons.Add(poly4);
             }
-            return newPolygons;
+            return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
         // Maps the vertex index from list1 to list 2. list1[index] -> list2[index2]
@@ -1367,15 +1084,8 @@ namespace test {
         }
 
         public void reset(ArrayList tempVertices) {
-
             newVertex1 = null;
             newVertex2 = null;
-            poly1 = null;
-            poly2 = null;
-            poly3 = null;
-            poly4 = null;
-            poly5 = null;
-            poly6 = null;
             newPolygons.Clear();
             vert1 = new ArrayList();
             vert2 = new ArrayList();
@@ -1384,6 +1094,36 @@ namespace test {
             vert5 = new ArrayList();
             vert6 = new ArrayList();
             vertices = tempVertices;
+        }
+
+        public ArrayList makeList(int startIndex, int endIndex, ArrayList vertices) {
+            ArrayList tempVertices = new ArrayList();
+            for (int x = startIndex; x != endIndex; x++) {
+                if (x == vertices.Count) {
+                    if (endIndex == 0) {
+                        break;
+                    }
+                    x = 0;
+                }
+                tempVertices.Add((Vertex)vertices[x]);
+            }
+            tempVertices.Add((Vertex)vertices[endIndex]);
+            return tempVertices;
+        }
+
+        // returns list of newPolygons
+        public ArrayList createNewPolygons(ArrayList v1, ArrayList v2, ArrayList v3, ArrayList v4, ArrayList v5, ArrayList v6) {
+            ArrayList verticeLists = new ArrayList();
+            if (v1.Count > 2) verticeLists.Add(v1);
+            if (v2.Count > 2) verticeLists.Add(v2);
+            if (v3.Count > 2) verticeLists.Add(v3);
+            if (v4.Count > 2) verticeLists.Add(v4);
+            if (v5.Count > 2) verticeLists.Add(v5);
+            if (v6.Count > 2) verticeLists.Add(v6);
+            foreach (ArrayList verticeList in verticeLists) {
+                newPolygons.Add(new Polygon(verticeList));
+            }
+            return newPolygons;
         }
 
         public void setVertices(ArrayList tempVertices) {

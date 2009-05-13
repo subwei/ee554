@@ -4,10 +4,8 @@ using System.IO;
 
 namespace test {
     public class Polyhedron {
-
         ArrayList vertices;
         ArrayList polygons;
-
         private double minX;
         private double minY;
         private double minZ;
@@ -21,18 +19,14 @@ namespace test {
 
         // copy constructor
         public Polyhedron(Polyhedron polyhedral) {
-
             vertices = new ArrayList();
             polygons = new ArrayList();
-
-            for (int x = 0; x < polyhedral.vertices.Count; x++) {
-                vertices.Add((Vertex)polyhedral.vertices[x]);
+            foreach (Vertex v in polyhedral.vertices) {
+                vertices.Add(new Vertex(v));
             }
-
-            for (int x = 0; x < polyhedral.polygons.Count; x++) {
-                polygons.Add((Polygon)polyhedral.polygons[x]);
+            foreach (Polygon p in polyhedral.polygons) {
+                polygons.Add(new Polygon(p, vertices));
             }
-
             minX = polyhedral.minX;
             minY = polyhedral.minY;
             minZ = polyhedral.minZ;
@@ -48,24 +42,18 @@ namespace test {
         }
 
         public Polyhedron(ArrayList vertices, ArrayList faces, ArrayList normals) {
-
             this.vertices = new ArrayList(vertices);
             polygons = new ArrayList();
-
             ArrayList tempVertices = new ArrayList();
             // convert faces and normals into polygons
-
             for (int x = 0; x < faces.Count; x++) {
                 ArrayList face = (ArrayList)faces[x];
                 tempVertices = new ArrayList();
-
                 // cycles through the faces arraylist replacing vetices indexes into actual vertices
-                for (int y = 0; y < face.Count; y++) {
-                    Vertex vertex = (Vertex)vertices[(int)face[y]];
-                    tempVertices.Add(vertex);
+                foreach (int y in face) {
+                    tempVertices.Add((Vertex)vertices[y]);
                 }
-
-                Polygon polygon = new Polygon(tempVertices, (Vector)normals[x]);
+                Polygon polygon = new Polygon(tempVertices);
                 polygons.Add(polygon);
             }
             calcExtent();
@@ -79,7 +67,6 @@ namespace test {
             Segment segmentA = new Segment();       // intersection segment from this polygon
             Segment segmentB = new Segment();       // intersection segment from shadow polygon
             Segment segmentIntersect = new Segment();    // intersection between segment 1 and 2.  There are 10 cases.
-
             ArrayList newPolygons = new ArrayList();
             ArrayList tempPolygons = new ArrayList();
 
@@ -95,9 +82,7 @@ namespace test {
                     }
 
                     if (polygonA.isExtentOverlap(objectB)) {
-                        for (int y = 0; y < objectB.getPolygonCount(); y++) {
-                            Polygon polygonB = objectB.getPolygon(y);
-
+                        foreach (Polygon polygonB in objectB.polygons){
                             /******DEBUG******/
                             if (true) {
                                 polygonA.printInfo();
@@ -105,7 +90,6 @@ namespace test {
                                 Console.WriteLine(polygonA.isExtentOverlap(polygonB));
                                 Console.WriteLine();
                             }
-
                             /*
                             if (polygonA.getVertex(0).Equals(new Vertex(1, 4, 1)) && polygonB.getVertex(0).Equals(new Vertex(4, 3, 4))) {
                                 int blah = 0;
@@ -115,7 +99,6 @@ namespace test {
                                 // Test to see both polygon distances reveal that they overlap each other
                                 if (polygonA.doesOverlap(polygonB)) {
                                     if (polygonB.doesOverlap(polygonA)) {
-
 
                                         calcAdjacentVertices(true); // need to call this before segment calculations b/c they make use of the adjacentVertices to figure out middle segment
                                         objectB.calcAdjacentVertices(false);
@@ -135,18 +118,15 @@ namespace test {
                                             tempPolygons = polygonA.split(vertices, segmentIntersect, segmentA, intersectPoint, direction);
 
                                             if (tempPolygons != null) {
-
                                                 polygons.Remove(polygonA);
                                                 polygons.AddRange(tempPolygons);
-
-
                                                 /******DEBUG******/
                                                 if (true) {
                                                     polygonA.printInfo();
                                                     polygonB.printInfo();
                                                     Console.WriteLine("Added Polygons");
-                                                    for (int j = 0; j < tempPolygons.Count; j++) {
-                                                        ((Polygon)tempPolygons[j]).printInfo();
+                                                    foreach (Polygon tempPolygon in tempPolygons) {
+                                                        tempPolygon.printInfo();
                                                     }
                                                     Console.WriteLine();
                                                 }
@@ -157,7 +137,6 @@ namespace test {
                                                     break;
                                                 }
                                             }
-
                                         }
                                     }// end if polygonB.doesOverlap(polygonA)
                                 }// end if polygonA.doesOverlap(polygonB)
@@ -165,9 +144,7 @@ namespace test {
                         }// end for all shadow polygons
                     }// end if polygon overlaps with shadow polyhedron
                 }// end for all building polygons
-
             }// end if buildings overlap
-
         }
 
         private void calcLineIntersection(Polygon polygonA, Polygon polygonB, ref Vertex intersectPoint, ref Vector direction) {
@@ -220,14 +197,12 @@ namespace test {
 
             int index = 0;
 
-            for (int x = 0; x < vertices.Count; x++) {
-                Vertex vertex = (Vertex)vertices[x];
+            foreach (Vertex vertex in vertices){
                 // Need to clear the adjacency list every time b/c this changes dynamically
                 if (erase) {
                     vertex.clearAdjacentList();
                 }
-                for (int y = 0; y < polygons.Count; y++) {
-                    Polygon polygon = (Polygon)polygons[y];
+                foreach (Polygon polygon in polygons){
                     index = polygon.getVertices().IndexOf(vertex);
                     if (index != -1) {
                         Vertex vertexBefore = null;
@@ -268,9 +243,7 @@ namespace test {
                 maxY = i.getMaxY();
                 maxZ = i.getMaxZ();
             }
-
-            for (int x = 0; x < polygons.Count; x++) {
-                Polygon polygon = (Polygon)polygons[x];
+            foreach (Polygon polygon in polygons){
                 polygon.calcExtent();
                 if (polygon.getMinX() < minX) minX = polygon.getMinX();
                 if (polygon.getMinY() < minY) minY = polygon.getMinY();
@@ -283,10 +256,8 @@ namespace test {
 
 
         public bool isExtentOverlap(Polyhedron polyhedral) {
-
             calcExtent();
             polyhedral.calcExtent();
-
             if (maxX < polyhedral.getMinX() || minX > polyhedral.getMaxX() ||
                 maxY < polyhedral.getMinY() || minY > polyhedral.getMaxY() ||
                 maxZ < polyhedral.getMinZ() || minZ > polyhedral.getMaxZ()) {
@@ -298,15 +269,13 @@ namespace test {
         }
 
         private void classifyPolygons() {
-            for (int x = 0; x < polygons.Count; x++) {
-                ((Polygon)polygons[x]).classifyByVertex();
+            foreach (Polygon polygon in polygons) {
+                polygon.classifyByVertex();
             }
         }
 
         public void selectPolygons(bool isPrimary, Polyhedron objectB, ref ArrayList newPolygons, ref ArrayList newVertices) {
-
             classifyPolygons();
-
             // Add vertices from the primary object to the newPolygons list
             if (isPrimary) {
                 foreach (Vertex vertex in vertices) {
@@ -325,8 +294,7 @@ namespace test {
             }
 
             // Add each applicable polygon
-            for (int x = 0; x < polygons.Count; x++) {
-                Polygon polygon = (Polygon)polygons[x];
+            foreach (Polygon polygon in polygons){
                 // classify polygon if it is still unknown (all vertices are boundary vertices)
                 if (polygon.getCategory() == Polygon.UNKNOWN) {
                     //polygon.printInfo();
@@ -356,33 +324,27 @@ namespace test {
 
         // Region Marking Routine
         public void markRegion(Polyhedron objectB) {
-
             // calculate adjacency information for all vertices
             calcAdjacentVertices(true);
             //shadow.calcAdjacentVertices();
-
-            for (int x = 0; x < polygons.Count; x++) {
-                Polygon polyA = (Polygon)polygons[x];
+            foreach (Polygon polyA in polygons){
                 // if polygon is unknown, call polygon classification routine
                 if (polyA.isUnknown()) {
                     polyA.classify(objectB);
                 }
-
                 // if any vertex is marked as UNKNOWN, call vertex marking routine
                 polyA.markVertices();
             }
         }
 
         public BuildingVRMLNode convertToBuilding() {
-
             // Clear all information stored in the vertices list
             foreach (Vertex v in vertices) {
                 v.clearAdjacentList();
                 v.setState(Vertex.UNKNOWN);
             }
             BuildingVRMLNode building = new BuildingVRMLNode(vertices);
-            for (int x = 0; x < polygons.Count; x++) {
-                Polygon polygon = (Polygon)polygons[x];
+            foreach (Polygon polygon in polygons){
                 ArrayList face = polygon.convertToFace(vertices);
                 building.addFace(face);
             }
@@ -439,13 +401,12 @@ namespace test {
 
         public void printInfo() {
             Console.WriteLine("Vertices");
-            for (int x = 0; x < vertices.Count; x++) {
-                Vertex v = (Vertex)vertices[x];
+            foreach (Vertex v in vertices) {
                 v.printInfo();
             }
             Console.WriteLine("Faces");
-            for (int x = 0; x < polygons.Count; x++) {
-                ((Polygon)polygons[x]).printInfo();
+            foreach (Polygon p in polygons) {
+                p.printInfo();
             }
         }
     }

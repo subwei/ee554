@@ -24,16 +24,13 @@ namespace test
 
         // copy constructor
         public Vertex(Vertex vertex) {
-
             adjacentVertices = new ArrayList();
-
             coords = new double[] { vertex.GetX(), vertex.GetY(), vertex.GetZ()};
-
-            for (int x = 0; x < vertex.adjacentVertices.Count; x++) {
-                Vertex old = (Vertex)vertex.adjacentVertices[x];
-                Vertex v = new Vertex(old.GetX(), old.GetY(), old.GetZ());
-                adjacentVertices.Add(v);
+            /* DO NOT COPY THE ADJACENCY LIST
+            foreach (Vertex old in vertex.adjacentVertices) {
+                adjacentVertices.Add(new Vertex(old));
             }
+            */
             state = vertex.state;
         }
 
@@ -62,8 +59,7 @@ namespace test
         public void mark(int state) {
             setState(state);
             // recurively mark all adjacent vertices that are unknown with the state value
-            for (int x = 0; x < adjacentVertices.Count; x++) {
-                Vertex vertex = (Vertex)adjacentVertices[x];
+            foreach (Vertex vertex in adjacentVertices){
                 if (vertex.getState() == Vertex.UNKNOWN) {
                     //Console.WriteLine("{0} {1} {2}", vertex.GetX(), vertex.GetY(), vertex.GetZ());
                     vertex.mark(state);
@@ -217,7 +213,6 @@ namespace test
                 Console.WriteLine("INVALID STATE");
             }
         }
-
     }
 }
 

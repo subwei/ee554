@@ -42,8 +42,8 @@ namespace Solar_Envelope_Test {
             sVertices = new ArrayList();
             /* Test Cases: (1,1) (1,2) (1,3) (2,4) (2,5)
              */
-            int bType = BCUBE1;
-            int sType = SCUBE3;
+            int bType = BCUBE2;
+            int sType = SCUBE4;
 
             if (bType == BCUBE1) {
                 // original building cube

@@ -15,10 +15,8 @@ namespace test {
         private double maxX;
         private double maxY;
         private double maxZ;
-
         private Vertex barycenter;      // barycenter of polygon = average of polygon's vertices
         private int category;               // category of polygon
-
         public const int UNKNOWN = -1;
         public const int INSIDE = 0;   // used to categorize polygon outside of other object
         public const int OUTSIDE = 1;    // used to categorize polygon inside of other object
@@ -28,27 +26,39 @@ namespace test {
         public const double LIMIT = 1E-12;  
 
         public Polygon()
-            : this(new ArrayList(), new Vector()) {
+            : this(new ArrayList()) {
         }
 
-        public Polygon(ArrayList list)
-            : this(list, new Vector()) {
+        public Polygon(ArrayList list) {
+            segment = new Segment();
+            vertices = new ArrayList(list);
+            distances = new ArrayList();
+
+            calcExtent();
+            calcNormal();
+            if (list.Count > 0) {
+                calcBarycenter();
+            }
+            category = Polygon.UNKNOWN;
         }
 
         // copy constructor
-        public Polygon(Polygon polygon) {
+        public Polygon(Polygon polygon, ArrayList newVertices) {
 
             vertices = new ArrayList();
             distances = new ArrayList();
 
-            for (int x = 0; x < polygon.vertices.Count; x++) {
-                Vertex old = (Vertex)polygon.vertices[x];
-                Vertex v = new Vertex(old);
-                vertices.Add(v);
+            foreach (Vertex oldVertex in polygon.vertices) {
+                Vertex v = Vertex.findVertex(oldVertex, newVertices);
+                if (v != null) {
+                    vertices.Add(v);
+                }
+                else {
+                    Console.WriteLine("Polygon::Polygon => ERROR: Can't create new polygon, vertice not found in newVertices list");
+                    throw new System.InvalidOperationException("Can't create new polygon, vertice not found in newVertices list");
+                }
             }
-
-            for (int x = 0; x < polygon.distances.Count; x++) {
-                double num = (double)polygon.distances[x];
+            foreach (double num in polygon.distances) {
                 distances.Add(num);
             }
 
@@ -61,27 +71,12 @@ namespace test {
             maxX = polygon.maxX;
             maxY = polygon.maxY;
             maxZ = polygon.maxZ;
-
+            barycenter = new Vertex(polygon.barycenter);
             category = polygon.getCategory();
         }
 
-        public Polygon(ArrayList list, Vector normal) {
-            segment = new Segment();
-            vertices = new ArrayList(list);
-            distances = new ArrayList();
-            this.normal = new Vector(normal);
-
-            calcExtent();
-            calcNormal();
-            if (list.Count > 0) {
-                calcBarycenter();
-            }
-            category = Polygon.UNKNOWN;
-        }
-
         public void classifyByVertex() {
-            for (int x = 0; x < vertices.Count; x++) {
-                Vertex vertex = (Vertex)vertices[x];
+            foreach (Vertex vertex in vertices) {
                 if (vertex.getState() != Vertex.ON_BOUNDARY) {
                     category = vertex.getState();
                     break;
@@ -107,8 +102,7 @@ namespace test {
             do {
                 closestDistance = Double.MaxValue;
                 castSuccess = true;
-                for (int x = 0; x < objectB.getPolygonCount(); x++) {
-                    Polygon polygonB = objectB.getPolygon(x);
+                foreach (Polygon polygonB in objectB.getPolygons()){
                     //polygonB.printInfo();
                     Vertex intersectPoint = polygonB.calcIntersection(ray, barycenter);
                     if (intersectPoint != null) {
@@ -174,15 +168,6 @@ namespace test {
                 else if (dot < -LIMIT) {
                     category = Polygon.OUTSIDE;
                 }
-                /*
-                else if (distance < -LIMIT) {
-                    category = Polygon.INSIDE;
-                }
-                else {
-                    category = Polygon.OUTSIDE;
-                }*/
-
-                
             }
         }
 
@@ -249,8 +234,7 @@ namespace test {
             double largeY = ((Vertex)vertices[0]).GetY();
             double largeZ = ((Vertex)vertices[0]).GetZ();
 
-            for (int x = 0; x < vertices.Count; x++) {
-                Vertex v = (Vertex)vertices[x];
+            foreach (Vertex v in vertices){
                 if (v.GetX() < smallX) {
                     smallX = v.GetX();
                 }
@@ -293,23 +277,20 @@ namespace test {
             }
 
             if (smallest == 0) {
-                for (int x = 0; x < vertices.Count; x++) {
-                    Vertex v = (Vertex)vertices[x];
+                foreach (Vertex v in vertices){
                     modVertices.Add(new Vertex(v.GetY(), v.GetZ(), 0));
                     modVertex = new Vertex(vertex.GetY(), vertex.GetZ(), 0);
                 }
 
             }
             else if (smallest == 1) {
-                for (int x = 0; x < vertices.Count; x++) {
-                    Vertex v = (Vertex)vertices[x];
+                foreach (Vertex v in vertices) {
                     modVertices.Add(new Vertex(v.GetX(), v.GetZ(), 0));
                     modVertex = new Vertex(vertex.GetX(), vertex.GetZ(), 0);
                 }
             }
             else if (smallest == 2) {
-                for (int x = 0; x < vertices.Count; x++) {
-                    Vertex v = (Vertex)vertices[x];
+                foreach (Vertex v in vertices) {
                     modVertices.Add(new Vertex(v.GetX(), v.GetY(), 0));
                     modVertex = new Vertex(vertex.GetX(), vertex.GetY(), 0);
                 }
@@ -348,10 +329,6 @@ namespace test {
                 return Polygon.INSIDE;
             }
             else if (numRight == modVertices.Count) {
-                /*foreach (Vertex v in vertices) {
-                    v.printInfo();
-                }
-                vertex.printInfo();*/
                 return Polygon.INSIDE;
             }
             else {
@@ -370,9 +347,8 @@ namespace test {
             }*/
         }
 
-        // true if vertex is on the edge of the polygon
+        // returns true if vertex is on the edge of the polygon
         public bool containsEdgeVertex(Vertex vertex) {
-            bool isOnEdge = false;
             Vertex v1;
             Vertex v2;
             for (int x = 0; x < vertices.Count; x++) {
@@ -384,10 +360,10 @@ namespace test {
                     v2 = (Vertex)vertices[x + 1];
                 }
                 if (vertex.isBetween(v1, v2)) {
-                    isOnEdge = true;
+                    return true;
                 }
             }
-            return isOnEdge;
+            return false;
         }
 
         // returns a direction vector slightly shifted.
@@ -461,9 +437,7 @@ namespace test {
                 maxY = i.GetY();
                 maxZ = i.GetZ();
             }
-
-            for (int x = 0; x < vertices.Count; x++) {
-                Vertex vertex = (Vertex)vertices[x];
+            foreach (Vertex vertex in vertices){
                 if (vertex.GetX() < minX) minX = vertex.GetX();
                 if (vertex.GetY() < minY) minY = vertex.GetY();
                 if (vertex.GetZ() < minZ) minZ = vertex.GetZ();
@@ -494,19 +468,6 @@ namespace test {
             }
             else if (obj is Polygon) {
                 Polygon polygon = (Polygon)obj;
-
-                /* see if the min or max values for this polygon are in
-                 * between the min and max values of the 2nd polygon
-                 *
-
-                if (((minX <= polygon.getMaxX() && minX >= polygon.getMinX()) || (maxX <= polygon.getMaxX() && maxX >= polygon.getMinX())) &&
-                    ((minY <= polygon.getMaxY() && minY >= polygon.getMinY()) || (maxY <= polygon.getMaxY() && maxY >= polygon.getMinY())) &&
-                    ((minZ <= polygon.getMaxZ() && minZ >= polygon.getMinZ()) || (maxZ <= polygon.getMaxZ() && maxZ >= polygon.getMinZ()))) {
-                    overlap = true;
-                }
-                else {
-                    overlap = false;
-                }*/
                 if (maxX < polygon.getMinX() || minX > polygon.getMaxX() ||
                     maxY < polygon.getMinY() || minY > polygon.getMaxY() ||
                     maxZ < polygon.getMinZ() || minZ > polygon.getMaxZ()) {
@@ -518,17 +479,6 @@ namespace test {
             }
             else if (obj is Vertex){
                 Vertex v = (Vertex)obj;
-                /* see if the vertex is within the min and max values
-                 *
-                if (v.GetX() < maxX && v.GetX() > minX &&
-                    v.GetY() < maxY && v.GetY() > minY &&
-                    v.GetZ() < maxZ && v.GetZ() > maxZ){
-                    overlap = true;
-                }
-                else{
-                    overlap = false;
-                }*/
-
                 if (v.GetX() < minX || v.GetX() > maxX ||
                     v.GetY() < minY || v.GetY() > maxY ||
                     v.GetZ() < minZ || v.GetZ() > maxZ) {
@@ -543,12 +493,9 @@ namespace test {
 
         // Calculate distances for vertices from this polygon from polygonB using the point plane distance formula
         public void calcDistances(Polygon polygon) {
-
             // need to erase distances from the previous calculations
             distances.Clear();
-
-            for (int x = 0; x < vertices.Count; x++) {
-                Vertex vertex = (Vertex)vertices[x];
+            foreach (Vertex vertex in vertices){
                 distances.Add(polygon.calcDistance(vertex));
             }
         }
@@ -569,9 +516,8 @@ namespace test {
             calcDistances(polygonB);
             if (distances.Count > 0) {
                 bool isSame = (double)distances[0] < 0;
-
-                for (int x = 0; x < distances.Count; x++) {
-                    if (((double)distances[x] >= 0) == isSame) {
+                foreach (double distance in distances){
+                    if ((distance >= 0) == isSame) {
                         return true;
                     }
                 }
@@ -583,11 +529,7 @@ namespace test {
         // returns true if all vertices are converted, false otherwise
         public bool convertVertices(ArrayList newVertices) {
             ArrayList tempVertices = new ArrayList();
-            //foreach (Vertex v in newVertices) {
-             //   v.printInfo();
-            //}
-            for (int x = 0; x < vertices.Count; x++) {
-                Vertex vertex = (Vertex)vertices[x];
+            foreach (Vertex vertex in vertices){
                 Vertex foundVertex = Vertex.findVertex(vertex, newVertices);
                 if (foundVertex != null) {
                     tempVertices.Add(foundVertex);
@@ -861,15 +803,10 @@ namespace test {
 
             PolygonBreaker polygonBreaker = new PolygonBreaker(vertices);
             ArrayList newPolygons = new ArrayList();
-            Vertex newVertex1 = new Vertex();
-            Vertex newVertex2 = new Vertex();
-            bool found1 = false;    // if newVertex1 is already in the buildingPoly vertices list
-            bool found2 = false;    // if newVertex2 is already in the buildingPoly vertices list
 
             /* NOT SURE IF I DID THE START AND END DISTANCES RIGHT.  CHECK THE RATIO/ INTERSECTION POINT CALCULATION
              * ARE THE DISTANCES POSITIVE AND NEGATIVE?  SHOULD WE USE ABSOLUTE VALUE?
              */
-
             
             // swap back if the indexes are out of order
             if (PolygonBreaker.mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint()) < PolygonBreaker.mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint())) {
@@ -998,12 +935,10 @@ namespace test {
             return newPolygons;
         }
 
-
-
         // returns true if one of the vertices in the polygon is unknown
         public bool isUnknown() {
-            for (int x = 0; x < vertices.Count; x++) {
-                if (((Vertex)vertices[x]).getState() == Vertex.UNKNOWN) {
+            foreach (Vertex v in vertices) {
+                if (v.getState() == Vertex.UNKNOWN) {
                     return true;
                 }
             }
@@ -1012,8 +947,7 @@ namespace test {
 
         // calls vertex marking routine on all unknown vertices
         public void markVertices() {
-            for (int x = 0; x < vertices.Count; x++) {
-                Vertex vertex = (Vertex)vertices[x];
+            foreach (Vertex vertex in vertices){
                 if (vertex.getState() == Vertex.UNKNOWN) {
                     // might be a problem with converting the SAME and OPPOSITE qualifiers into vertex categories
                     if (category == Polygon.SAME || category == Polygon.OPPOSITE) {
@@ -1028,8 +962,7 @@ namespace test {
 
         public ArrayList convertToFace(ArrayList buildingVertices) {
             ArrayList face = new ArrayList();
-            for (int x = 0; x < vertices.Count; x++) {
-                Vertex v = (Vertex)vertices[x];
+            foreach (Vertex v in vertices){
                 face.Add(buildingVertices.IndexOf(v));
             }
             return face;
@@ -1108,9 +1041,8 @@ namespace test {
             else {
                 Console.WriteLine("INVALID CATEGORY");
             }
-            
-            for (int x = 0; x < vertices.Count; x++) {
-                ((Vertex)vertices[x]).printInfo();
+            foreach (Vertex v in vertices) {
+                v.printInfo();
             }
         }
     }

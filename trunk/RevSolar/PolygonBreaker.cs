@@ -168,7 +168,6 @@ namespace test {
         public ArrayList splitVFE(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
 
             // Need to calculate where new vertices appear.  Then add to the vertices list of the building
-            //newVertex1 = calcVertexOnLine(objectVertices, intersectPoint, direction, segmentIntersection.getEndDistance(), segmentIntersection.getEndPoint());
             newVertex1 = segmentIntersection.getEndVertex();
 
             // if vertice doesn't exist, then add it to the list of vertices and mark as boundary vertex
@@ -178,24 +177,21 @@ namespace test {
             }
             ((Vertex)objectVertices[segmentIntersection.getStartPoint()]).setState(Vertex.ON_BOUNDARY);
 
-            // Subdivide original polygon into multiple polygons
-            for (int x = 0; x < vertices.Count; x++) {
-                // conditions to create Poly1
-                if (x >= mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) &&
-                    x < mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint())) {
-                    vert1.Add((Vertex)vertices[x]);
-                }
-                if (x == mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint())) {
-                    vert1.Add((Vertex)vertices[x]);
-                    vert1.Add(newVertex1);
-                    vert2.Add(newVertex1);
-                }
-                // conditions to create Poly2
-                if (x <= mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) &&
-                    x > mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint())) {
-                    vert2.Add((Vertex)vertices[x]);
-                }
+            int startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
+            int endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
+            vert1.AddRange(makeList(startIndex, endIndex, vertices));
+            vert1.Add(newVertex1);
+
+            if (endIndex + 1 >= vertices.Count){
+                startIndex = 0;
             }
+            else{
+                startIndex = endIndex + 1;
+            }
+            endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
+
+            vert2.Add(newVertex1);
+            vert2.AddRange(makeList(startIndex, endIndex, vertices));
             return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
@@ -212,25 +208,15 @@ namespace test {
             }
             ((Vertex)objectVertices[segmentIntersection.getEndPoint()]).setState(Vertex.ON_BOUNDARY);
 
-            // Subdivide original polygon into multiple polygons
-            for (int x = 0; x < vertices.Count; x++) {
-                // conditions to create Poly1
-                if (x > mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) &&
-                    x <= mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint())) {
-                    vert1.Add((Vertex)vertices[x]);
-                }
-                if (x == mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint())) {
-                    //vert1.Add((Vertex)vertices[x]);
-                    vert1.Add(newVertex1);
-                    vert2.Add((Vertex)vertices[x]);
-                    vert2.Add(newVertex1);
-                }
-                // conditions to create Poly2
-                if (x < mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) ||
-                    x >= mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint())) {
-                    vert2.Add((Vertex)vertices[x]);
-                }
-            }
+            int startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) + 1;
+            int endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
+            vert1.Add(newVertex1);
+            vert1.AddRange(makeList(startIndex, endIndex, vertices));
+
+            startIndex = mapIndex(objectVertices, vertices, segmentIntersection.getEndPoint());
+            endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint());
+            vert2.Add(newVertex1);
+            vert2.AddRange(makeList(startIndex, endIndex, vertices));
             return createNewPolygons(vert1, vert2, vert3, vert4, vert5, vert6);
         }
 
@@ -852,6 +838,7 @@ namespace test {
             vertices = tempVertices;
         }
 
+        // returns a list of vertices starting with the startindex and ending with endindex using vertices list
         public ArrayList makeList(int startIndex, int endIndex, ArrayList vertices) {
             ArrayList tempVertices = new ArrayList();
             for (int x = startIndex; x != endIndex; x++) {
@@ -865,6 +852,15 @@ namespace test {
             }
             tempVertices.Add((Vertex)vertices[endIndex]);
             return tempVertices;
+        }
+
+        // returns the arraylist comprised of v1,v2,v3
+        public ArrayList createTriangle(Vertex v1, Vertex v2, Vertex v3) {
+            ArrayList triangle = new ArrayList();
+            triangle.Add(v1);
+            triangle.Add(v2);
+            triangle.Add(v3);
+            return triangle;
         }
 
         // returns list of newPolygons

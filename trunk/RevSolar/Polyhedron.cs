@@ -84,7 +84,7 @@ namespace test {
                     if (polygonA.isExtentOverlap(objectB)) {
                         foreach (Polygon polygonB in objectB.polygons){
                             /******DEBUG******/
-                            if (true) {
+                            if (false) {
                                 polygonA.printInfo();
                                 polygonB.printInfo();
                                 Console.WriteLine(polygonA.isExtentOverlap(polygonB));

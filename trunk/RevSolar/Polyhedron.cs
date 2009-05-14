@@ -90,10 +90,10 @@ namespace test {
                                 Console.WriteLine(polygonA.isExtentOverlap(polygonB));
                                 Console.WriteLine();
                             }
-                            /*
-                            if (polygonA.getVertex(0).Equals(new Vertex(1, 4, 1)) && polygonB.getVertex(0).Equals(new Vertex(4, 3, 4))) {
+                            
+                            if (polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(2, 2, 2)) && polygonB.getVertex(0).Equals(new Vertex(4, 3, 1))) {
                                 int blah = 0;
-                            }*/
+                            }
 
                             if (polygonA.isExtentOverlap(polygonB)) {
                                 // Test to see both polygon distances reveal that they overlap each other
@@ -126,7 +126,7 @@ namespace test {
                                                 polygons.Remove(polygonA);
                                                 polygons.AddRange(tempPolygons);
                                                 /******DEBUG******/
-                                                if (true) {
+                                                if (false) {
                                                     polygonA.printInfo();
                                                     polygonB.printInfo();
                                                     Console.WriteLine("Added Polygons");
@@ -354,6 +354,17 @@ namespace test {
                 building.addFace(face);
             }
             return building;
+        }
+
+        // clear all states used in reverseEnvelope
+        public void reset() {
+            calcExtent();
+            foreach (Polygon polygon in polygons) {
+                polygon.reset();
+            }
+            foreach (Vertex v in vertices) {
+                v.reset();
+            }
         }
 
         public Polygon getPolygon(int x) {

@@ -621,7 +621,7 @@ namespace test {
 
                 startIndex = endIndex;
                 if (mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) - 1 < 0) {
-                    endIndex = mapIndex(objectVertices, vertices, vertices.Count - 1);
+                    endIndex = vertices.Count - 1;
                 }
                 else {
                     endIndex = mapIndex(objectVertices, vertices, segmentIntersection.getStartPoint()) - 1;

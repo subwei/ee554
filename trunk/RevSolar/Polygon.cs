@@ -23,20 +23,24 @@ namespace test {
         public const int SAME = 2;      // used to categorize polygon on the boundary of other object with normal vector in same direction
         public const int OPPOSITE = 3;  // used to categorize polygon on the boundary of other object with normal vector in opposite direction
 
-        public const double LIMIT = 1E-12;  
+        public const double LIMIT = 1E-12;
 
         public Polygon()
             : this(new ArrayList()) {
         }
 
         public Polygon(ArrayList list) {
-            segment = new Segment();
             vertices = new ArrayList(list);
+            reset();
             distances = new ArrayList();
+        }
 
+        public void reset() {
+            segment = new Segment();
+            distances = new ArrayList();
             calcExtent();
             calcNormal();
-            if (list.Count > 0) {
+            if (vertices.Count > 0) {
                 calcBarycenter();
             }
             category = Polygon.UNKNOWN;
@@ -92,6 +96,13 @@ namespace test {
          */
         public void classify(Polyhedron objectB) {
 
+            printInfo();
+            if (((Vertex)vertices[0]).Equals(new Vertex(2, 2, 6))) {
+                int blah = 0;
+            }
+
+
+
             Polygon closestPolygon = null;    // stores the closest polygon to polyA
             Vector ray = normal;
             double dot = 0;             // dot product between ray direction and normal vector from PolyB
@@ -102,8 +113,14 @@ namespace test {
             do {
                 closestDistance = Double.MaxValue;
                 castSuccess = true;
-                foreach (Polygon polygonB in objectB.getPolygons()){
-                    //polygonB.printInfo();
+                foreach (Polygon polygonB in objectB.getPolygons()) {
+
+                    /////
+                    //DEBUG
+                    /////
+                    polygonB.printInfo();
+
+
                     Vertex intersectPoint = polygonB.calcIntersection(ray, barycenter);
                     if (intersectPoint != null) {
                         dot = ray.Dot(polygonB.getNormal());
@@ -215,7 +232,7 @@ namespace test {
          *         OUTSIDE if vertex is outside the polygon
          *         SAME if vertex is on the line
          */
-        public int encompassesVertex(Vertex vertex){
+        public int encompassesVertex(Vertex vertex) {
 
             ArrayList modVertices = new ArrayList();
             Vertex modVertex = new Vertex();
@@ -234,7 +251,7 @@ namespace test {
             double largeY = ((Vertex)vertices[0]).GetY();
             double largeZ = ((Vertex)vertices[0]).GetZ();
 
-            foreach (Vertex v in vertices){
+            foreach (Vertex v in vertices) {
                 if (v.GetX() < smallX) {
                     smallX = v.GetX();
                 }
@@ -277,7 +294,7 @@ namespace test {
             }
 
             if (smallest == 0) {
-                foreach (Vertex v in vertices){
+                foreach (Vertex v in vertices) {
                     modVertices.Add(new Vertex(v.GetY(), v.GetZ(), 0));
                     modVertex = new Vertex(vertex.GetY(), vertex.GetZ(), 0);
                 }
@@ -318,12 +335,12 @@ namespace test {
                 else if (arbiter > LIMIT) {
                     numLeft++;
                 }
-                else {  // point is on edge
+                else if (BuildingVRMLNode.checkbetween(v0, v1, modVertex)) {  // point is on edge
                     return Polygon.SAME;
                 }
             }
 
-            
+
             // For vertices oriented CCW, the point will be to the left of all the edges.  they will be the right if vertices oriented CW
             if (numLeft == modVertices.Count) {    // all edges are to the left of the point
                 return Polygon.INSIDE;
@@ -369,7 +386,7 @@ namespace test {
         // returns a direction vector slightly shifted.
         public Vector perturb(Vector v) {
             Random rand = new Random();
-            return new Vector(v.x + LIMIT *(rand.NextDouble()+1), v.y + LIMIT * (rand.NextDouble()+1), v.z + LIMIT * (rand.NextDouble()+1));
+            return new Vector(v.x + LIMIT * (rand.NextDouble() + 1), v.y + LIMIT * (rand.NextDouble() + 1), v.z + LIMIT * (rand.NextDouble() + 1));
         }
 
         public void calcNormal() {
@@ -396,7 +413,7 @@ namespace test {
             double averageY = 0;
             double averageZ = 0;
 
-            for (int x=0; x<vertices.Count; x++){
+            for (int x = 0; x < vertices.Count; x++) {
                 Vertex v = (Vertex)vertices[x];
                 averageX += v.GetX();
                 averageY += v.GetY();
@@ -437,7 +454,7 @@ namespace test {
                 maxY = i.GetY();
                 maxZ = i.GetZ();
             }
-            foreach (Vertex vertex in vertices){
+            foreach (Vertex vertex in vertices) {
                 if (vertex.GetX() < minX) minX = vertex.GetX();
                 if (vertex.GetY() < minY) minY = vertex.GetY();
                 if (vertex.GetZ() < minZ) minZ = vertex.GetZ();
@@ -477,7 +494,7 @@ namespace test {
                     return true;
                 }
             }
-            else if (obj is Vertex){
+            else if (obj is Vertex) {
                 Vertex v = (Vertex)obj;
                 if (v.GetX() < minX || v.GetX() > maxX ||
                     v.GetY() < minY || v.GetY() > maxY ||
@@ -495,7 +512,7 @@ namespace test {
         public void calcDistances(Polygon polygon) {
             // need to erase distances from the previous calculations
             distances.Clear();
-            foreach (Vertex vertex in vertices){
+            foreach (Vertex vertex in vertices) {
                 distances.Add(polygon.calcDistance(vertex));
             }
         }
@@ -515,9 +532,9 @@ namespace test {
         public bool doesOverlap(Polygon polygonB) {
             calcDistances(polygonB);
             if (distances.Count > 0) {
-                bool isSame = (double)distances[0] < 0;
-                foreach (double distance in distances){
-                    if ((distance >= 0) == isSame) {
+                bool isSame = (double)distances[0] < -LIMIT;
+                foreach (double distance in distances) {
+                    if ((distance >= -LIMIT) == isSame) {
                         return true;
                     }
                 }
@@ -529,10 +546,14 @@ namespace test {
         // returns true if all vertices are converted, false otherwise
         public bool convertVertices(ArrayList newVertices) {
             ArrayList tempVertices = new ArrayList();
-            foreach (Vertex vertex in vertices){
+            foreach (Vertex vertex in vertices) {
                 Vertex foundVertex = Vertex.findVertex(vertex, newVertices);
                 if (foundVertex != null) {
                     tempVertices.Add(foundVertex);
+                }
+                else {
+                    Console.WriteLine("Polygon::convertVertices => ERROR: Can't convert vertices b/c at least one vertice does not exist in the list");
+                    throw new System.InvalidOperationException("Polygon::convertVertices => ERROR: Can't convert vertices b/c at least one vertice does not exist in the list");
                 }
             }
 
@@ -568,14 +589,11 @@ namespace test {
             Vertex startVertex = new Vertex();
             Vertex endVertex = new Vertex();
 
-
             /* if a point is on the line. ie. distance = 0, then it MUST be an endpoint.
              * This is a Vertex start or endpoint.
              */
             for (int x = 0; x < distances.Count; x++) {
-                double d = (double)distances[x];
-                int integer = (int)d;
-                if (integer == 0) {
+                if (Math.Abs((double)distances[x]) < LIMIT) {
                     pointsOnLine.Add(x);
                 }
             }
@@ -584,20 +602,19 @@ namespace test {
              * This is an Edge start or endpoint.
              */
             for (int x = 0; x < distances.Count; x++) {
-
                 if (x == distances.Count - 1) {
-                    if ((double)distances[x] < 0 && (double)distances[0] > 0) {
+                    if ((double)distances[x] < -LIMIT && (double)distances[0] > LIMIT) {
                         indexSignChange.Add(x);
                     }
-                    else if ((double)distances[x] > 0 && (double)distances[0] < 0) {
+                    else if ((double)distances[x] > LIMIT && (double)distances[0] < -LIMIT) {
                         indexSignChange.Add(x);
                     }
                 }
                 else {
-                    if ((double)distances[x] < 0 && (double)distances[x + 1] > 0) {
+                    if ((double)distances[x] < -LIMIT && (double)distances[x + 1] > LIMIT) {
                         indexSignChange.Add(x);
                     }
-                    else if ((double)distances[x] > 0 && (double)distances[x + 1] < 0) {
+                    else if ((double)distances[x] > LIMIT && (double)distances[x + 1] < -LIMIT) {
                         indexSignChange.Add(x);
                     }
                 }
@@ -912,14 +929,14 @@ namespace test {
                 Console.WriteLine("No splitting happened");
             }
 
-            /*
+
             if (newPolygons != null) {
                 foreach (Polygon p in newPolygons) {
-                    if (p.getVertex(0).Equals(new Vertex(4, 4, 0)) && p.getVertex(p.getVertices().Count-1).Equals(new Vertex(2, 4, 0))) {
+                    if (p.getVertex(0).Equals(new Vertex(4, 2, 2)) && p.getVertex(p.getVertices().Count - 1).Equals(new Vertex(4, 2, 2.5))) {
                         int blah = 0;
                     }
                 }
-            }*/
+            }
 
             return newPolygons;
         }
@@ -936,7 +953,7 @@ namespace test {
 
         // calls vertex marking routine on all unknown vertices
         public void markVertices() {
-            foreach (Vertex vertex in vertices){
+            foreach (Vertex vertex in vertices) {
                 if (vertex.getState() == Vertex.UNKNOWN) {
                     // might be a problem with converting the SAME and OPPOSITE qualifiers into vertex categories
                     if (category == Polygon.SAME || category == Polygon.OPPOSITE) {
@@ -951,7 +968,7 @@ namespace test {
 
         public ArrayList convertToFace(ArrayList buildingVertices) {
             ArrayList face = new ArrayList();
-            foreach (Vertex v in vertices){
+            foreach (Vertex v in vertices) {
                 face.Add(buildingVertices.IndexOf(v));
             }
             return face;

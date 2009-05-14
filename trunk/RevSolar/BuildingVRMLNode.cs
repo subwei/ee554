@@ -128,6 +128,69 @@ namespace test {
             this.faces.Add(face);
         }
 
+
+        // returns true if the vertex R is in between v1 and v2
+        public static bool checkbetween(Vertex v1, Vertex v2, Vertex R) {
+
+            if ((float)v1.GetZ() > (float)v2.GetZ()) {
+                if ((float)R.GetZ() < (float)v2.GetZ() || (float)R.GetZ() > (float)v1.GetZ()) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            else if ((float)v1.GetZ() < (float)v2.GetZ()) {
+                if ((float)R.GetZ() < (float)v1.GetZ() || (float)R.GetZ() > (float)v2.GetZ()) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            else {
+                if ((float)v1.GetX() > (float)v2.GetX()) {
+                    if ((float)R.GetX() < (float)v2.GetX() || (float)R.GetX() > (float)v1.GetX()) {
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+                }
+                else if ((float)v1.GetX() < (float)v2.GetX()) {
+                    if ((float)R.GetX() < (float)v1.GetX() || (float)R.GetX() > (float)v2.GetX()) {
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+                }
+                else {
+
+                    if ((float)v1.GetY() > (float)v2.GetY()) {
+                        if ((float)R.GetY() < (float)v2.GetY() || (float)R.GetY() > (float)v1.GetY()) {
+                            return false;
+                        }
+                        else {
+                            return true;
+                        }
+                    }
+                    else if ((float)v1.GetY() < (float)v2.GetY()) {
+                        if ((float)R.GetY() < (float)v1.GetY() || (float)R.GetY() > (float)v2.GetY()) {
+                            return false;
+                        }
+                        else {
+                            return true;
+                        }
+                    }
+                    else {
+                        return false;
+                    }
+                }
+            }
+
+        }
+
         public void calculateNormals() {
             double x1, y1, z1;
             for (int i = 0; i < faces.Count; i++) {
@@ -756,8 +819,8 @@ namespace test {
             // Categorize the polygons as inside, outside, or on the boundary of each building
             tempBuilding.markRegion(tempShadow);
             tempShadow.markRegion(tempBuilding);
-            tempBuilding.printInfo();
-            tempShadow.printInfo();
+            //tempBuilding.printInfo();
+            //tempShadow.printInfo();
 
 
             ArrayList newPolygons = new ArrayList();
@@ -765,8 +828,8 @@ namespace test {
 
             tempBuilding.selectPolygons(true, tempShadow, ref newPolygons, ref newVertices);
             tempShadow.selectPolygons(false, tempBuilding, ref newPolygons, ref newVertices);
-            //tempBuilding.printInfo();
-            //tempShadow.printInfo();
+            tempBuilding.printInfo();
+            tempShadow.printInfo();
 
             /*
             tempBuilding.printInfo();
@@ -781,6 +844,7 @@ namespace test {
 
             Polyhedron newPolyhedron = new Polyhedron(newVertices, newPolygons);
             //newPolyhedron.printInfo();
+            newPolyhedron.reset();
             BuildingVRMLNode newBuilding = newPolyhedron.convertToBuilding();
             //BuildingVRMLNode newShadow = tempShadow.convertToBuilding();
             return newBuilding; //new BuildingVRMLNode();//newBuilding;
@@ -874,7 +938,7 @@ namespace test {
             // close the stream
             tw.Close();
 
-
+            /*
             int face_num = 1;
             Console.WriteLine("\n\nVertices");
             for (int x = 0; x < vertices.Count; x++) {
@@ -890,6 +954,7 @@ namespace test {
                     Console.WriteLine("{0}:  {1} {2} {3}", (int)face[x], v1.GetX(), v1.GetY(), v1.GetZ());
                 }
             }
+            */
 
         }
 

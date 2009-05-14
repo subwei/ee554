@@ -177,6 +177,11 @@ namespace test
             state = x;
         }
 
+        public void reset() {
+            clearAdjacentList();
+            state = UNKNOWN;
+        }
+
         public bool adjacentExists(Vertex vertex) {
             if (adjacentVertices.IndexOf(vertex) == -1) {
                 return false;

@@ -739,7 +739,7 @@ namespace test {
              * else the middle segment is a face
              */
 
-            if (((Vertex)masterVertices[startPoint]).isAdjacent(((Vertex)masterVertices[endPoint])) && segment.getStartDescriptor() == Segment.VERTEX && segment.getEndDescriptor() == Segment.VERTEX) segment.setMiddleDescriptor(Segment.EDGE);
+            if (isAdjacent(startVertex, endVertex) && segment.getStartDescriptor() == Segment.VERTEX && segment.getEndDescriptor() == Segment.VERTEX) segment.setMiddleDescriptor(Segment.EDGE);
             else if (startPoint == endPoint) segment.setMiddleDescriptor(Segment.VERTEX);
             else segment.setMiddleDescriptor(Segment.FACE);
 
@@ -948,6 +948,31 @@ namespace test {
             foreach (Vertex v in vertices) {
                 if (v.getState() == Vertex.UNKNOWN) {
                     return true;
+                }
+            }
+            return false;
+        }
+
+        // returns true if v1 and v2 are adjacent on this polygon
+        public bool isAdjacent(Vertex startVertex, Vertex endVertex) {
+            for (int x = 0; x < vertices.Count; x++) {
+                Vertex v = (Vertex)vertices[x];
+                if (v.Equals(startVertex)) {
+                    if (x == 0) {
+                        if (((Vertex)vertices[x + 1]).Equals(endVertex) || ((Vertex)vertices[vertices.Count - 1]).Equals(endVertex)) {
+                            return true;
+                        }
+                    }
+                    else if (x == vertices.Count-1) {
+                        if (((Vertex)vertices[0]).Equals(endVertex) || ((Vertex)vertices[x - 1]).Equals(endVertex)) {
+                            return true;
+                        }
+                    }
+                    else {
+                        if (((Vertex)vertices[x + 1]).Equals(endVertex) || ((Vertex)vertices[x - 1]).Equals(endVertex)) {
+                            return true;
+                        }
+                    }
                 }
             }
             return false;

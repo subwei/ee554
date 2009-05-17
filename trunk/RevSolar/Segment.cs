@@ -18,6 +18,7 @@ namespace test {
         public const int VERTEX = 1;
         public const int EDGE = 2;
         public const int FACE = 3;
+        public const double LIMIT = 1E-12;
 
         public Segment() {
             startDistance = 0;
@@ -112,11 +113,11 @@ namespace test {
          * ASSUMES STARTPOINT FOR A SEGMENT IS SHORTER DISTANCE THAN ENDPOINT
          */
         public bool overlaps(Segment segmentB) {
-            if (segmentB.getStartDistance() <= endDistance && segmentB.getStartDistance() >= startDistance) {
-                return true;
+            if (segmentB.getEndDistance() < startDistance + LIMIT || segmentB.getStartDistance() > endDistance + LIMIT) {
+                return false;
             }
             else {
-                return false;
+                return true;
             }
         }
 

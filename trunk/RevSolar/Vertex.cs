@@ -129,7 +129,7 @@ namespace test
             }
 
         }
-
+        
         public bool isAdjacent(Vertex vertex) {
             return adjacentVertices.Contains(vertex);
         }

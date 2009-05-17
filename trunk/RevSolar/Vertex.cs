@@ -175,6 +175,9 @@ namespace test
 
         public void setState(int x) {
             state = x;
+            if (this.Equals(new Vertex(2, 2, 2)) && state == OUTSIDE_BOUNDARY) {
+                int blah = 0;
+            }
         }
 
         public void reset() {
@@ -220,6 +223,5 @@ namespace test
         }
     }
 }
-
 
 

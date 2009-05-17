@@ -792,7 +792,7 @@ namespace test {
 
 
 
-        public BuildingVRMLNode reverseEnvelope(BuildingVRMLNode shadow_volume) {
+        public BuildingVRMLNode reverseEnvelope(BuildingVRMLNode shadow_volume, int passNum) {
             /* First convert the building volume and shadow volume 
              * into Polyhedra
              */
@@ -822,14 +822,14 @@ namespace test {
             //tempBuilding.printInfo();
             //tempShadow.printInfo();
 
-
             ArrayList newPolygons = new ArrayList();
             ArrayList newVertices = new ArrayList();
 
-            tempBuilding.selectPolygons(true, tempShadow, ref newPolygons, ref newVertices);
-            tempShadow.selectPolygons(false, tempBuilding, ref newPolygons, ref newVertices);
+            tempBuilding.selectPolygons(true, tempShadow, newPolygons, newVertices);
+            tempShadow.selectPolygons(false, tempBuilding, newPolygons, newVertices);
             tempBuilding.printInfo();
             tempShadow.printInfo();
+
 
             /*
             tempBuilding.printInfo();
@@ -845,9 +845,17 @@ namespace test {
             Polyhedron newPolyhedron = new Polyhedron(newVertices, newPolygons);
             //newPolyhedron.printInfo();
             newPolyhedron.reset();
-            BuildingVRMLNode newBuilding = newPolyhedron.convertToBuilding();
+
+            BuildingVRMLNode newBuilding = newPolyhedron.convertToBuilding(vertices);
+            BuildingVRMLNode bBuilding = tempBuilding.convertToBuilding(vertices);
+            BuildingVRMLNode bShadow = tempShadow.convertToBuilding(tempBuilding.getVertices());
             //BuildingVRMLNode newShadow = tempShadow.convertToBuilding();
-            return newBuilding; //new BuildingVRMLNode();//newBuilding;
+            if (passNum == 1) {
+                return newBuilding;
+            }
+            else {
+                return bShadow; //new BuildingVRMLNode();//newBuilding;
+            }
         }
 
         public void printInfo(string file) {

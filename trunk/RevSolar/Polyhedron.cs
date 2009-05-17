@@ -279,7 +279,7 @@ namespace test {
             }
         }
 
-        public void selectPolygons(bool isPrimary, Polyhedron objectB, ref ArrayList newPolygons, ref ArrayList newVertices) {
+        public void selectPolygons(bool isPrimary, Polyhedron objectB, ArrayList newPolygons, ArrayList newVertices) {
             classifyPolygons();
             // Add vertices from the primary object to the newPolygons list
             if (isPrimary) {
@@ -307,22 +307,17 @@ namespace test {
                     //polygon.printInfo();
                 }
 
+                // MAKE A NEW POLYGON BEFORE ADDING TO THE newPolygon LIST
                 //Add polygons with category OUTSIDE and OPPOSITE for objectA
                 //Add polygons with cateogry INSIDE for objectB and also convert vertices to the newVertices list
                 if (isPrimary && (polygon.getCategory() == Polygon.OUTSIDE || polygon.getCategory() == Polygon.OPPOSITE)) {
-                    if (polygon.convertVertices(newVertices) != true) {
-                        Console.WriteLine("Polyhedron::selectPolygons => ERROR: Can't convert vertices b/c at least one vertice does not exist in the list");
-                        throw new System.InvalidOperationException("Can't convert vertices b/c at least one vertice does not exist in the list");
-                    }
-                    newPolygons.Add(polygon);
+                    Polygon newPolygon = new Polygon(polygon, newVertices);
+                    newPolygons.Add(newPolygon);
                 }
                 else if (!isPrimary && (polygon.getCategory() == Polygon.INSIDE)) {
-                    if (polygon.convertVertices(newVertices) != true) {
-                        Console.WriteLine("Polyhedron::selectPolygons => ERROR: Can't convert vertices b/c at least one vertice does not exist in the list");
-                        throw new System.InvalidOperationException("Polyhedron::selectPolygons => ERROR: Can't convert vertices b/c at least one vertice does not exist in the list");
-                    }
-                    polygon.reverse();
-                    newPolygons.Add(polygon);
+                    Polygon newPolygon = new Polygon(polygon, newVertices);
+                    newPolygon.reverse();
+                    newPolygons.Add(newPolygon);
                 }
             }
         }
@@ -342,7 +337,7 @@ namespace test {
             }
         }
 
-        public BuildingVRMLNode convertToBuilding() {
+        public BuildingVRMLNode convertToBuilding(ArrayList otherList) {
             // Clear all information stored in the vertices list
             foreach (Vertex v in vertices) {
                 v.clearAdjacentList();
@@ -350,6 +345,7 @@ namespace test {
             }
             BuildingVRMLNode building = new BuildingVRMLNode(vertices);
             foreach (Polygon polygon in polygons){
+                ArrayList polyVertices = polygon.getVertices();
                 ArrayList face = polygon.convertToFace(vertices);
                 building.addFace(face);
             }

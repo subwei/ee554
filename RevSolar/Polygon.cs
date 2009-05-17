@@ -818,25 +818,27 @@ namespace test {
          */
         public ArrayList split(ArrayList objectVertices, Segment segmentIntersection, Segment segment, Vertex intersectPoint, Vector direction) {
 
-            PolygonBreaker polygonBreaker = new PolygonBreaker(vertices);
+            PolygonBreaker polygonBreaker = new PolygonBreaker(objectVertices, vertices, segmentIntersection, segment, intersectPoint, direction);
             ArrayList newPolygons = new ArrayList();
+
+            if (segmentIntersection.getEndVertex().Equals(new Vertex(3, 2, 2)) || segmentIntersection.getStartVertex().Equals(new Vertex(3, 2, 2))) {
+                int blah = 0;
+            }
 
             /* There are ten cases for the intersecting segment
              */
             if (segmentIntersection.getStartDescriptor() == Segment.VERTEX &&
                 segmentIntersection.getMiddleDescriptor() == Segment.VERTEX &&
                 segmentIntersection.getEndDescriptor() == Segment.VERTEX) {
-
                 segmentIntersection.getStartVertex().setState(Vertex.ON_BOUNDARY);
-                //((Vertex)objectVertices[segmentIntersection.getStartPoint()]).setState(Vertex.ON_BOUNDARY);
                 newPolygons = null;
                 Console.WriteLine("VVV");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.VERTEX &&
                     segmentIntersection.getMiddleDescriptor() == Segment.EDGE &&
                     segmentIntersection.getEndDescriptor() == Segment.VERTEX) {
-                ((Vertex)objectVertices[segmentIntersection.getStartPoint()]).setState(Vertex.ON_BOUNDARY);
-                ((Vertex)objectVertices[segmentIntersection.getEndPoint()]).setState(Vertex.ON_BOUNDARY);
+                segmentIntersection.getStartVertex().setState(Vertex.ON_BOUNDARY);
+                segmentIntersection.getEndVertex().setState(Vertex.ON_BOUNDARY);
                 newPolygons = null;
                 Console.WriteLine("VEV");
             }
@@ -844,7 +846,7 @@ namespace test {
                     segmentIntersection.getMiddleDescriptor() == Segment.EDGE &&
                     segmentIntersection.getEndDescriptor() == Segment.EDGE) {
 
-                newPolygons = polygonBreaker.splitVEE(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitVEE();
                 Console.WriteLine("VEE");
 
             }
@@ -852,77 +854,77 @@ namespace test {
                segmentIntersection.getMiddleDescriptor() == Segment.EDGE &&
                segmentIntersection.getEndDescriptor() == Segment.VERTEX) {
 
-                newPolygons = polygonBreaker.splitEEV(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitEEV();
                 Console.WriteLine("EEV");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.VERTEX &&
                     segmentIntersection.getMiddleDescriptor() == Segment.FACE &&
                     segmentIntersection.getEndDescriptor() == Segment.VERTEX) {
 
-                newPolygons = polygonBreaker.splitVFV(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitVFV();
                 Console.WriteLine("VFV");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.VERTEX &&
                      segmentIntersection.getMiddleDescriptor() == Segment.FACE &&
                      segmentIntersection.getEndDescriptor() == Segment.EDGE) {
 
-                newPolygons = polygonBreaker.splitVFE(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitVFE();
                 Console.WriteLine("VFE");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.EDGE &&
                 segmentIntersection.getMiddleDescriptor() == Segment.FACE &&
                 segmentIntersection.getEndDescriptor() == Segment.VERTEX) {
 
-                newPolygons = polygonBreaker.splitEFV(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitEFV();
                 Console.WriteLine("EFV");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.VERTEX &&
                segmentIntersection.getMiddleDescriptor() == Segment.FACE &&
                segmentIntersection.getEndDescriptor() == Segment.FACE) {
 
-                newPolygons = polygonBreaker.splitVFF(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitVFF();
                 Console.WriteLine("VFF");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.FACE &&
                 segmentIntersection.getMiddleDescriptor() == Segment.FACE &&
                 segmentIntersection.getEndDescriptor() == Segment.VERTEX) {
 
-                newPolygons = polygonBreaker.splitFFV(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitFFV();
                 Console.WriteLine("FFV");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.EDGE &&
                segmentIntersection.getMiddleDescriptor() == Segment.EDGE &&
                segmentIntersection.getEndDescriptor() == Segment.EDGE) {
 
-                newPolygons = polygonBreaker.splitEEE(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitEEE();
                 Console.WriteLine("EEE");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.EDGE &&
                     segmentIntersection.getMiddleDescriptor() == Segment.FACE &&
                     segmentIntersection.getEndDescriptor() == Segment.EDGE) {
 
-                newPolygons = polygonBreaker.splitEFE(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitEFE();
                 Console.WriteLine("EFE");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.EDGE &&
                segmentIntersection.getMiddleDescriptor() == Segment.FACE &&
                segmentIntersection.getEndDescriptor() == Segment.FACE) {
 
-                newPolygons = polygonBreaker.splitEFF(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitEFF();
                 Console.WriteLine("EFF");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.FACE &&
           segmentIntersection.getMiddleDescriptor() == Segment.FACE &&
           segmentIntersection.getEndDescriptor() == Segment.EDGE) {
 
-                newPolygons = polygonBreaker.splitFFE(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitFFE();
                 Console.WriteLine("FFE");
             }
             else if (segmentIntersection.getStartDescriptor() == Segment.FACE &&
           segmentIntersection.getMiddleDescriptor() == Segment.FACE &&
           segmentIntersection.getEndDescriptor() == Segment.FACE) {
 
-                newPolygons = polygonBreaker.splitFFF(objectVertices, segmentIntersection, segment, intersectPoint, direction);
+                newPolygons = polygonBreaker.splitFFF();
                 Console.WriteLine("FFF");
             }
             else {

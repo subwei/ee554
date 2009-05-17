@@ -281,7 +281,7 @@ namespace test {
             vert3 = createTriangle(newEndVertex, (Vertex)polyVertices[startIndex], (Vertex)polyVertices[endIndex]);
 
             // create 4th polygon if the rightmost intersection is a vertex.  4th polygon is bottomRight polygon
-            if (segment.getEndDescriptor() == Segment.EDGE) {
+            if (segment.getEndDescriptor() == Segment.VERTEX) {
                 if (mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint()) - 1 < 0) {
                     startIndex = polyVertices.Count - 1;
                 }
@@ -337,7 +337,7 @@ namespace test {
             vert3 = createTriangle(newStartVertex, (Vertex)polyVertices[startIndex], (Vertex)polyVertices[endIndex]);
 
             // create 4th polygon if the rightmost intersection is a vertex.  4th polygon is bottomRight polygon
-            if (segment.getEndDescriptor() == Segment.EDGE) {
+            if (segment.getEndDescriptor() == Segment.VERTEX) {
 
                 if (mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint()) - 1 < 0) {
                     startIndex = polyVertices.Count - 1;

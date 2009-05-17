@@ -90,8 +90,12 @@ namespace test {
                                 Console.WriteLine(polygonA.isExtentOverlap(polygonB));
                                 Console.WriteLine();
                             }
-                            
-                            if (polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(2, 2, 2)) && polygonB.getVertex(0).Equals(new Vertex(4, 3, 1))) {
+
+                            if (polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(3, 3, 2)) && polygonA.getVertex(0).Equals(new Vertex(4, 4, 2))) {
+                                int blah = 0;
+                            }
+
+                            if (polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(3, 3, 2)) && polygonB.getVertex(0).Equals(new Vertex(4, 3, 2))) {
                                 int blah = 0;
                             }
 
@@ -99,23 +103,17 @@ namespace test {
                                 // Test to see both polygon distances reveal that they overlap each other
                                 if (polygonA.doesOverlap(polygonB)) {
                                     if (polygonB.doesOverlap(polygonA)) {
-
-                                        calcAdjacentVertices(true); // need to call this before segment calculations b/c they make use of the adjacentVertices to figure out middle segment
-                                        objectB.calcAdjacentVertices(false);
                                         calcLineIntersection(polygonA, polygonB, ref intersectPoint, ref direction);
-
 
                                         if (polygonA.getVertex(0).Equals(new Vertex(4, 4, 4)) && polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(2, 4, 4))) {
                                             int blah = 0;
                                         }
-
                                         // calculate segment for polygonA and polygonB
                                         segmentA = polygonA.calcSegment(intersectPoint, direction, vertices);
                                         // need to use the shadow's vertices to calculate segment 2
                                         segmentB = polygonB.calcSegment(intersectPoint, direction, objectB.getVertices());
 
                                         if (segmentA.overlaps(segmentB)) {
-
                                             segmentIntersect = segmentA.calcSegmentIntersection(segmentB, vertices, polygonA.getVertices());
 
                                             /* subdivide polygons into non-intersecting parts
@@ -126,7 +124,7 @@ namespace test {
                                                 polygons.Remove(polygonA);
                                                 polygons.AddRange(tempPolygons);
                                                 /******DEBUG******/
-                                                if (false) {
+                                                if (true) {
                                                     polygonA.printInfo();
                                                     polygonB.printInfo();
                                                     Console.WriteLine("Added Polygons");

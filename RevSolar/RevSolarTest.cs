@@ -22,7 +22,7 @@ namespace Solar_Envelope_Test {
             /* Test Cases: (1,1) (1,2) (1,3) (2,4) (2,5)
              */
             int bType = BCUBE2;
-            int sType = SCUBE4;
+            int sType = SCUBE5;
 
 
             BuildingVRMLNode initBuilding = new BuildingVRMLNode();
@@ -60,10 +60,10 @@ namespace Solar_Envelope_Test {
                 shadow = test.createCube(test.getSCube5());
             }
 
-            //BuildingVRMLNode revsolar1 = initBuilding.reverseEnvelope(shadow, 1);
-            BuildingVRMLNode revsolar1 = test.createSpecialCube(test.specialCube1());
+            BuildingVRMLNode revsolar1 = initBuilding.reverseEnvelope(shadow, 1);
+            //BuildingVRMLNode revsolar1 = test.createSpecialCube(test.specialCube1());
             BuildingVRMLNode shadow2 = test.createCube(test.getSCube2());
-            BuildingVRMLNode revsolar2 = revsolar1.reverseEnvelope(shadow2, 2);
+            BuildingVRMLNode revsolar2 = revsolar1.reverseEnvelope(shadow2, 1);
             //initBuilding.printInfo("building");
             //shadow.printInfo("shadow");
             revsolar2.printInfo("reverseSolar");

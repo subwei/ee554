@@ -17,6 +17,7 @@ namespace test
         public const int INSIDE_BOUNDARY = 0;
         public const int OUTSIDE_BOUNDARY = 1;
         public const int ON_BOUNDARY = 2;
+        public const double LIMIT = 1E-8;
 
 		public Vertex():this(0,0,0)
 		{
@@ -165,8 +166,29 @@ namespace test
             return Math.Sqrt(dx * dx + dy * dy + dz * dz);
         }
 
+        public double calcUnsignDistance(Vertex vertex) {
+            double dx = GetX() - vertex.GetX();
+            double dy = GetY() - vertex.GetY();
+            double dz = GetZ() - vertex.GetZ();
+            return Math.Sqrt(dx * dx + dy * dy + dz * dz);
+        }
+
+        public double calcSignDistance(Vertex vertex, Vector direction) {
+            double tempDistance = calcUnsignDistance(vertex);
+            Vector newPointDirection = new Vector(GetX() - vertex.GetX(), GetY() - vertex.GetY(), GetZ() - vertex.GetZ());
+            newPointDirection.Normalize();
+            if (newPointDirection.Dot(direction) > 0) {
+                return tempDistance;
+            }
+            else {
+                return -tempDistance;
+            }
+        }
+
         public bool Equals(Vertex vertex) {
-            return ((float)GetX() == (float)vertex.GetX() && (float)GetY() == (float)vertex.GetY() && (float)GetZ() == (float)vertex.GetZ());
+            return (Math.Abs(vertex.GetX() - GetX()) < LIMIT &&
+                    Math.Abs(vertex.GetY() - GetY()) < LIMIT &&
+                    Math.Abs(vertex.GetZ() - GetZ()) < LIMIT);
         }
 
         public int getState() {

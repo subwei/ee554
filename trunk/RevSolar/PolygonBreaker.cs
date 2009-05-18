@@ -495,7 +495,7 @@ namespace test {
             }
             else {
                 if (mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint()) - 1 < 0) {
-                    startIndex = polyVertices.Count;
+                    startIndex = polyVertices.Count - 1;
                 }
                 else {
                     startIndex = mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint());
@@ -519,7 +519,7 @@ namespace test {
             // create 4th polygon if the leftmost intersection is a vertex.  4th polygon is topleft polygon
             if (segment.getStartDescriptor() == Segment.VERTEX) {
                 if (mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint()) - 1 < 0) {
-                    startIndex = polyVertices.Count;
+                    startIndex = polyVertices.Count - 1;
                 }
                 else {
                     startIndex = mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint()) - 1;

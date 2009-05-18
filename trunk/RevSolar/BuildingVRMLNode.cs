@@ -811,6 +811,7 @@ namespace test {
              * 2)  Subdivide the shadow
              * 3)  Subdivide the building again.  Both polyhedrons and their polygons should not intersect after this
              */
+
             tempBuilding.subDivide(tempShadow);
             tempShadow.subDivide(tempBuilding);
             tempBuilding.subDivide(tempShadow);

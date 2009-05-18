@@ -84,18 +84,26 @@ namespace test {
                     if (polygonA.isExtentOverlap(objectB)) {
                         foreach (Polygon polygonB in objectB.polygons){
                             /******DEBUG******/
-                            if (false) {
+                            if (true) {
                                 polygonA.printInfo();
                                 polygonB.printInfo();
                                 Console.WriteLine(polygonA.isExtentOverlap(polygonB));
                                 Console.WriteLine();
+                                
+                                ArrayList masterVertices = new ArrayList(vertices);
+                                masterVertices.AddRange(objectB.getVertices());
+                                BuildingVRMLNode intersectPolygons = new BuildingVRMLNode(masterVertices);
+                                intersectPolygons.addFace(polygonA.convertToFace(masterVertices));
+                                intersectPolygons.addFace(polygonB.convertToFace(masterVertices));
+                                intersectPolygons.printInfo("intersectPolygons");
+                                int blah = 0;
                             }
 
                             if (polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(3, 3, 2)) && polygonA.getVertex(0).Equals(new Vertex(4, 4, 2))) {
                                 int blah = 0;
                             }
 
-                            if (polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(3, 3, 2)) && polygonB.getVertex(0).Equals(new Vertex(4, 3, 2))) {
+                            if (polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(5, 5, 3)) && polygonB.getVertex(0).Equals(new Vertex(4, 4, 1))) {
                                 int blah = 0;
                             }
 
@@ -108,10 +116,28 @@ namespace test {
                                         if (polygonA.getVertex(0).Equals(new Vertex(4, 4, 4)) && polygonA.getVertex(polygonA.getVertices().Count - 1).Equals(new Vertex(2, 4, 4))) {
                                             int blah = 0;
                                         }
-                                        // calculate segment for polygonA and polygonB
+
+                                        /*
                                         segmentA = polygonA.calcSegment(intersectPoint, direction, vertices);
                                         // need to use the shadow's vertices to calculate segment 2
                                         segmentB = polygonB.calcSegment(intersectPoint, direction, objectB.getVertices());
+                                        */
+
+                                        // While the intersection point is inside one of the segments, shift the  point by the direction vector
+                                        // Need this because if the point is between the segments, the distances will be incorrect.
+                                        while (true) {
+                                            // calculate segment for polygonA and polygonB
+                                            segmentA = polygonA.calcSegment(intersectPoint, direction, vertices);
+                                            // need to use the shadow's vertices to calculate segment 2
+                                            segmentB = polygonB.calcSegment(intersectPoint, direction, objectB.getVertices());
+                                            if (!intersectPoint.isBetween(segmentA.getStartVertex(), segmentA.getEndVertex()) &&
+                                                !intersectPoint.isBetween(segmentB.getStartVertex(), segmentB.getEndVertex())) {
+                                                break;
+                                            }
+                                            intersectPoint = new Vertex(intersectPoint.GetX() + direction.x * 10, intersectPoint.GetY() + direction.y * 10, intersectPoint.GetZ() + direction.z * 10);
+                                        }
+
+                                        
 
                                         if (segmentA.overlaps(segmentB)) {
                                             segmentIntersect = segmentA.calcSegmentIntersection(segmentB, vertices, polygonA.getVertices());
@@ -125,6 +151,7 @@ namespace test {
                                                 polygons.AddRange(tempPolygons);
                                                 /******DEBUG******/
                                                 if (true) {
+                                                    
                                                     polygonA.printInfo();
                                                     polygonB.printInfo();
                                                     Console.WriteLine("Added Polygons");
@@ -132,6 +159,26 @@ namespace test {
                                                         tempPolygon.printInfo();
                                                     }
                                                     Console.WriteLine();
+                                                    /*
+
+                                                    BuildingVRMLNode newBuilding = this.convertToBuilding(vertices);
+                                                    newBuilding.printInfo("newestBuilding");
+
+                                                    ArrayList masterVertices = new ArrayList(vertices);
+                                                    masterVertices.AddRange(objectB.getVertices());
+                                                    BuildingVRMLNode intersectPolygons = new BuildingVRMLNode(masterVertices);
+                                                    intersectPolygons.addFace(polygonA.convertToFace(masterVertices));
+                                                    intersectPolygons.addFace(polygonB.convertToFace(masterVertices));
+                                                    intersectPolygons.printInfo("intersectPolygons");
+
+
+                                                    BuildingVRMLNode testNewPolygons = new BuildingVRMLNode(vertices);
+                                                    foreach (Polygon tempPolygon in tempPolygons) {
+                                                        testNewPolygons.addFace(tempPolygon.convertToFace(vertices));
+                                                    }
+                                                    testNewPolygons.printInfo("newPolygons");
+                                                     */
+                                                    int blah = 0;
                                                 }
 
                                                 // if polygonA doesn't match up anymore, then it was deleted and new polygons were added
@@ -343,7 +390,6 @@ namespace test {
             }
             BuildingVRMLNode building = new BuildingVRMLNode(vertices);
             foreach (Polygon polygon in polygons){
-                ArrayList polyVertices = polygon.getVertices();
                 ArrayList face = polygon.convertToFace(vertices);
                 building.addFace(face);
             }

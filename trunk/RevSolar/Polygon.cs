@@ -644,7 +644,19 @@ namespace test {
                 intersection = new Vertex(tempDirection.x + vertex.GetX(), tempDirection.y + vertex.GetY(), tempDirection.z + vertex.GetZ());
                 //Console.WriteLine("{0} {1} {2}", intersection.GetX(), intersection.GetY(), intersection.GetZ());
                 newVertices.Add(intersection);
-                newVertexDistances.Add(intersection.calcDistance(P));
+
+
+                double tempDistance = intersection.calcDistance(P);
+                Vector newPointDirection = new Vector(intersection.GetX() - P.GetX(), intersection.GetY() - P.GetY(), intersection.GetZ() - P.GetZ());
+                newPointDirection.Normalize();
+                if (newPointDirection.Dot(direction) > 0) {
+                    newVertexDistances.Add(tempDistance);
+                    //newVertexDistances.Add(intersection.calcDistance(P));
+                }
+                else {
+                    newVertexDistances.Add(-tempDistance);
+                }
+
             }
 
             /* Only these cases can appear if operating on a convex polygon

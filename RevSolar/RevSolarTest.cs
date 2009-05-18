@@ -21,53 +21,124 @@ namespace Solar_Envelope_Test {
             RevSolarTest test = new RevSolarTest();
             /* Test Cases: (1,1) (1,2) (1,3) (2,4) (2,5)
              */
-            int bType = BCUBE2;
-            int sType = SCUBE5;
 
+            BuildingVRMLNode bcube1 = test.createCube(test.getBCube1());
+            BuildingVRMLNode bcube2 = test.createCube(test.getBCube2());
+            BuildingVRMLNode bcube3 = test.createCube(test.getBCube3());
+            BuildingVRMLNode scube1 = test.createCube(test.getSCube1());
+            BuildingVRMLNode scube2 = test.createCube(test.getSCube2());
+            BuildingVRMLNode scube3 = test.createCube(test.getSCube3());
+            BuildingVRMLNode scube4 = test.createCube(test.getSCube4());
+            BuildingVRMLNode scube5 = test.createCube(test.getSCube5());
 
-            BuildingVRMLNode initBuilding = new BuildingVRMLNode();
+            BuildingVRMLNode ramp1 = test.getRamp1();
 
-            if (bType == BCUBE1) {
-                // original building cube
-                initBuilding = test.createCube(test.getBCube1());
-            }
-            else if (bType == BCUBE2) {
-                initBuilding = test.createCube(test.getBCube2());
-            }
-            else if (bType == BCUBE3) {
-                initBuilding = test.createCube(test.getBCube3());
-            }
+            BuildingVRMLNode specialCube = test.createSpecialCube(test.specialCube1());
 
+            // BASIC TEST CASES
+            /*
+            BuildingVRMLNode revsolar1 = bcube1.reverseEnvelope(scube1, 1);
+            BuildingVRMLNode revsolar2 = bcube1.reverseEnvelope(scube2, 1);
+            BuildingVRMLNode revsolar3 = bcube1.reverseEnvelope(scube3, 1);
+            BuildingVRMLNode revsolar4 = bcube2.reverseEnvelope(scube4, 1);
+            BuildingVRMLNode revsolar5 = bcube2.reverseEnvelope(scube5, 1);
 
-            /********************
-             * BUILDING THE SHADOW
-             *********************/
-            BuildingVRMLNode shadow = new BuildingVRMLNode();
+            // COMPOUND CASES (2 iterations)
+            BuildingVRMLNode revsolar6 = revsolar4.reverseEnvelope(scube2, 1);
+            BuildingVRMLNode revsolar7 = revsolar5.reverseEnvelope(scube2, 1);
+             */
 
-            if (sType == SCUBE1) {
-                shadow = test.createCube(test.getSCube1());
-            }
-            else if (sType == SCUBE2) {
-                shadow = test.createCube(test.getSCube2());
-            }
-            else if (sType == SCUBE3) {
-                shadow = test.createCube(test.getSCube3());
-            }
-            else if (sType == SCUBE4) {
-                shadow = test.createCube(test.getSCube4());
-            }
-            else if (sType == SCUBE5) {
-                shadow = test.createCube(test.getSCube5());
-            }
+            // RAMP CASES (3 iterations)
 
+            BuildingVRMLNode revsolar8 =  specialCube.reverseEnvelope(ramp1, 2);
+            //BuildingVRMLNode revsolar9 = revsolar6.reverseEnvelope(ramp1, 1);
+            //BuildingVRMLNode revsolar10 = revsolar7.reverseEnvelope(ramp1, 1);
+
+            /*
+            revsolar1.printInfo("revsolar1");
+            revsolar2.printInfo("revsolar2");
+            revsolar3.printInfo("revsolar3");
+            revsolar4.printInfo("revsolar4");
+            revsolar5.printInfo("revsolar5");
+            revsolar6.printInfo("revsolar6");
+            revsolar7.printInfo("revsolar7");
+             */
+            revsolar8.printInfo("revsolar8");
+             
+            //revsolar9.printInfo("revsolar9");
+            //revsolar10.printInfo("revsolar10");
+            //revsolar11.printInfo("revsolar11");
+
+            
+            /*
             BuildingVRMLNode revsolar1 = initBuilding.reverseEnvelope(shadow, 1);
             //BuildingVRMLNode revsolar1 = test.createSpecialCube(test.specialCube1());
             BuildingVRMLNode shadow2 = test.createCube(test.getSCube2());
             BuildingVRMLNode revsolar2 = revsolar1.reverseEnvelope(shadow2, 1);
             //initBuilding.printInfo("building");
             //shadow.printInfo("shadow");
-            revsolar2.printInfo("reverseSolar");
+            //revsolar2.printInfo("reverseSolar");
+            //revsolar2.printInfo("faulttest");
+             
 
+            BuildingVRMLNode revsolar1 = test.createSpecialCube(test.specialCube1());
+            BuildingVRMLNode ramp = test.getRamp1();
+            BuildingVRMLNode revsolar3 = revsolar1.reverseEnvelope(ramp, 1);
+            revsolar3.printInfo("reverseSolar");
+             */
+        }
+
+
+        public BuildingVRMLNode createFaultyCube(ArrayList vertices) {
+
+            BuildingVRMLNode building = new BuildingVRMLNode(vertices);
+
+            ArrayList face1 = new ArrayList();
+            ArrayList face2 = new ArrayList();
+            ArrayList face3 = new ArrayList();
+            ArrayList face4 = new ArrayList();
+            ArrayList face5 = new ArrayList();
+            ArrayList face6 = new ArrayList();
+            ArrayList face7 = new ArrayList();
+            ArrayList face8 = new ArrayList();
+
+            face1.Add(0);
+            face1.Add(1);
+            face1.Add(2);
+            face1.Add(3);
+            //building.addFace(face1);
+
+            face2.Add(7);
+            face2.Add(6);
+            face2.Add(5);
+            face2.Add(4);
+            building.addFace(face2);
+
+            face3.Add(0);
+            face3.Add(4);
+            face3.Add(5);
+            face3.Add(1);
+            building.addFace(face3);
+
+            face4.Add(1);
+            face4.Add(5);
+            face4.Add(6);
+            face4.Add(2);
+            building.addFace(face4);
+
+            face5.Add(2);
+            face5.Add(6);
+            face5.Add(7);
+            face5.Add(3);
+            building.addFace(face5);
+
+            face6.Add(0);
+            face6.Add(3);
+            face6.Add(7);
+            face6.Add(4);
+            building.addFace(face6);
+
+            return building;
         }
 
         public BuildingVRMLNode createCube(ArrayList vertices) {
@@ -440,6 +511,60 @@ namespace Solar_Envelope_Test {
             tempList.Add(s7);
             tempList.Add(s8);
             return tempList;
+        }
+
+
+        public BuildingVRMLNode getRamp1() {
+            Vertex s1 = new Vertex(5, 0, 3);
+            Vertex s2 = new Vertex(5, 0, -1);
+            Vertex s3 = new Vertex(5, 5, -1);
+            Vertex s4 = new Vertex(5, 5, 3);
+            Vertex s5 = new Vertex(-2, 0, -1);
+            Vertex s6 = new Vertex(-2, 5, -1);
+            ArrayList tempList = new ArrayList();
+            tempList.Add(s1);
+            tempList.Add(s2);
+            tempList.Add(s3);
+            tempList.Add(s4);
+            tempList.Add(s5);
+            tempList.Add(s6);
+
+            BuildingVRMLNode building = new BuildingVRMLNode(tempList);
+            ArrayList face1 = new ArrayList();
+            ArrayList face2 = new ArrayList();
+            ArrayList face3 = new ArrayList();
+            ArrayList face4 = new ArrayList();
+            ArrayList face5 = new ArrayList();
+
+            face1.Add(0);
+            face1.Add(1);
+            face1.Add(2);
+            face1.Add(3);
+            building.addFace(face1);
+
+            face2.Add(5);
+            face2.Add(2);
+            face2.Add(1);
+            face2.Add(4);
+            building.addFace(face2);
+
+            face3.Add(3);
+            face3.Add(2);
+            face3.Add(5);
+            building.addFace(face3);
+
+            face4.Add(0);
+            face4.Add(4);
+            face4.Add(1);
+            building.addFace(face4);
+
+            face5.Add(3);
+            face5.Add(5);
+            face5.Add(4);
+            face5.Add(0);
+            building.addFace(face5);
+
+            return building;
         }
 
     }

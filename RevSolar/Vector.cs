@@ -52,5 +52,9 @@ namespace test
             this.z = this.z / magnitude;
 
         }
+
+        public double getMagnitude() {
+            return Math.Sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        }
     }
 }

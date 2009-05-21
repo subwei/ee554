@@ -17,7 +17,7 @@ namespace test
         public const int INSIDE_BOUNDARY = 0;
         public const int OUTSIDE_BOUNDARY = 1;
         public const int ON_BOUNDARY = 2;
-        public const double LIMIT = 1E-8;
+        public const double LIMIT = 1E-6;
 
 		public Vertex():this(0,0,0)
 		{
@@ -159,13 +159,6 @@ namespace test
             adjacentVertices.Clear();
         }
 
-        public double calcDistance(Vertex vertex) {
-            double dx = GetX() - vertex.GetX();
-            double dy = GetY() - vertex.GetY();
-            double dz = GetZ() - vertex.GetZ();
-            return Math.Sqrt(dx * dx + dy * dy + dz * dz);
-        }
-
         public double calcUnsignDistance(Vertex vertex) {
             double dx = GetX() - vertex.GetX();
             double dy = GetY() - vertex.GetY();
@@ -183,6 +176,19 @@ namespace test
             else {
                 return -tempDistance;
             }
+        }
+
+        // returns coordinates of vertex projected onto the line denoted by P and direction vector
+        public Vertex projectOntoLine(Vertex P, Vector direction) {
+
+            Vector tempDirection = new Vector(GetX() - P.GetX(), GetY() - P.GetY(), GetZ() - P.GetZ());
+            double magnitude = tempDirection.getMagnitude();
+            direction.Normalize();
+            tempDirection.Normalize();
+            double cos = direction.Dot(tempDirection);
+            double distance = magnitude * cos;
+            Vertex projectedPoint = new Vertex(P.GetX() + distance * direction.x, P.GetY() + distance * direction.y, P.GetZ() + distance * direction.z);
+            return projectedPoint;
         }
 
         public bool Equals(Vertex vertex) {

@@ -18,7 +18,7 @@ namespace test {
         public const int VERTEX = 1;
         public const int EDGE = 2;
         public const int FACE = 3;
-        public const double LIMIT = 1E-8;
+        public const double LIMIT = 1E-6;
 
         public Segment() {
             startDistance = 0;

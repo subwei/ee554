@@ -84,7 +84,7 @@ namespace test {
                     if (polygonA.isExtentOverlap(objectB)) {
                         foreach (Polygon polygonB in objectB.polygons){
                             /******DEBUG******/
-                            if (true) {
+                            if (false) {
                                 polygonA.printInfo();
                                 polygonB.printInfo();
                                 Console.WriteLine(polygonA.isExtentOverlap(polygonB));
@@ -96,6 +96,7 @@ namespace test {
                                 intersectPolygons.addFace(polygonA.convertToFace(masterVertices));
                                 intersectPolygons.addFace(polygonB.convertToFace(masterVertices));
                                 intersectPolygons.printInfo("intersectPolygons");
+                                 
                                 int blah = 0;
                             }
 
@@ -117,27 +118,9 @@ namespace test {
                                             int blah = 0;
                                         }
 
-                                        /*
                                         segmentA = polygonA.calcSegment(intersectPoint, direction, vertices);
                                         // need to use the shadow's vertices to calculate segment 2
                                         segmentB = polygonB.calcSegment(intersectPoint, direction, objectB.getVertices());
-                                        */
-
-                                        // While the intersection point is inside one of the segments, shift the  point by the direction vector
-                                        // Need this because if the point is between the segments, the distances will be incorrect.
-                                        while (true) {
-                                            // calculate segment for polygonA and polygonB
-                                            segmentA = polygonA.calcSegment(intersectPoint, direction, vertices);
-                                            // need to use the shadow's vertices to calculate segment 2
-                                            segmentB = polygonB.calcSegment(intersectPoint, direction, objectB.getVertices());
-                                            if (!intersectPoint.isBetween(segmentA.getStartVertex(), segmentA.getEndVertex()) &&
-                                                !intersectPoint.isBetween(segmentB.getStartVertex(), segmentB.getEndVertex())) {
-                                                break;
-                                            }
-                                            intersectPoint = new Vertex(intersectPoint.GetX() + direction.x * 10, intersectPoint.GetY() + direction.y * 10, intersectPoint.GetZ() + direction.z * 10);
-                                        }
-
-                                        
 
                                         if (segmentA.overlaps(segmentB)) {
                                             segmentIntersect = segmentA.calcSegmentIntersection(segmentB, vertices, polygonA.getVertices());
@@ -150,7 +133,7 @@ namespace test {
                                                 polygons.Remove(polygonA);
                                                 polygons.AddRange(tempPolygons);
                                                 /******DEBUG******/
-                                                if (true) {
+                                                if (false) {
                                                     
                                                     polygonA.printInfo();
                                                     polygonB.printInfo();
@@ -159,8 +142,8 @@ namespace test {
                                                         tempPolygon.printInfo();
                                                     }
                                                     Console.WriteLine();
-                                                    /*
-
+                                                    
+                                                    
                                                     BuildingVRMLNode newBuilding = this.convertToBuilding(vertices);
                                                     newBuilding.printInfo("newestBuilding");
 
@@ -177,7 +160,7 @@ namespace test {
                                                         testNewPolygons.addFace(tempPolygon.convertToFace(vertices));
                                                     }
                                                     testNewPolygons.printInfo("newPolygons");
-                                                     */
+                                                     
                                                     int blah = 0;
                                                 }
 
@@ -349,7 +332,10 @@ namespace test {
                 if (polygon.getCategory() == Polygon.UNKNOWN) {
                     //polygon.printInfo();
                     polygon.classify(objectB);
-                    //polygon.printInfo();
+                    polygon.printInfo();
+                    polygon.convertToBuilding().printInfo("testPolygon");
+                    int blah = 0;
+                    
                 }
 
                 // MAKE A NEW POLYGON BEFORE ADDING TO THE newPolygon LIST

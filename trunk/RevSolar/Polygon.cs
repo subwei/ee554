@@ -23,7 +23,7 @@ namespace test {
         public const int SAME = 2;      // used to categorize polygon on the boundary of other object with normal vector in same direction
         public const int OPPOSITE = 3;  // used to categorize polygon on the boundary of other object with normal vector in opposite direction
 
-        public const double LIMIT = 1E-12;
+        public const double LIMIT = 1E-6;
 
         public Polygon()
             : this(new ArrayList()) {
@@ -96,12 +96,11 @@ namespace test {
          */
         public void classify(Polyhedron objectB) {
 
+            /*
             printInfo();
             if (((Vertex)vertices[0]).Equals(new Vertex(2, 2, 6))) {
                 int blah = 0;
-            }
-
-
+            }*/
 
             Polygon closestPolygon = null;    // stores the closest polygon to polyA
             Vector ray = normal;
@@ -642,21 +641,20 @@ namespace test {
                 tempDirection.y = (nextVertex.GetY() - vertex.GetY()) * ratio;
                 tempDirection.z = (nextVertex.GetZ() - vertex.GetZ()) * ratio;
                 intersection = new Vertex(tempDirection.x + vertex.GetX(), tempDirection.y + vertex.GetY(), tempDirection.z + vertex.GetZ());
-                //Console.WriteLine("{0} {1} {2}", intersection.GetX(), intersection.GetY(), intersection.GetZ());
+
+                /*
+                tempDirection = new Vector(nextVertex.GetX() - vertex.GetX(), nextVertex.GetY() - vertex.GetY(), nextVertex.GetZ() - vertex.GetZ());
+                // Need to project intersection onto the line to reduce error propagation
+                Vertex projectedPoint = intersection.projectOntoLine(vertex, tempDirection);
+                if (!projectedPoint.Equals(intersection)) {
+                    int blah = 0;
+                }
+                newVertices.Add(projectedPoint);
+                newVertexDistances.Add(projectedPoint.calcSignDistance(P, direction));
+                 */
+                 
                 newVertices.Add(intersection);
-
-
-                double tempDistance = intersection.calcDistance(P);
-                Vector newPointDirection = new Vector(intersection.GetX() - P.GetX(), intersection.GetY() - P.GetY(), intersection.GetZ() - P.GetZ());
-                newPointDirection.Normalize();
-                if (newPointDirection.Dot(direction) > 0) {
-                    newVertexDistances.Add(tempDistance);
-                    //newVertexDistances.Add(intersection.calcDistance(P));
-                }
-                else {
-                    newVertexDistances.Add(-tempDistance);
-                }
-
+                newVertexDistances.Add(intersection.calcSignDistance(P, direction));
             }
 
             /* Only these cases can appear if operating on a convex polygon
@@ -674,7 +672,7 @@ namespace test {
             }
             else if (pointsOnLine.Count == 1) {
 
-                double dist = ((Vertex)vertices[((int)pointsOnLine[0])]).calcDistance(P);
+                double dist = ((Vertex)vertices[((int)pointsOnLine[0])]).calcSignDistance(P,direction);
 
                 // if no new vertices, then it means VVV
                 if (newVertexDistances.Count == 0) {
@@ -712,8 +710,8 @@ namespace test {
                 }
             }
             else if (pointsOnLine.Count == 2) {
-                double dist0 = ((Vertex)vertices[((int)pointsOnLine[0])]).calcDistance(P);
-                double dist1 = ((Vertex)vertices[((int)pointsOnLine[1])]).calcDistance(P);
+                double dist0 = ((Vertex)vertices[((int)pointsOnLine[0])]).calcSignDistance(P, direction);
+                double dist1 = ((Vertex)vertices[((int)pointsOnLine[1])]).calcSignDistance(P, direction);
 
                 startDescriptor = Segment.VERTEX;
                 startDistance = dist0;
@@ -946,8 +944,11 @@ namespace test {
 
             if (newPolygons != null) {
                 foreach (Polygon p in newPolygons) {
-                    if (p.getVertex(0).Equals(new Vertex(4, 2, 2)) && p.getVertex(p.getVertices().Count - 1).Equals(new Vertex(4, 2, 2.5))) {
-                        int blah = 0;
+                    if (p.getVertices().Count > 3) {
+
+                        if (p.getVertex(0).Equals(new Vertex(1.5, 1.25, 1)) && p.getVertex(2).Equals(new Vertex(5, 5, 3))) {
+                            int blah = 0;
+                        }
                     }
                 }
             }
@@ -1089,6 +1090,16 @@ namespace test {
             foreach (Vertex v in vertices) {
                 v.printInfo();
             }
+        }
+
+        public BuildingVRMLNode convertToBuilding() {
+            BuildingVRMLNode newBuilding = new BuildingVRMLNode(vertices);
+            ArrayList face = new ArrayList();
+            for (int x = 0; x < vertices.Count; x++) {
+                face.Add(x);
+            }
+            newBuilding.addFace(face);
+            return newBuilding;
         }
     }
 }

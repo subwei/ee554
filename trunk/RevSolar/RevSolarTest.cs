@@ -30,62 +30,54 @@ namespace Solar_Envelope_Test {
             BuildingVRMLNode scube3 = test.createCube(test.getSCube3());
             BuildingVRMLNode scube4 = test.createCube(test.getSCube4());
             BuildingVRMLNode scube5 = test.createCube(test.getSCube5());
-
             BuildingVRMLNode ramp1 = test.getRamp1();
-
             BuildingVRMLNode specialCube = test.createSpecialCube(test.specialCube1());
 
-            // BASIC TEST CASES
-            /*
-            BuildingVRMLNode revsolar1 = bcube1.reverseEnvelope(scube1, 1);
-            BuildingVRMLNode revsolar2 = bcube1.reverseEnvelope(scube2, 1);
-            BuildingVRMLNode revsolar3 = bcube1.reverseEnvelope(scube3, 1);
-            BuildingVRMLNode revsolar4 = bcube2.reverseEnvelope(scube4, 1);
-            BuildingVRMLNode revsolar5 = bcube2.reverseEnvelope(scube5, 1);
+            if (true) {
+                BuildingVRMLNode btest = test.getBuildingTest();
+                BuildingVRMLNode stest = test.getShadowTest();
 
-            // COMPOUND CASES (2 iterations)
-            BuildingVRMLNode revsolar6 = revsolar4.reverseEnvelope(scube2, 1);
-            BuildingVRMLNode revsolar7 = revsolar5.reverseEnvelope(scube2, 1);
-             */
+                //btest.printInfo("buildingtest");
+                //stest.printInfo("stest");
+                BuildingVRMLNode final = btest.reverseEnvelope(stest, 1);
+                final.printInfo("final");
+            }
+            else {
 
-            // RAMP CASES (3 iterations)
+                // BASIC TEST CASES
+                
+                BuildingVRMLNode revsolar1 = bcube1.reverseEnvelope(scube1, 1);
+                BuildingVRMLNode revsolar2 = bcube1.reverseEnvelope(scube2, 1);
+                BuildingVRMLNode revsolar3 = bcube1.reverseEnvelope(scube3, 1);
+                BuildingVRMLNode revsolar4 = bcube2.reverseEnvelope(scube4, 1);
+                BuildingVRMLNode revsolar5 = bcube2.reverseEnvelope(scube5, 1);
 
-            BuildingVRMLNode revsolar8 =  specialCube.reverseEnvelope(ramp1, 2);
-            //BuildingVRMLNode revsolar9 = revsolar6.reverseEnvelope(ramp1, 1);
-            //BuildingVRMLNode revsolar10 = revsolar7.reverseEnvelope(ramp1, 1);
+                // COMPOUND CASES (2 iterations)
+                BuildingVRMLNode revsolar6 = revsolar4.reverseEnvelope(scube2, 1);
+                BuildingVRMLNode revsolar7 = revsolar5.reverseEnvelope(scube2, 1);
 
-            /*
-            revsolar1.printInfo("revsolar1");
-            revsolar2.printInfo("revsolar2");
-            revsolar3.printInfo("revsolar3");
-            revsolar4.printInfo("revsolar4");
-            revsolar5.printInfo("revsolar5");
-            revsolar6.printInfo("revsolar6");
-            revsolar7.printInfo("revsolar7");
-             */
-            revsolar8.printInfo("revsolar8");
+                
+                // RAMP CASES (3 iterations)
+
+                BuildingVRMLNode revsolar8 = specialCube.reverseEnvelope(ramp1, 1);
+                //BuildingVRMLNode revsolar9 = revsolar6.reverseEnvelope(ramp1, 1);
+                //BuildingVRMLNode revsolar10 = revsolar7.reverseEnvelope(ramp1, 1);
+
+
+                /*revsolar1.printInfo("revsolar1");
+                revsolar2.printInfo("revsolar2");
+                revsolar3.printInfo("revsolar3");
+                revsolar4.printInfo("revsolar4");
+                revsolar5.printInfo("revsolar5");
+                revsolar6.printInfo("revsolar6");
+                revsolar7.printInfo("revsolar7");*/
+                revsolar8.printInfo("revsolar8");
+                //revsolar9.printInfo("revsolar9");
+                specialCube.printInfo("special");
+                //revsolar10.printInfo("revsolar10");
+                //revsolar11.printInfo("revsolar11");
+            }
              
-            //revsolar9.printInfo("revsolar9");
-            //revsolar10.printInfo("revsolar10");
-            //revsolar11.printInfo("revsolar11");
-
-            
-            /*
-            BuildingVRMLNode revsolar1 = initBuilding.reverseEnvelope(shadow, 1);
-            //BuildingVRMLNode revsolar1 = test.createSpecialCube(test.specialCube1());
-            BuildingVRMLNode shadow2 = test.createCube(test.getSCube2());
-            BuildingVRMLNode revsolar2 = revsolar1.reverseEnvelope(shadow2, 1);
-            //initBuilding.printInfo("building");
-            //shadow.printInfo("shadow");
-            //revsolar2.printInfo("reverseSolar");
-            //revsolar2.printInfo("faulttest");
-             
-
-            BuildingVRMLNode revsolar1 = test.createSpecialCube(test.specialCube1());
-            BuildingVRMLNode ramp = test.getRamp1();
-            BuildingVRMLNode revsolar3 = revsolar1.reverseEnvelope(ramp, 1);
-            revsolar3.printInfo("reverseSolar");
-             */
         }
 
 
@@ -565,6 +557,251 @@ namespace Solar_Envelope_Test {
             building.addFace(face5);
 
             return building;
+        }
+
+        public BuildingVRMLNode getShadowTest() {
+
+            ArrayList vertices = new ArrayList();
+            Vertex v01 = new Vertex(381184, 3765505, -22);
+            vertices.Add(v01);
+            Vertex v02 = new Vertex(381184, 3765505, -32);
+            vertices.Add(v02);
+            Vertex v03 = new Vertex(381172, 3765482, -22);
+            vertices.Add(v03);
+            Vertex v04 = new Vertex(381172, 3765482, -32);
+            vertices.Add(v04);
+            Vertex v05 = new Vertex(381122, 3765510, -22);
+            vertices.Add(v05);
+            Vertex v06 = new Vertex(381122, 3765510, -32);
+            vertices.Add(v06);
+            Vertex v07 = new Vertex(381134, 3765533, -22);
+            vertices.Add(v07);
+            Vertex v08 = new Vertex(381134, 3765533, -32);
+            vertices.Add(v08);
+            Vertex v09 = new Vertex(381104.52801378, 3765543.11772407, -36);
+            vertices.Add(v09);
+            Vertex v10 = new Vertex(381092.487807574, 3765520.04066218, -36);
+            vertices.Add(v10);
+            Vertex v11 = new Vertex(381154.695539636, 3765515.02390959, -36);
+            vertices.Add(v11);
+            Vertex v12 = new Vertex(381142.65533343, 3765491.9468477, -36);
+            vertices.Add(v12);
+            Vertex v13 = new Vertex(381175.647286973, 3765507.8571364, -36);
+            vertices.Add(v13);
+            Vertex v14 = new Vertex(381163.635826912, 3765484.83517128, -36);
+            vertices.Add(v14);
+            Vertex v15 = new Vertex(381125.59953672, 3765535.88387654, -36);
+            vertices.Add(v15);
+            BuildingVRMLNode temp4 = new BuildingVRMLNode(vertices);
+            ArrayList face01 = new ArrayList();
+            face01.Add(6);
+            face01.Add(4);
+            face01.Add(2);
+            face01.Add(0);
+            temp4.addFace(face01);
+
+            ArrayList face02 = new ArrayList();
+            face02.Add(4);
+            face02.Add(6);
+            face02.Add(8);
+            face02.Add(9);
+            temp4.addFace(face02);
+
+            ArrayList face03 = new ArrayList();
+            face03.Add(6);
+            face03.Add(0);
+            face03.Add(10);
+            face03.Add(8);
+            temp4.addFace(face03);
+
+            ArrayList face04 = new ArrayList();
+            face04.Add(0);
+            face04.Add(2);
+            face04.Add(11);
+            face04.Add(10);
+            temp4.addFace(face04);
+
+            ArrayList face05 = new ArrayList();
+            face05.Add(2);
+            face05.Add(4);
+            face05.Add(9);
+            face05.Add(11);
+            temp4.addFace(face05);
+
+            ArrayList face06 = new ArrayList();
+            face06.Add(2);
+            face06.Add(3);
+            face06.Add(1);
+            face06.Add(0);
+            temp4.addFace(face06);
+
+            ArrayList face07 = new ArrayList();
+            face07.Add(4);
+            face07.Add(6);
+            face07.Add(8);
+            face07.Add(9);
+            temp4.addFace(face07);
+
+            ArrayList face08 = new ArrayList();
+            face08.Add(6);
+            face08.Add(0);
+            face08.Add(10);
+            face08.Add(8);
+            temp4.addFace(face08);
+
+            ArrayList face09 = new ArrayList();
+            face09.Add(0);
+            face09.Add(1);
+            face09.Add(12);
+            face09.Add(10);
+            temp4.addFace(face09);
+
+            ArrayList face10 = new ArrayList();
+            face10.Add(1);
+            face10.Add(3);
+            face10.Add(13);
+            face10.Add(12);
+            temp4.addFace(face10);
+
+            ArrayList face11 = new ArrayList();
+            face11.Add(3);
+            face11.Add(2);
+            face11.Add(11);
+            face11.Add(13);
+            temp4.addFace(face11);
+
+            ArrayList face12 = new ArrayList();
+            face12.Add(2);
+            face12.Add(4);
+            face12.Add(9);
+            face12.Add(11);
+            temp4.addFace(face12);
+
+            ArrayList face13 = new ArrayList();
+            face13.Add(0);
+            face13.Add(1);
+            face13.Add(7);
+            face13.Add(6);
+            temp4.addFace(face13);
+
+            ArrayList face14 = new ArrayList();
+            face14.Add(4);
+            face14.Add(6);
+            face14.Add(8);
+            face14.Add(9);
+            temp4.addFace(face14);
+
+            ArrayList face15 = new ArrayList();
+            face15.Add(6);
+            face15.Add(7);
+            face15.Add(14);
+            face15.Add(8);
+            temp4.addFace(face15);
+
+            ArrayList face16 = new ArrayList();
+            face16.Add(7);
+            face16.Add(1);
+            face16.Add(12);
+            face16.Add(14);
+            temp4.addFace(face16);
+
+            ArrayList face17 = new ArrayList();
+            face17.Add(1);
+            face17.Add(3);
+            face17.Add(13);
+            face17.Add(12);
+            temp4.addFace(face17);
+
+            ArrayList face18 = new ArrayList();
+            face18.Add(3);
+            face18.Add(2);
+            face18.Add(11);
+            face18.Add(13);
+            temp4.addFace(face18);
+
+            ArrayList face19 = new ArrayList();
+            face19.Add(2);
+            face19.Add(4);
+            face19.Add(9);
+            face19.Add(11);
+            temp4.addFace(face19);
+
+            ArrayList face20 = new ArrayList();
+            face20.Add(9);
+            face20.Add(8);
+            face20.Add(10);
+            face20.Add(11);
+            face20.Add(12);
+            face20.Add(13);
+            face20.Add(14);
+            temp4.addFace(face20);
+
+            return temp4;
+        }
+
+        public BuildingVRMLNode getBuildingTest() {
+
+            ArrayList vertices = new ArrayList();
+            Vertex v01 = new Vertex(381074.676981519, 3765531.23075329, 14.1);
+            vertices.Add(v01);
+            Vertex v02 = new Vertex(381117.288085574, 3765531.23075329, 14.1);
+            vertices.Add(v02);
+            Vertex v03 = new Vertex(381117.288085574, 3765490.31378404, 14.1);
+            vertices.Add(v03);
+            Vertex v04 = new Vertex(381074.676981519, 3765490.31378404, 14.1);
+            vertices.Add(v04);
+            Vertex v05 = new Vertex(381074.676981519, 3765531.23075329, -35.9);
+            vertices.Add(v05);
+            Vertex v06 = new Vertex(381117.288085574, 3765531.23075329, -35.9);
+            vertices.Add(v06);
+            Vertex v07 = new Vertex(381117.288085574, 3765490.31378404, -35.9);
+            vertices.Add(v07);
+            Vertex v08 = new Vertex(381074.676981519, 3765490.31378404, -35.9);
+            vertices.Add(v08);
+            BuildingVRMLNode temp4 = new BuildingVRMLNode(vertices);
+            ArrayList face01 = new ArrayList();
+            face01.Add(3);
+            face01.Add(2);
+            face01.Add(1);
+            face01.Add(0);
+            temp4.addFace(face01);
+
+            ArrayList face02 = new ArrayList();
+            face02.Add(7);
+            face02.Add(6);
+            face02.Add(5);
+            face02.Add(4);
+            temp4.addFace(face02);
+
+            ArrayList face03 = new ArrayList();
+            face03.Add(1);
+            face03.Add(5);
+            face03.Add(4);
+            face03.Add(0);
+            temp4.addFace(face03);
+
+            ArrayList face04 = new ArrayList();
+            face04.Add(2);
+            face04.Add(6);
+            face04.Add(5);
+            face04.Add(1);
+            temp4.addFace(face04);
+
+            ArrayList face05 = new ArrayList();
+            face05.Add(3);
+            face05.Add(7);
+            face05.Add(6);
+            face05.Add(2);
+            temp4.addFace(face05);
+
+            ArrayList face06 = new ArrayList();
+            face06.Add(0);
+            face06.Add(4);
+            face06.Add(7);
+            face06.Add(3);
+            temp4.addFace(face06);
+
+            return temp4;
         }
 
     }

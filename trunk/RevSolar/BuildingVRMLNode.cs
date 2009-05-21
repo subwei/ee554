@@ -813,7 +813,11 @@ namespace test {
              */
 
             tempBuilding.subDivide(tempShadow);
+            //BuildingVRMLNode t = tempBuilding.convertToBuilding(tempBuilding.getVertices());
+            //t.printInfo("tempBuilding");
             tempShadow.subDivide(tempBuilding);
+            //BuildingVRMLNode s = tempBuilding.convertToBuilding(tempBuilding.getVertices());
+            //s.printInfo("tempShadow");
             tempBuilding.subDivide(tempShadow);
 
 
@@ -946,24 +950,6 @@ namespace test {
 
             // close the stream
             tw.Close();
-
-            /*
-            int face_num = 1;
-            Console.WriteLine("\n\nVertices");
-            for (int x = 0; x < vertices.Count; x++) {
-                ((Vertex)vertices[x]).printInfo();
-            }
-
-            for (int y = 0; y < faces.Count; y++) {
-                Console.WriteLine("Face: {0}", face_num);
-                face_num++;
-                ArrayList face = (ArrayList)faces[y];
-                for (int x = 0; x < face.Count; x++) {
-                    Vertex v1 = (Vertex)vertices[(int)face[x]];
-                    Console.WriteLine("{0}:  {1} {2} {3}", (int)face[x], v1.GetX(), v1.GetY(), v1.GetZ());
-                }
-            }
-            */
 
         }
 

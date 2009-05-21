@@ -259,7 +259,7 @@ namespace test {
             vert1.Add(newEndVertex);
 
             // create 2nd polygon.  Topleft polygon
-            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint()) + 1 == polyVertices.Count) {
+            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint()) + 1 >= polyVertices.Count) {
                 startIndex = 0;
             }
             else {
@@ -271,7 +271,7 @@ namespace test {
 
             // create 3rd polygon.  rightmost polygon if right is edge. topRight polygon if right is vertex.
             startIndex = mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint());
-            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint()) + 1 == polyVertices.Count) {
+            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint()) + 1 >= polyVertices.Count) {
                 endIndex = 0;
             }
             else {
@@ -316,7 +316,7 @@ namespace test {
             vert1.Add(newStartVertex);
 
             // create 2nd polygon.  Topleft polygon
-            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint()) + 1 == polyVertices.Count) {
+            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint()) + 1 >= polyVertices.Count) {
                 startIndex = 0;
             }
             else {
@@ -328,7 +328,7 @@ namespace test {
 
             // create 3rd polygon.  rightmost polygon if right is edge. topRight polygon if right is vertex.
             startIndex = mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint());
-            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint()) + 1 == polyVertices.Count) {
+            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint()) + 1 >= polyVertices.Count) {
                 endIndex = 0;
             }
             else {
@@ -426,7 +426,7 @@ namespace test {
             vert1.Add(newStartVertex);
 
             // create 2nd polygon.  topLeft polygon
-            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint()) + 1 == polyVertices.Count) {
+            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint()) + 1 >= polyVertices.Count) {
                 startIndex = 0;
             }
             else {
@@ -440,7 +440,7 @@ namespace test {
 
             // create 3rd polygon.  rightmost polygon if right is edge. topRight polygon if right is vertex.
             startIndex = mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint());
-            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint()) + 1 == polyVertices.Count) {
+            if (mapIndex(objectVertices, polyVertices, segmentIntersection.getEndPoint()) + 1 >= polyVertices.Count) {
                 endIndex = 0;
             }
             else {
@@ -495,10 +495,10 @@ namespace test {
             }
             else {
                 if (mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint()) - 1 < 0) {
-                    startIndex = polyVertices.Count - 1;
+                    endIndex = polyVertices.Count - 1;
                 }
                 else {
-                    startIndex = mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint());
+                    endIndex = mapIndex(objectVertices, polyVertices, segmentIntersection.getStartPoint() - 1);
                 }
             }
 

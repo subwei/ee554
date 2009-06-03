@@ -17,7 +17,8 @@ namespace test
         public const int INSIDE_BOUNDARY = 0;
         public const int OUTSIDE_BOUNDARY = 1;
         public const int ON_BOUNDARY = 2;
-        public const double LIMIT = 1E-6;
+        public const double EQUALITY_LIMIT = 1E-6;
+        public const double ZERO_LIMIT = 1E-6;
 
 		public Vertex():this(0,0,0)
 		{
@@ -192,9 +193,9 @@ namespace test
         }
 
         public bool Equals(Vertex vertex) {
-            return (Math.Abs(vertex.GetX() - GetX()) < LIMIT &&
-                    Math.Abs(vertex.GetY() - GetY()) < LIMIT &&
-                    Math.Abs(vertex.GetZ() - GetZ()) < LIMIT);
+            return (Math.Abs(vertex.GetX() - GetX()) < EQUALITY_LIMIT &&
+                    Math.Abs(vertex.GetY() - GetY()) < EQUALITY_LIMIT &&
+                    Math.Abs(vertex.GetZ() - GetZ()) < EQUALITY_LIMIT);
         }
 
         public int getState() {

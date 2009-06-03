@@ -22,7 +22,6 @@ namespace test {
         public const int OUTSIDE = 1;    // used to categorize polygon inside of other object
         public const int SAME = 2;      // used to categorize polygon on the boundary of other object with normal vector in same direction
         public const int OPPOSITE = 3;  // used to categorize polygon on the boundary of other object with normal vector in opposite direction
-
         public const double LIMIT = 1E-6;
 
         public Polygon()
@@ -126,14 +125,14 @@ namespace test {
                         distance = polygonB.calcDistance(barycenter);
 
                         // ray is inside polygon so perturb the ray
-                        if (Math.Abs(dot) < LIMIT && Math.Abs(distance) < LIMIT) {
+                        if (Math.Abs(dot) < Vertex.ZERO_LIMIT && Math.Abs(distance) < Vertex.ZERO_LIMIT) {
                             // cast unsuccessful, leave loop and perturb
                             castSuccess = false;
                             ray = perturb(ray);
                             break;
                         }
                         // barycenter lies in plane of polygon
-                        else if (Math.Abs(dot) > LIMIT && Math.Abs(distance) < LIMIT) {
+                        else if (Math.Abs(dot) > Vertex.ZERO_LIMIT && Math.Abs(distance) < Vertex.ZERO_LIMIT) {
                             // if barycenter is inside the polygon.  Note:  SAME means the barycenter lies on the bo
                             if (polygonB.encompassesVertex(barycenter) == Polygon.INSIDE || polygonB.encompassesVertex(barycenter) == Polygon.SAME) {
                                 closestPolygon = polygonB;
@@ -142,8 +141,8 @@ namespace test {
                             }
                         }
                         // check if the ray intersects
-                        // deviates from the paper Math.Abs(dot)> LIMIT
-                        else if (dot > LIMIT && distance < -LIMIT) {
+                        // deviates from the paper Math.Abs(dot)> Vertex.ZERO_LIMIT
+                        else if (dot > Vertex.ZERO_LIMIT && distance < -Vertex.ZERO_LIMIT) {
 
                             if (Math.Abs(distance) < Math.Abs(closestDistance) && polygonB.isExtentOverlap(intersectPoint)) {
 
@@ -170,18 +169,18 @@ namespace test {
                 dot = ray.Dot(closestPolygon.getNormal());
                 distance = closestPolygon.calcDistance(barycenter);
 
-                if (Math.Abs(distance) < LIMIT) {
-                    if (dot > LIMIT) {
+                if (Math.Abs(distance) < Vertex.ZERO_LIMIT) {
+                    if (dot > Vertex.ZERO_LIMIT) {
                         category = Polygon.SAME;
                     }
-                    else if (dot < -LIMIT) {
+                    else if (dot < -Vertex.ZERO_LIMIT) {
                         category = Polygon.OPPOSITE;
                     }
                 }
-                else if (dot > LIMIT) {
+                else if (dot > Vertex.ZERO_LIMIT) {
                     category = Polygon.INSIDE;
                 }
-                else if (dot < -LIMIT) {
+                else if (dot < -Vertex.ZERO_LIMIT) {
                     category = Polygon.OUTSIDE;
                 }
             }
@@ -196,10 +195,10 @@ namespace test {
             double Ry = 0;
             double Rz = 0;
 
-            //if line is paralel to the plane
-            if (Math.Abs(denominator) < LIMIT) {
+            //if line is parallel to the plane
+            if (Math.Abs(denominator) < Vertex.ZERO_LIMIT) {
                 //if line is in the plane
-                if (Math.Abs(numerator) < LIMIT) {
+                if (Math.Abs(numerator) < Vertex.ZERO_LIMIT) {
                     return barycenter;
                 }
                 else {
@@ -327,11 +326,11 @@ namespace test {
                 arbiter = (modVertex.GetY() - v0.GetY()) * (v1.GetX() - v0.GetX()) -
                             (modVertex.GetX() - v0.GetX()) * (v1.GetY() - v0.GetY());
                 // point is to the right of the segment
-                if (arbiter < -LIMIT) {
+                if (arbiter < -Vertex.ZERO_LIMIT) {
                     numRight++;
                 }
                 // point is to the left of the segment
-                else if (arbiter > LIMIT) {
+                else if (arbiter > Vertex.ZERO_LIMIT) {
                     numLeft++;
                 }
                 else if (BuildingVRMLNode.checkbetween(v0, v1, modVertex)) {  // point is on edge
@@ -385,7 +384,7 @@ namespace test {
         // returns a direction vector slightly shifted.
         public Vector perturb(Vector v) {
             Random rand = new Random();
-            return new Vector(v.x + LIMIT * (rand.NextDouble() + 1), v.y + LIMIT * (rand.NextDouble() + 1), v.z + LIMIT * (rand.NextDouble() + 1));
+            return new Vector(v.x + Vertex.ZERO_LIMIT * (rand.NextDouble() + 1), v.y + Vertex.ZERO_LIMIT * (rand.NextDouble() + 1), v.z + Vertex.ZERO_LIMIT * (rand.NextDouble() + 1));
         }
 
         public void calcNormal() {
@@ -527,18 +526,34 @@ namespace test {
             return distance;
         }
 
-        // returns true if distances are not mixed (not all +/-/0).  This indicates the polygons may overlap
+        // returns true if distances are not mixed.  This indicates the polygons may overlap
         public bool doesOverlap(Polygon polygonB) {
+            int positiveCount = 0;
+            int negativeCount = 0;
+            int zeroCount = 0;
             calcDistances(polygonB);
-            if (distances.Count > 0) {
-                bool isSame = (double)distances[0] < -LIMIT;
-                foreach (double distance in distances) {
-                    if ((distance >= -LIMIT) == isSame) {
-                        return true;
-                    }
+
+            bool newest = false;
+
+            foreach (double distance in distances) {
+                if (Math.Abs(distance) <= Vertex.ZERO_LIMIT) {
+                    zeroCount++;
+                }
+                else if (distance < -Vertex.ZERO_LIMIT) {
+                    negativeCount++;
+                }
+                else {
+                    positiveCount++;
                 }
             }
-            return false;
+
+            if (distances.Count == 0) {
+                return false;
+            }
+            else {
+                // if all distances are 0 (coplanar) or all positive or all negative, then return false( doesn't overlap)
+                return (!(zeroCount == distances.Count || negativeCount == distances.Count || positiveCount == distances.Count));
+            }
         }
 
         // converts all vertices to new vertices with respect to the masterVertices list
@@ -592,7 +607,7 @@ namespace test {
              * This is a Vertex start or endpoint.
              */
             for (int x = 0; x < distances.Count; x++) {
-                if (Math.Abs((double)distances[x]) < LIMIT) {
+                if (Math.Abs((double)distances[x]) < Vertex.ZERO_LIMIT) {
                     pointsOnLine.Add(x);
                 }
             }
@@ -602,18 +617,18 @@ namespace test {
              */
             for (int x = 0; x < distances.Count; x++) {
                 if (x == distances.Count - 1) {
-                    if ((double)distances[x] < -LIMIT && (double)distances[0] > LIMIT) {
+                    if ((double)distances[x] < -Vertex.ZERO_LIMIT && (double)distances[0] > Vertex.ZERO_LIMIT) {
                         indexSignChange.Add(x);
                     }
-                    else if ((double)distances[x] > LIMIT && (double)distances[0] < -LIMIT) {
+                    else if ((double)distances[x] > Vertex.ZERO_LIMIT && (double)distances[0] < -Vertex.ZERO_LIMIT) {
                         indexSignChange.Add(x);
                     }
                 }
                 else {
-                    if ((double)distances[x] < -LIMIT && (double)distances[x + 1] > LIMIT) {
+                    if ((double)distances[x] < -Vertex.ZERO_LIMIT && (double)distances[x + 1] > Vertex.ZERO_LIMIT) {
                         indexSignChange.Add(x);
                     }
-                    else if ((double)distances[x] > LIMIT && (double)distances[x + 1] < -LIMIT) {
+                    else if ((double)distances[x] > Vertex.ZERO_LIMIT && (double)distances[x + 1] < -Vertex.ZERO_LIMIT) {
                         indexSignChange.Add(x);
                     }
                 }
@@ -652,7 +667,7 @@ namespace test {
                 newVertices.Add(projectedPoint);
                 newVertexDistances.Add(projectedPoint.calcSignDistance(P, direction));
                  */
-                 
+
                 newVertices.Add(intersection);
                 newVertexDistances.Add(intersection.calcSignDistance(P, direction));
             }
@@ -672,7 +687,7 @@ namespace test {
             }
             else if (pointsOnLine.Count == 1) {
 
-                double dist = ((Vertex)vertices[((int)pointsOnLine[0])]).calcSignDistance(P,direction);
+                double dist = ((Vertex)vertices[((int)pointsOnLine[0])]).calcSignDistance(P, direction);
 
                 // if no new vertices, then it means VVV
                 if (newVertexDistances.Count == 0) {
@@ -976,7 +991,7 @@ namespace test {
                             return true;
                         }
                     }
-                    else if (x == vertices.Count-1) {
+                    else if (x == vertices.Count - 1) {
                         if (((Vertex)vertices[0]).Equals(endVertex) || ((Vertex)vertices[x - 1]).Equals(endVertex)) {
                             return true;
                         }

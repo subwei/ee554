@@ -851,9 +851,9 @@ namespace test {
             //newPolyhedron.printInfo();
             newPolyhedron.reset();
 
-            BuildingVRMLNode newBuilding = newPolyhedron.convertToBuilding(vertices);
-            BuildingVRMLNode bBuilding = tempBuilding.convertToBuilding(vertices);
-            BuildingVRMLNode bShadow = tempShadow.convertToBuilding(tempBuilding.getVertices());
+            BuildingVRMLNode newBuilding = newPolyhedron.convertToBuilding();
+            BuildingVRMLNode bBuilding = tempBuilding.convertToBuilding();
+            BuildingVRMLNode bShadow = tempShadow.convertToBuilding();
             //BuildingVRMLNode newShadow = tempShadow.convertToBuilding();
             if (passNum == 1) {
                 return newBuilding;

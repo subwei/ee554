@@ -133,7 +133,7 @@ namespace test {
                                                 polygons.Remove(polygonA);
                                                 polygons.AddRange(tempPolygons);
                                                 /******DEBUG******/
-                                                if (false) {
+                                                if (true) {
                                                     
                                                     polygonA.printInfo();
                                                     polygonB.printInfo();
@@ -144,7 +144,7 @@ namespace test {
                                                     Console.WriteLine();
                                                     
                                                     
-                                                    BuildingVRMLNode newBuilding = this.convertToBuilding(vertices);
+                                                    BuildingVRMLNode newBuilding = this.convert();
                                                     newBuilding.printInfo("newestBuilding");
 
                                                     ArrayList masterVertices = new ArrayList(vertices);
@@ -201,12 +201,12 @@ namespace test {
 
             //getting a line point, zero is set to a coordinate whose direction 
             //component isn't zero (line intersecting its origin plan)
-            if (Math.Abs(direction.x) > 0) {
+            if (Math.Abs(direction.x) > Vertex.ZERO_LIMIT) {
                 x = 0;
                 y = (d2 * normalA.z - d1 * normalB.z) / direction.x;
                 z = (d1 * normalB.y - d2 * normalA.y) / direction.x;
             }
-            else if (Math.Abs(direction.y) > 0) {
+            else if (Math.Abs(direction.y) > Vertex.ZERO_LIMIT) {
                 x = (d1 * normalB.z - d2 * normalA.z) / direction.y;
                 y = 0;
                 z = (d2 * normalA.x - d1 * normalB.x) / direction.y;
@@ -368,7 +368,16 @@ namespace test {
             }
         }
 
-        public BuildingVRMLNode convertToBuilding(ArrayList otherList) {
+        public BuildingVRMLNode convert() {
+            BuildingVRMLNode building = new BuildingVRMLNode(vertices);
+            foreach (Polygon polygon in polygons) {
+                ArrayList face = polygon.convertToFace(vertices);
+                building.addFace(face);
+            }
+            return building;
+        }
+
+        public BuildingVRMLNode convertToBuilding() {
             // Clear all information stored in the vertices list
             foreach (Vertex v in vertices) {
                 v.clearAdjacentList();

@@ -33,7 +33,7 @@ namespace Solar_Envelope_Test {
             BuildingVRMLNode ramp1 = test.getRamp1();
             BuildingVRMLNode specialCube = test.createSpecialCube(test.specialCube1());
 
-            if (true) {
+            if (false) {
                 BuildingVRMLNode btest = test.getBuildingTest();
                 BuildingVRMLNode stest = test.getShadowTest();
 
@@ -60,20 +60,21 @@ namespace Solar_Envelope_Test {
                 // RAMP CASES (3 iterations)
 
                 BuildingVRMLNode revsolar8 = specialCube.reverseEnvelope(ramp1, 1);
+                revsolar6.printInfo("rev6");
                 //BuildingVRMLNode revsolar9 = revsolar6.reverseEnvelope(ramp1, 1);
                 //BuildingVRMLNode revsolar10 = revsolar7.reverseEnvelope(ramp1, 1);
 
 
-                /*revsolar1.printInfo("revsolar1");
+                revsolar1.printInfo("revsolar1");
                 revsolar2.printInfo("revsolar2");
                 revsolar3.printInfo("revsolar3");
                 revsolar4.printInfo("revsolar4");
                 revsolar5.printInfo("revsolar5");
                 revsolar6.printInfo("revsolar6");
-                revsolar7.printInfo("revsolar7");*/
+                revsolar7.printInfo("revsolar7");
                 revsolar8.printInfo("revsolar8");
                 //revsolar9.printInfo("revsolar9");
-                specialCube.printInfo("special");
+                //specialCube.printInfo("special");
                 //revsolar10.printInfo("revsolar10");
                 //revsolar11.printInfo("revsolar11");
             }
